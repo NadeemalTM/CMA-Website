@@ -69,6 +69,7 @@ const FeedbacksAdminPage = lazy(() => import('./pages/admin/FeedbacksAdminPage')
 const CitizenSubmissionsAdminPage = lazy(() => import('./pages/admin/CitizenSubmissionsAdminPage'));
 const BookingsAdminPage = lazy(() => import('./pages/admin/BookingsAdminPage'));
 const BungalowRoomsAdminPage = lazy(() => import('./pages/admin/BungalowRoomsAdminPage'));
+const StaffAdminPage = lazy(() => import('./pages/admin/StaffAdminPage'));
 
 
 function LoadingFallback() {
@@ -141,6 +142,7 @@ export default function App() {
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="leadership" element={<LeadersAdminPage />} />
+              <Route path="staff" element={<StaffAdminPage />} />
               <Route path="hero-slides" element={<HeroSlidesAdminPage />} />
               <Route path="news" element={<NewsAdminPage />} />
               <Route path="announcements" element={<AnnouncementsAdminPage />} />

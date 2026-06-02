@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\{HeroSlide, Leader, Announcement, NewsEvent, Vacancy, Document, Project, Condominium, Application, Complaint, Feedback};
+use App\Models\{HeroSlide, Leader, Announcement, NewsEvent, Vacancy, Document, Project, Condominium, Application, Complaint, Feedback, StaffMember};
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -23,6 +23,13 @@ class PublicController extends Controller
         $leaders = Leader::where('is_active', true)->orderBy('order')->get()
             ->map(fn($l) => $this->localizeLeader($l));
         return response()->json(['data' => $leaders]);
+    }
+
+    public function staffMembers()
+    {
+        $staff = StaffMember::where('is_active', true)->orderBy('order')->get()
+            ->map(fn($s) => $this->localizeStaff($s));
+        return response()->json(['data' => $staff]);
     }
 
     public function announcements()
@@ -154,6 +161,17 @@ class PublicController extends Controller
         return response()->json(['data' => $feedback, 'message' => 'Your feedback has been received. Thank you!'], 201);
     }
 
+    public function translate(Request $request)
+    {
+        $text = $request->input('text');
+        $to = $request->input('to', 'en');
+        if (!$text) {
+            return response()->json(['translated' => '']);
+        }
+        $translated = $this->translateText($text, $to);
+        return response()->json(['translated' => $translated ?? $text]);
+    }
+
     private function translateText(string $text, string $target): ?string
     {
         try {
@@ -229,6 +247,19 @@ class PublicController extends Controller
             'email' => $l->email,
             'phone' => $l->phone,
             'order' => $l->order,
+        ];
+    }
+
+    private function localizeStaff($s): array
+    {
+        return [
+            'id' => $s->id,
+            'name' => $s->name,
+            'title' => $this->loc($s, 'title'),
+            'department' => $this->loc($s, 'department'),
+            'phone' => $s->phone,
+            'email' => $s->email,
+            'order' => $s->order,
         ];
     }
 

@@ -36,6 +36,7 @@ export default api;
 // ── Public ────────────────────────────────────────────────────────────────
 export const getHeroSlides = () => api.get('/hero-slides');
 export const getLeaders = () => api.get('/leaders');
+export const getStaff = () => api.get('/staff');
 export const getAnnouncements = () => api.get('/announcements');
 export const getNews = (params) => api.get('/news', { params });
 export const getNewsItem = (slug) => api.get(`/news/${slug}`);
@@ -46,6 +47,7 @@ export const getCondominiums = (params) => api.get('/condominiums', { params });
 export const submitApplication = (data) => api.post('/applications', data);
 export const submitComplaint = (data) => api.post('/complaints', data);
 export const submitFeedback = (data) => api.post('/feedbacks', data);
+export const translateTextApi = (text, to) => api.post('/translate', { text, to });
 
 // ── Admin ────────────────────────────────────────────────────────────────
 export const adminRegister = (data) => api.post('/admin/register', data);
@@ -64,6 +66,7 @@ const adminCRUD = (resource) => ({
 
 export const adminHeroSlides = adminCRUD('hero-slides');
 export const adminLeaders = adminCRUD('leaders');
+export const adminStaff = adminCRUD('staff-members');
 export const adminAnnouncements = adminCRUD('announcements');
 export const adminNews = adminCRUD('news');
 export const adminVacancies = adminCRUD('vacancies');

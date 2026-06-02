@@ -259,11 +259,16 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;
 }
+.leaders-grid > div {
+  display: flex;
+}
 .leader-card {
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-md);
   overflow: hidden;
+  height: 100%;
+  width: 100%;
 }
 .leader-card-header {
   background: linear-gradient(135deg, var(--crimson) 0%, #6B0000 100%);

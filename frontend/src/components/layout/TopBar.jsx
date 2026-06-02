@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapPin, Phone, Mail, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import logo from '../../assets/logo.png';
 
 const styles = {
   topbar: {
@@ -77,6 +78,11 @@ export default function TopBar() {
     <div style={styles.topbar}>
       <div style={styles.container}>
         <div style={styles.leftGroup}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '6px' }}>
+            <img src={logo} alt="CMA Emblem" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+            <span style={{ fontWeight: 800, fontSize: '10.5px', color: '#C9A227', letterSpacing: '0.5px', lineHeight: 1 }}>CMA</span>
+          </div>
+          <div style={styles.divider} />
           <span style={styles.item}>
             <MapPin size={13} style={styles.icon} />
             <span>{t('topbar.address', 'No. 9, Rotunda Gardens, Colombo 03')}</span>
@@ -104,7 +110,7 @@ export default function TopBar() {
             <WhatsAppIcon />
           </a>
           <a
-            href="https://facebook.com"
+            href="https://www.facebook.com/p/Condominium-Management-Authority-100095347216878/"
             target="_blank"
             rel="noopener noreferrer"
             style={{ ...styles.socialLink, color: '#1877F2' }}

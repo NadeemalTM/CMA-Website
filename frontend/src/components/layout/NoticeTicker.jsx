@@ -108,10 +108,12 @@ const s = {
 };
 
 export default function NoticeTicker() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const activeLang = i18n?.language || localStorage.getItem('cma_lang') || 'en';
 
   useEffect(() => {
     injectTickerKeyframes();
@@ -120,7 +122,7 @@ export default function NoticeTicker() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetch('/api/v1/announcements')
+    fetch(`/api/v1/announcements?lang=${activeLang}`)
       .then(r => {
         if (!r.ok) throw new Error('Network error');
         return r.json();
@@ -145,7 +147,7 @@ export default function NoticeTicker() {
         }
       });
     return () => { cancelled = true; };
-  }, []);
+  }, [activeLang]);
 
   // Fallback notices for demo / API not ready
   const fallbackNotices = [

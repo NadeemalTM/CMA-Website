@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\{HeroSlide, Leader, NewsEvent, Vacancy, Condominium, Application, Complaint, Project, Document, Announcement, Feedback};
+use App\Models\{HeroSlide, Leader, NewsEvent, Vacancy, Condominium, Application, Complaint, Project, Document, Announcement, Feedback, StaffMember};
 
 class DashboardController extends Controller
 {
@@ -29,6 +29,7 @@ class DashboardController extends Controller
                 'documents' => Document::where('is_active', true)->count(),
                 'announcements' => Announcement::where('is_active', true)->count(),
                 'feedbacks' => Feedback::count(),
+                'staff' => StaffMember::count(),
             ]
         ]);
     }

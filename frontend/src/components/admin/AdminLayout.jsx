@@ -15,6 +15,7 @@ import logo from '../../assets/logo.png';
 const NAV_ITEM_DEFS = [
   { to: '/admin/dashboard',           tKey: 'admin.dashboard',          icon: LayoutDashboard },
   { to: '/admin/leadership',          tKey: 'admin.leadership',         icon: Users },
+  { to: '/admin/staff',               tKey: 'admin.staff',              icon: BriefcaseBusiness },
   { to: '/admin/hero-slides',         tKey: 'admin.hero_slides',        icon: Image },
   { to: '/admin/vacancies',           tKey: 'admin.vacancies',          icon: BriefcaseBusiness },
   { to: '/admin/documents',           tKey: 'admin.documents',          icon: FileText },
@@ -34,6 +35,7 @@ const NAV_ITEM_DEFS = [
 const PAGE_TITLE_KEYS = {
   '/admin/dashboard':           'admin.dashboard',
   '/admin/leadership':          'admin.leadership',
+  '/admin/staff':               'admin.staff',
   '/admin/hero-slides':         'admin.hero_slides',
   '/admin/vacancies':           'admin.vacancies',
   '/admin/documents':           'admin.documents',
@@ -270,6 +272,16 @@ export default function AdminLayout() {
             <Menu size={22} />
           </button>
 
+          {/* Mobile Logo */}
+          <div style={{
+            display: 'none',
+            alignItems: 'center',
+            gap: '0.4rem',
+            marginRight: '0.25rem',
+          }} className="admin-header-logo">
+            <img src={logo} alt="CMA Logo" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+          </div>
+
           {/* Page title */}
           <h1 style={{
             fontSize: '1.05rem', fontWeight: 700,
@@ -310,6 +322,7 @@ export default function AdminLayout() {
           .sidebar-overlay { display: block !important; }
           .sidebar-close-btn { display: flex !important; }
           .mobile-burger { display: flex !important; }
+          .admin-header-logo { display: flex !important; }
         }
       `}</style>
     </div>

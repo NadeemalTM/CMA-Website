@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Building2, Shield, FileText, Users, ChevronRight, Scale } from 'lucide-react';
+import T from '../components/ui/T';
 import './AboutPage.css';
 
 const PageHeroFallback = ({ title, subtitle }) => (
@@ -99,25 +100,17 @@ export default function AboutPage() {
               <Scale size={48} strokeWidth={1.5} />
             </div>
             <div>
-              <span className="section-label">Established by Law</span>
-              <h2 className="section-title">Role of the Condominium Management Authority</h2>
+              <span className="section-label"><T>Established by Law</T></span>
+              <h2 className="section-title"><T>Role of the Condominium Management Authority</T></h2>
               <p className="about-role-text">
-                The Condominium Management Authority (CMA) was established under the{' '}
-                <strong>Condominium Property Act No. 12 of 1973</strong>, as amended. The Authority
-                serves as the central regulatory body responsible for supervising and regulating all
-                matters relating to the management of condominium properties in Sri Lanka.
+                <T>The Condominium Management Authority (CMA) was established under the</T>{' '}
+                <strong><T>Condominium Property Act No. 12 of 1973</T></strong>, <T>as amended. The Authority serves as the central regulatory body responsible for supervising and regulating all matters relating to the management of condominium properties in Sri Lanka.</T>
               </p>
               <p className="about-role-text">
-                CMA oversees the registration of management corporations, approval of condominium
-                plans, resolution of disputes between unit owners and management corporations, and
-                ensures compliance with statutory requirements. The Authority operates under the
-                purview of the Ministry of Urban Development and Housing, safeguarding the interests
-                of all condominium dwellers and property owners across the island.
+                <T>CMA oversees the registration of management corporations, approval of condominium plans, resolution of disputes between unit owners and management corporations, and ensures compliance with statutory requirements. The Authority operates under the purview of the Ministry of Urban Development and Housing, safeguarding the interests of all condominium dwellers and property owners across the island.</T>
               </p>
               <p className="about-role-text">
-                With a growing urban population and the rapid expansion of high-rise developments,
-                the CMA plays an increasingly vital role in ensuring that condominium living meets
-                international standards of governance, transparency, and resident well-being.
+                <T>With a growing urban population and the rapid expansion of high-rise developments, the CMA plays an increasingly vital role in ensuring that condominium living meets international standards of governance, transparency, and resident well-being.</T>
               </p>
             </div>
           </motion.div>
@@ -128,8 +121,8 @@ export default function AboutPage() {
       <section className="section about-vmq-section">
         <div className="container">
           <div className="text-center" style={{ marginBottom: '2.5rem' }}>
-            <span className="section-label">Our Values</span>
-            <h2 className="section-title">Vision, Mission &amp; Quality Policy</h2>
+            <span className="section-label"><T>Our Values</T></span>
+            <h2 className="section-title"><T>Vision, Mission & Quality Policy</T></h2>
           </div>
           <div className="grid-3">
             {VMQ.map((item, i) => (
@@ -143,10 +136,10 @@ export default function AboutPage() {
                 custom={i}
               >
                 <div className="vmq-card-header">
-                  <h3>{item.title}</h3>
+                  <h3><T>{item.title}</T></h3>
                 </div>
                 <div className="vmq-card-body">
-                  <p>{item.text}</p>
+                  <p><T>{item.text}</T></p>
                 </div>
               </motion.div>
             ))}
@@ -158,11 +151,10 @@ export default function AboutPage() {
       <section className="section">
         <div className="container">
           <div className="text-center" style={{ marginBottom: '2.5rem' }}>
-            <span className="section-label">What We Do</span>
-            <h2 className="section-title">Key Services</h2>
+            <span className="section-label"><T>What We Do</T></span>
+            <h2 className="section-title"><T>Key Services</T></h2>
             <p className="section-subtitle" style={{ margin: '0 auto' }}>
-              The CMA provides a wide range of services to support condominium living and management
-              throughout Sri Lanka.
+              <T>The CMA provides a wide range of services to support condominium living and management throughout Sri Lanka.</T>
             </p>
           </div>
           <div className="grid-4">
@@ -181,8 +173,8 @@ export default function AboutPage() {
                   <div className="about-service-icon">
                     <Icon size={28} strokeWidth={1.5} />
                   </div>
-                  <h3 className="about-service-title">{svc.title}</h3>
-                  <p className="about-service-desc">{svc.desc}</p>
+                  <h3 className="about-service-title"><T>{svc.title}</T></h3>
+                  <p className="about-service-desc"><T>{svc.desc}</T></p>
                 </motion.div>
               );
             })}
@@ -201,14 +193,13 @@ export default function AboutPage() {
             variants={fadeUp}
           >
             <div>
-              <h3>Meet Our Leadership</h3>
+              <h3><T>Meet Our Leadership</T></h3>
               <p>
-                Our experienced team of directors and officers guide the Authority towards achieving
-                its mandate.
+                <T>Our experienced team of directors and officers guide the Authority towards achieving its mandate.</T>
               </p>
             </div>
             <Link to="/about/leadership" className="btn btn-primary">
-              View Leadership Team <ChevronRight size={16} />
+              <T>View Leadership Team</T> <ChevronRight size={16} />
             </Link>
           </motion.div>
         </div>

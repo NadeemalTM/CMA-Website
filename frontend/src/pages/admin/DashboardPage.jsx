@@ -44,6 +44,7 @@ const STAT_CARDS = [
   { key: 'pending_applications',label: 'Pending Applications',  Icon: ClipboardList, color: '#f97316' },
   { key: 'new_complaints',      label: 'New Complaints',        Icon: MessageSquare, color: '#ef4444' },
   { key: 'feedbacks',           label: 'User Feedbacks',        Icon: Star,          color: '#ec4899' },
+  { key: 'staff',               label: 'Staff Members',         Icon: Users,         color: '#14b8a6' },
 ];
 
 const QUICK_ACTIONS = [
@@ -75,6 +76,7 @@ export default function DashboardPage() {
           pending_applications: d.applications?.pending ?? 0,
           new_complaints: d.complaints?.new ?? 0,
           feedbacks: d.feedbacks ?? 0,
+          staff: d.staff ?? 0,
         });
       })
       .catch(() => setError('Failed to load dashboard statistics.'))

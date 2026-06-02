@@ -202,7 +202,7 @@ export default function Footer() {
           </p>
           <div style={s.socialRow}>
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/p/Condominium-Management-Authority-100095347216878/"
               target="_blank"
               rel="noopener noreferrer"
               style={s.socialBtn}

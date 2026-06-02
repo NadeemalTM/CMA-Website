@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\BungalowRoomController;
 Route::prefix('v1')->group(function () {
     Route::get('hero-slides', [PublicController::class, 'heroSlides']);
     Route::get('leaders', [PublicController::class, 'leaders']);
+    Route::get('staff', [PublicController::class, 'staffMembers']);
     Route::get('announcements', [PublicController::class, 'announcements']);
     Route::get('news', [PublicController::class, 'news']);
     Route::get('bungalow-rooms', [BungalowRoomController::class, 'index']);
@@ -35,6 +36,7 @@ Route::prefix('v1')->group(function () {
     Route::post('applications', [PublicController::class, 'submitApplication']);
     Route::post('complaints', [PublicController::class, 'submitComplaint']);
     Route::post('feedbacks', [PublicController::class, 'submitFeedback']);
+    Route::post('translate', [PublicController::class, 'translate']);
     // ── Auth ────────────────────────────────────────────────────────────────
     Route::post('admin/register', [AuthController::class, 'register']);
     Route::post('admin/login', [AuthController::class, 'login']);
@@ -72,6 +74,7 @@ Route::prefix('v1')->group(function () {
 
         Route::apiResource('hero-slides', HeroSlideController::class);
         Route::apiResource('leaders', LeaderController::class);
+        Route::apiResource('staff-members', \App\Http\Controllers\Admin\StaffMemberController::class);
         Route::apiResource('announcements', AnnouncementController::class);
         Route::apiResource('news', NewsEventController::class);
         Route::apiResource('vacancies', VacancyController::class);
