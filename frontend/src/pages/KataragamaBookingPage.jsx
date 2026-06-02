@@ -23,6 +23,8 @@ import {
   AlertCircle,
   Loader2,
   CheckCircle2,
+  MapPin,
+  Map,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getBookingAvailability, submitBooking, getBungalowRooms, citizenUploadFile } from '../services/api';
@@ -40,7 +42,17 @@ export default function KataragamaBookingPage() {
   const [currentRole, setCurrentRole] = useState('guest'); // guest or employee
   const [checkinDate, setCheckinDate] = useState(null);
   const [checkoutDate, setCheckoutDate] = useState(null);
-  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [checkinDateTime, setCheckinDateTime] = useState('');
+  const [checkoutDateTime, setCheckoutDateTime] = useState('');
+  const [selectedRooms, setSelectedRooms] = useState([]);
+
+  const toggleRoomSelection = (room) => {
+    if (selectedRooms.some(r => r.id === room.id)) {
+      setSelectedRooms(selectedRooms.filter(r => r.id !== room.id));
+    } else {
+      setSelectedRooms([...selectedRooms, room]);
+    }
+  };
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
 
@@ -147,11 +159,12 @@ export default function KataragamaBookingPage() {
     return () => clearInterval(otpIntervalRef.current);
   }, [currentStep]);
 
-  // Calculate nights
+  // Calculate nights (handles hourly stay cycle where <= 24H = 1 day, > 24H = 2 days, and ceil fractional days)
   const getNights = () => {
     if (!checkinDate || !checkoutDate) return 0;
-    const diffTime = Math.abs(checkoutDate - checkinDate);
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffMs = Math.abs(checkoutDate.getTime() - checkinDate.getTime());
+    const diffHours = diffMs / (1000 * 60 * 60);
+    return Math.max(1, Math.ceil(diffHours / 24));
   };
 
   const nights = getNights();
@@ -164,8 +177,8 @@ export default function KataragamaBookingPage() {
   };
 
   const getSubtotal = () => {
-    if (!selectedRoom || nights === 0) return 0;
-    return getRoomPrice(selectedRoom) * nights;
+    if (selectedRooms.length === 0 || nights === 0) return 0;
+    return selectedRooms.reduce((sum, r) => sum + getRoomPrice(r), 0) * nights;
   };
 
   // Date manipulation helpers
@@ -193,8 +206,14 @@ export default function KataragamaBookingPage() {
   };
 
   const formatDateLabel = (date) => {
-    if (!date) return 'Select date';
-    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    if (!date) return 'Select date & time';
+    return date.toLocaleDateString('en-GB', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   // Handle calendar day click
@@ -299,30 +318,41 @@ export default function KataragamaBookingPage() {
     setLoadingSubmit(true);
     setErrorMsg('');
     try {
-      const payload = {
-        guest_name: `${guestFirst} ${guestLast}`.trim(),
-        email: guestEmail,
-        phone: guestMobile,
-        nic: guestNIC,
-        employee_id: currentRole === 'employee' ? employeeId : null,
-        unit_number: selectedRoom.name,
-        check_in: checkinDate.toISOString().split('T')[0],
-        check_out: checkoutDate.toISOString().split('T')[0],
-        adults: Number(adults),
-        children: Number(children),
-        amount: getSubtotal(),
-        notes: specialRequests,
-        permanent_address: permanentAddress,
-        occupation: occupation,
-        gov_letter: govLetter || null,
-        is_cma_employee: Boolean(isCmaEmployee),
-        family_count: Number(familyCount),
-        family_members: familyMembers,
-      };
+      const bookingPromises = selectedRooms.map(room => {
+        const payload = {
+          guest_name: `${guestFirst} ${guestLast}`.trim(),
+          email: guestEmail,
+          phone: guestMobile,
+          nic: guestNIC,
+          employee_id: currentRole === 'employee' ? employeeId : null,
+          unit_number: room.name,
+          check_in: checkinDateTime.replace('T', ' '),
+          check_out: checkoutDateTime.replace('T', ' '),
+          adults: Number(adults),
+          children: Number(children),
+          amount: getRoomPrice(room) * nights,
+          notes: specialRequests,
+          permanent_address: permanentAddress,
+          occupation: occupation,
+          gov_letter: govLetter || null,
+          is_cma_employee: Boolean(isCmaEmployee),
+          family_count: Number(familyCount),
+          family_members: familyMembers,
+        };
+        return submitBooking(payload);
+      });
 
-      const res = await submitBooking(payload);
-      if (res.data && res.data.status === 'success') {
-        setConfirmedBooking(res.data.data);
+      const responses = await Promise.all(bookingPromises);
+      const firstRes = responses[0];
+      if (firstRes.data && firstRes.data.status === 'success') {
+        const allBookings = responses.map(r => r.data.data);
+        setConfirmedBooking({
+          ...firstRes.data.data,
+          unit_number: selectedRooms.map(r => r.name).join(', '),
+          amount: getSubtotal(),
+          allReferences: allBookings.map(b => `KTG-2026-${String(b.id).padStart(4, '0')}`).join(', '),
+          allBookings: allBookings
+        });
         setCurrentStep(5);
         fetchAvailability(); // Refresh calendar availability
       }
@@ -469,7 +499,7 @@ export default function KataragamaBookingPage() {
               className={`role-btn${currentRole === 'guest' ? ' active' : ''}`}
               onClick={() => {
                 setCurrentRole('guest');
-                setSelectedRoom(null);
+                setSelectedRooms([]);
               }}
             >
               <User size={14} />
@@ -481,7 +511,7 @@ export default function KataragamaBookingPage() {
               id="roleEmployee"
               onClick={() => {
                 setCurrentRole('employee');
-                setSelectedRoom(null);
+                setSelectedRooms([]);
               }}
             >
               <FileText size={14} />
@@ -503,73 +533,244 @@ export default function KataragamaBookingPage() {
           {/* Left area: Calendar + Room list */}
           <div>
             
-            {/* Availability Calendar */}
-            <div className="avail-card">
-              <div className="avail-head">
-                <div className="avail-head-row">
-                  <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CalendarIcon size={18} />
-                    Availability Calendar
-                  </h3>
-                  <div className="avail-nav">
-                    <button className="avail-nav-btn" onClick={prevMonth} aria-label="Previous Month">
-                      <ChevronLeft size={16} />
-                    </button>
-                    <button className="avail-nav-btn" onClick={nextMonth} aria-label="Next Month">
-                      <ChevronRight size={16} />
-                    </button>
+            {/* Stay Period Selection Card */}
+            <div className="avail-card" style={{ padding: '24px', borderRadius: '12px', background: '#fff', border: '1px solid #eee', boxShadow: 'var(--shadow-sm)', marginBottom: '30px' }}>
+              <h3 style={{ margin: '0 0 20px 0', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #eee', paddingBottom: '12px', color: 'var(--text-dark)' }}>
+                <CalendarIcon size={18} style={{ color: 'var(--crimson)' }} />
+                Select Stay Period & Check Availability
+              </h3>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '30px' }}>
+                
+                {/* Left Column: Form Selectors & Policy */}
+                <div>
+                  {/* Special Policy Notification */}
+                  <div style={{ 
+                    background: 'rgba(139, 0, 0, 0.05)', 
+                    border: '1px solid rgba(139, 0, 0, 0.15)', 
+                    borderRadius: '8px', 
+                    padding: '12px 16px', 
+                    marginBottom: '20px',
+                    display: 'flex', 
+                    alignItems: 'flex-start', 
+                    gap: '10px'
+                  }}>
+                    <Info size={16} style={{ color: 'var(--crimson)', marginTop: '2px', flexShrink: 0 }} />
+                    <div style={{ fontSize: '13px', color: '#555', lineHeight: '1.4' }}>
+                      <strong>Bungalow Stay Policy:</strong> Check-in is fixed at <strong>1:00 PM</strong> on the arrival date, and check-out is fixed at <strong>10:00 AM</strong> on the departure date. This stay period is automatically calculated as one day.
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: 'var(--text-dark)', marginBottom: '8px' }}>
+                        Check-in Date *
+                      </label>
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <input
+                          type="date"
+                          className="bk-form-input"
+                          style={{ 
+                            width: '100%', 
+                            padding: '10px 14px', 
+                            paddingRight: '80px',
+                            borderRadius: '8px', 
+                            border: '1px solid #ddd',
+                            fontSize: '14px',
+                            background: '#fff',
+                            color: 'var(--text-dark)'
+                          }}
+                          value={checkinDateTime.split('T')[0] || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val) {
+                              const dt = `${val}T13:00`;
+                              setCheckinDateTime(dt);
+                              setCheckinDate(new Date(dt));
+                            } else {
+                              setCheckinDateTime('');
+                              setCheckinDate(null);
+                            }
+                          }}
+                          min={new Date().toISOString().split('T')[0]}
+                        />
+                        <span style={{ 
+                          position: 'absolute', 
+                          right: '12px', 
+                          fontSize: '12px', 
+                          color: 'var(--crimson)', 
+                          fontWeight: '700',
+                          pointerEvents: 'none'
+                        }}>
+                          1:00 PM
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: 'var(--text-dark)', marginBottom: '8px' }}>
+                        Check-out Date *
+                      </label>
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <input
+                          type="date"
+                          className="bk-form-input"
+                          style={{ 
+                            width: '100%', 
+                            padding: '10px 14px', 
+                            paddingRight: '80px',
+                            borderRadius: '8px', 
+                            border: '1px solid #ddd',
+                            fontSize: '14px',
+                            background: '#fff',
+                            color: 'var(--text-dark)'
+                          }}
+                          value={checkoutDateTime.split('T')[0] || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val) {
+                              const dt = `${val}T10:00`;
+                              setCheckoutDateTime(dt);
+                              setCheckoutDate(new Date(dt));
+                            } else {
+                              setCheckoutDateTime('');
+                              setCheckoutDate(null);
+                            }
+                          }}
+                          min={checkinDateTime ? checkinDateTime.split('T')[0] : new Date().toISOString().split('T')[0]}
+                        />
+                        <span style={{ 
+                          position: 'absolute', 
+                          right: '12px', 
+                          fontSize: '12px', 
+                          color: 'var(--crimson)', 
+                          fontWeight: '700',
+                          pointerEvents: 'none'
+                        }}>
+                          10:00 AM
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {checkinDate && checkoutDate && (
+                    <div style={{ 
+                      background: 'rgba(201, 162, 39, 0.1)', 
+                      border: '1px solid rgba(201, 162, 39, 0.3)', 
+                      borderRadius: '8px', 
+                      padding: '12px 16px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'space-between'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: 'var(--text-dark)' }}>
+                        <Info size={16} style={{ color: '#C9A227' }} />
+                        <span>Staying Duration:</span>
+                        <strong>{nights} Day(s)</strong>
+                      </div>
+                      <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                        (Calculated automatically)
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Column: Compact Availability Calendar */}
+                <div style={{ borderLeft: '1px solid #eee', paddingLeft: '30px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <span style={{ fontWeight: 700, fontSize: '13.5px', color: 'var(--text-dark)' }}>
+                      Availability Calendar
+                    </span>
+                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                      <button 
+                        type="button" 
+                        style={{ padding: '2px 8px', background: 'none', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                        onClick={prevMonth}
+                      >
+                        ◀
+                      </button>
+                      <span style={{ fontSize: '12px', fontWeight: '600', minWidth: '90px', textAlign: 'center', display: 'inline-block' }}>
+                        {monthName}
+                      </span>
+                      <button 
+                        type="button" 
+                        style={{ padding: '2px 8px', background: 'none', border: '1px solid #ddd', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                        onClick={nextMonth}
+                      >
+                        ▶
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tiny Calendar Grid */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {/* DOW headers */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>
+                      <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                    </div>
+                    {/* Days grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
+                      {calendarDays.map((item, idx) => {
+                        if (item.empty) {
+                          return <div key={`tiny-empty-${idx}`} style={{ height: '24px' }} />;
+                        }
+
+                        // Booked styling
+                        const isBooked = item.status === 'booked';
+                        const isPartial = item.status === 'partial';
+                        let bg = '#eaf5ee'; // default available green tint
+                        let color = '#2e6b4a';
+                        let label = 'Available';
+
+                        if (isBooked) {
+                          bg = '#fbebeb'; // fully booked red tint
+                          color = '#c93b3b';
+                          label = 'Booked';
+                        } else if (isPartial) {
+                          bg = '#fff4eb'; // partial orange tint
+                          color = '#d4622a';
+                          label = 'Partial';
+                        }
+
+                        return (
+                          <div
+                            key={`tiny-day-${item.day}`}
+                            title={`Day ${item.day}: ${label}`}
+                            style={{
+                              height: '26px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: '6px',
+                              fontSize: '11.5px',
+                              fontWeight: '600',
+                              background: bg,
+                              color: color,
+                              border: item.isToday ? '1px solid #C9A227' : 'none',
+                              position: 'relative'
+                            }}
+                          >
+                            {item.day}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Tiny Legend */}
+                  <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px', fontSize: '11px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#2e6b4a' }}></div> Available
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#d4622a' }}></div> Partial
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#c93b3b' }}></div> Booked
+                    </div>
                   </div>
                 </div>
-                <div className="avail-month-label">{monthName}</div>
-                <div className="avail-legend">
-                  <div className="avail-legend-item"><div className="avail-dot" style={{ background: '#2e6b4a' }}></div> Available</div>
-                  <div className="avail-legend-item"><div className="avail-dot" style={{ background: '#d4622a' }}></div> Partial</div>
-                  <div className="avail-legend-item"><div className="avail-dot" style={{ background: '#8B1A1A' }}></div> Fully Booked</div>
-                  <div className="avail-legend-item"><div className="avail-dot" style={{ background: '#C9A84C' }}></div> Selected Date</div>
-                </div>
-              </div>
 
-              <div className="cal-grid">
-                <div className="cal-dow">
-                  <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-                </div>
-                <div className="cal-days">
-                  {calendarDays.map((item, idx) => {
-                    if (item.empty) {
-                      return <div key={`empty-${idx}`} className="cal-day empty" />;
-                    }
-
-                    let cls = 'cal-day ' + item.status;
-                    if (item.isSelected) cls += ' selected';
-                    if (item.isCheckoutDay) cls += ' checkout-day';
-                    if (item.isInRange) cls += ' in-range';
-                    if (item.isToday) cls += ' today';
-                    if (item.status === 'booked' || item.status === 'partial') cls += ' user-blocked';
-
-                    return (
-                      <div
-                        key={`day-${item.day}`}
-                        className={cls}
-                        onClick={() => handleDateClick(item.day)}
-                      >
-                        <span className="cal-day-num">{item.day}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="cal-user-notice visible">
-                <Info size={14} style={{ color: 'var(--crimson)' }} />
-                <span>
-                  Only <strong>available dates</strong> (green) are open for bookings. Overlapping partial or booked dates cannot be reserved.
-                </span>
-              </div>
-              
-              <div className="avail-detail-row">
-                <div className="avail-room-chip chip-green"><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#2e6b4a' }} /> 4 rooms open on most dates</div>
-                <div className="avail-room-chip chip-orange"><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4622a' }} /> Partial bookings</div>
-                <div className="avail-room-chip chip-red"><div style={{ width: 6, height: 6, borderRadius: '50%', background: '#8B1A1A' }} /> Fully reserved</div>
               </div>
             </div>
 
@@ -589,14 +790,14 @@ export default function KataragamaBookingPage() {
                   </div>
                 ) : (
                   rooms.map((room) => {
-                    const isSelected = selectedRoom?.id === room.id;
+                    const isSelected = selectedRooms.some(r => r.id === room.id);
                     const price = getRoomPrice(room);
 
                     return (
                       <div
                         key={room.id}
                         className={`room-card${isSelected ? ' selected-room' : ''}`}
-                        onClick={() => setSelectedRoom(room)}
+                        onClick={() => toggleRoomSelection(room)}
                       >
                         {room.image ? (
                           <img
@@ -639,7 +840,7 @@ export default function KataragamaBookingPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSelectedRoom(room);
+                              toggleRoomSelection(room);
                             }}
                           >
                             {isSelected ? '✓ Selected' : 'Select Room'}
@@ -668,8 +869,8 @@ export default function KataragamaBookingPage() {
                   <span className="bk-sum-value">Kataragama Bungalow</span>
                 </div>
                 <div className="bk-sum-row">
-                  <span className="bk-sum-label">Room</span>
-                  <span className="bk-sum-value">{selectedRoom ? selectedRoom.name : 'Not selected'}</span>
+                  <span className="bk-sum-label">Room(s)</span>
+                  <span className="bk-sum-value">{selectedRooms.length > 0 ? selectedRooms.map(r => r.name).join(', ') : 'Not selected'}</span>
                 </div>
                 <div className="bk-sum-row">
                   <span className="bk-sum-label">Check-In</span>
@@ -687,12 +888,17 @@ export default function KataragamaBookingPage() {
                   <span className="bk-sum-label">Guests</span>
                   <span className="bk-sum-value">{adults} Adult(s), {children} Child(ren)</span>
                 </div>
-                {selectedRoom && (
-                  <div className="bk-sum-row">
-                    <span className="bk-sum-label">
-                      {currentRole === 'employee' ? 'Staff Rate/Night' : 'Rate/Night'}
-                    </span>
-                    <span className="bk-sum-value">Rs. {getRoomPrice(selectedRoom).toLocaleString()}</span>
+                {selectedRooms.length > 0 && (
+                  <div className="bk-sum-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+                    <span className="bk-sum-label">{currentRole === 'employee' ? 'Staff Rate/Night' : 'Rate/Night'}</span>
+                    <div style={{ width: '100%', paddingLeft: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
+                      {selectedRooms.map(r => (
+                        <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span>{r.name}:</span>
+                          <span>Rs. {getRoomPrice(r).toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
                 
@@ -705,7 +911,7 @@ export default function KataragamaBookingPage() {
                   className="bk-proceed-btn"
                   type="button"
                   onClick={handleProceed}
-                  disabled={!selectedRoom || !checkinDate || !checkoutDate || nights <= 0}
+                  disabled={selectedRooms.length === 0 || !checkinDate || !checkoutDate || nights <= 0}
                 >
                   <Lock size={15} />
                   Proceed to Book
@@ -730,6 +936,43 @@ export default function KataragamaBookingPage() {
                 <div>✉ bungalow@condominium.lk</div>
                 <div>🕒 Mon–Fri, 8:30am–4:30pm</div>
               </div>
+            </div>
+
+            {/* Bungalow Location Card */}
+            <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #eee', padding: '20px', boxShadow: 'var(--shadow-sm)', marginTop: '20px' }}>
+              <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-dark)', marginBottom: '12px' }}>
+                <MapPin size={14} style={{ color: 'var(--crimson)' }} />
+                Bungalow Location
+              </div>
+              <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+                Detour Road, Kataragama, Sri Lanka. Conveniently situated close to the sacred temples.
+              </p>
+              <a 
+                href="https://maps.app.goo.gl/PkPj7oFnBFLMbA9n7" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '6px', 
+                  textDecoration: 'none',
+                  backgroundColor: 'var(--crimson)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '8px 12px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  transition: 'background-color 0.2s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#6b0000'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--crimson)'}
+              >
+                <Map size={14} />
+                View on Google Maps
+              </a>
             </div>
 
           </div>
@@ -1012,8 +1255,8 @@ export default function KataragamaBookingPage() {
                       </div>
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px', borderTop: '1px solid #eee', paddingTop: '8px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Room Selection</span>
-                      <strong style={{ color: 'var(--crimson)' }}>{selectedRoom.name}</strong>
+                      <span style={{ color: 'var(--text-muted)' }}>Room(s) Selection</span>
+                      <strong style={{ color: 'var(--crimson)' }}>{selectedRooms.map(r => r.name).join(', ')}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
                       <span style={{ color: 'var(--text-muted)' }}>Check-In</span>
@@ -1190,8 +1433,12 @@ export default function KataragamaBookingPage() {
                     </p>
                     
                     <div className="bk-ref-box">
-                      <div className="bk-ref-label">Booking Reference Number</div>
-                      <div className="bk-ref-num">KTG-2026-{String(confirmedBooking.id).padStart(4, '0')}</div>
+                      <div className="bk-ref-label">Booking Reference Number(s)</div>
+                      <div className="bk-ref-num">
+                        {confirmedBooking.allReferences 
+                          ? confirmedBooking.allReferences 
+                          : `KTG-2026-${String(confirmedBooking.id).padStart(4, '0')}`}
+                      </div>
                     </div>
 
                     <div className="bk-success-details">
@@ -1226,7 +1473,7 @@ export default function KataragamaBookingPage() {
                         style={{ borderRadius: '8px', padding: '10px 20px', fontSize: '13px' }}
                         onClick={() => {
                           setModalOpen(false);
-                          setSelectedRoom(null);
+                          setSelectedRooms([]);
                           setCheckinDate(null);
                           setCheckoutDate(null);
                         }}

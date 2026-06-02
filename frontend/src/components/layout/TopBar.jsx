@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Mail, ExternalLink } from 'lucide-react';
+import { MapPin, Phone, Mail } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import logo from '../../assets/logo.png';
 
@@ -71,6 +71,12 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
+const FacebookIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M22 12c0-5.522-4.477-10-10-10S2 6.478 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.99H7.898v-2.888h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562v1.875h2.773l-.443 2.888h-2.33v6.99C18.343 21.128 22 16.991 22 12z" />
+  </svg>
+);
+
 export default function TopBar() {
   const { t } = useTranslation();
 
@@ -116,7 +122,7 @@ export default function TopBar() {
             style={{ ...styles.socialLink, color: '#1877F2' }}
             aria-label="Facebook"
           >
-            <ExternalLink size={14} />
+            <FacebookIcon />
           </a>
         </div>
       </div>

@@ -5,7 +5,7 @@ import Navbar from './Navbar';
 import NoticeTicker from './NoticeTicker';
 import CitizenNavbar from './CitizenNavbar';
 import Footer from './Footer';
-import FloatingButtons from './FloatingButtons';
+// Floating buttons removed to keep only the Feedback widget
 import ScrollToTop from './ScrollToTop';
 import FeedbackWidget from './FeedbackWidget';
 
@@ -93,7 +93,6 @@ export default function Layout() {
         <Outlet />
       </main>
       <Footer />
-      <FloatingButtons />
       <ScrollToTop />
       <FeedbackWidget />
 

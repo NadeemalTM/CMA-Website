@@ -36,11 +36,12 @@ class BookingController extends Controller
             $bookedCount = 0;
 
             foreach ($bookings as $b) {
-                $checkIn = Carbon::parse($b->check_in);
-                $checkOut = Carbon::parse($b->check_out);
+                $checkIn = Carbon::parse($b->check_in)->startOfDay();
+                $checkOut = Carbon::parse($b->check_out)->startOfDay();
+                $lastOccupied = $checkIn->equalTo($checkOut) ? $checkIn : $checkOut->copy()->subDay();
 
-                // A date is occupied if it lies within [check_in, check_out - 1]
-                if ($date->greaterThanOrEqualTo($checkIn) && $date->lessThan($checkOut)) {
+                // A date is occupied if it lies within [check_in, lastOccupied]
+                if ($date->greaterThanOrEqualTo($checkIn) && $date->lessThanOrEqualTo($lastOccupied)) {
                     $bookedCount++;
                 }
             }
@@ -73,9 +74,9 @@ class BookingController extends Controller
             'employee_id' => 'nullable|string|max:50',
             'unit_number' => 'required|string|max:100',
             'check_in' => 'required|date|after_or_equal:today',
-            'check_out' => 'required|date|after:check_in',
-            'adults' => 'required|integer|min:1|max:4',
-            'children' => 'required|integer|min:0|max:3',
+            'check_out' => 'required|date|after_or_equal:check_in',
+            'adults' => 'required|integer|min:1|max:20',
+            'children' => 'required|integer|min:0|max:20',
             'amount' => 'required|numeric|min:0',
             'notes' => 'nullable|string',
             'permanent_address' => 'required|string|max:500',
@@ -90,20 +91,30 @@ class BookingController extends Controller
             return response()->json(['errors' => $v->errors()], 422);
         }
 
-        $checkIn = Carbon::parse($request->check_in)->toDateString();
-        $checkOut = Carbon::parse($request->check_out)->toDateString();
+        $checkIn = Carbon::parse($request->check_in)->toDateTimeString();
+        $checkOut = Carbon::parse($request->check_out)->toDateTimeString();
         $room = $request->unit_number;
 
         // Double check conflict: does this specific room have an active overlapping booking?
-        $conflict = Booking::where('unit_number', $room)
+        // Fetch all active (not cancelled) bookings for this room
+        $bookings = Booking::where('unit_number', $room)
             ->where('status', '!=', 'Cancelled')
-            ->where(function ($q) use ($checkIn, $checkOut) {
-                $q->where(function ($sub) use ($checkIn, $checkOut) {
-                    $sub->where('check_in', '<', $checkOut)
-                        ->where('check_out', '>', $checkIn);
-                });
-            })
-            ->exists();
+            ->get();
+
+        $newIn = Carbon::parse($checkIn);
+        $newOut = Carbon::parse($checkOut);
+
+        $conflict = false;
+        foreach ($bookings as $b) {
+            $bIn = Carbon::parse($b->check_in);
+            $bOut = Carbon::parse($b->check_out);
+
+            // Time interval overlap: start1 < end2 && start2 < end1
+            if ($newIn->lessThan($bOut) && $bIn->lessThan($newOut)) {
+                $conflict = true;
+                break;
+            }
+        }
 
         if ($conflict) {
             return response()->json([
