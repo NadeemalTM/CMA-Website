@@ -1,0 +1,220 @@
+/* ===========================
+   LawsPage.css
+   =========================== */
+
+/* Tabs */
+.laws-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--off-white);
+  border-radius: var(--radius-full);
+  padding: 0.35rem;
+  width: fit-content;
+  margin-bottom: 3rem;
+  border: 1px solid var(--mid-gray);
+}
+
+.laws-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  background: transparent;
+  border: none;
+}
+
+.laws-tab:hover {
+  color: var(--crimson);
+}
+
+.laws-tab.active {
+  background: var(--crimson);
+  color: var(--white);
+  box-shadow: var(--shadow-crimson);
+}
+
+/* Acts Grid */
+.laws-acts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.act-card {
+  background: var(--white);
+  border: 1px solid var(--mid-gray);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.act-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  border-color: var(--crimson-soft);
+}
+
+.act-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.act-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--crimson-soft);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--crimson);
+}
+
+.act-year-badge {
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.2rem 0.75rem;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.5px;
+}
+
+.act-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.4;
+}
+
+.act-no {
+  font-size: 0.82rem;
+  color: var(--crimson);
+  font-weight: 600;
+}
+
+.act-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  flex: 1;
+}
+
+.act-download {
+  width: fit-content;
+  margin-top: 0.5rem;
+}
+
+/* Plans Section */
+.plans-intro {
+  margin-bottom: 3rem;
+}
+
+.plans-intro .section-subtitle {
+  margin-top: 0.75rem;
+  max-width: 650px;
+}
+
+.plans-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 800px;
+}
+
+.plan-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  background: var(--white);
+  border: 1px solid var(--mid-gray);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.plan-step:hover {
+  border-color: var(--crimson);
+  box-shadow: var(--shadow-md);
+}
+
+.plan-step-number {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  background: var(--crimson);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.plan-step-content {
+  flex: 1;
+}
+
+.plan-step-content h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.4rem;
+}
+
+.plan-step-content p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.plan-step-icon {
+  color: var(--success);
+}
+
+.plans-cta {
+  margin-top: 2.5rem;
+  padding: 1.5rem 2rem;
+  background: var(--crimson-soft);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--crimson);
+  font-size: 0.95rem;
+  color: var(--text-body);
+  max-width: 800px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .laws-acts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .laws-acts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .laws-tabs {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .laws-tab {
+    flex: 1;
+    justify-content: center;
+  }
+}

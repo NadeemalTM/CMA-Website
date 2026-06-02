@@ -1,0 +1,121 @@
+/* ===========================
+   LeadershipPage.css
+   =========================== */
+
+.leadership-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.leader-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--mid-gray);
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition);
+}
+
+.leader-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-5px);
+}
+
+.leader-card-header {
+  background: linear-gradient(135deg, var(--crimson-dark) 0%, var(--crimson) 60%, #c02030 100%);
+  padding: 2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.leader-photo {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.leader-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 1px;
+  backdrop-filter: blur(4px);
+}
+
+.leader-card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.leader-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-align: center;
+}
+
+.leader-position {
+  font-size: 0.82rem;
+  color: var(--crimson);
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.leader-contact {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+  word-break: break-all;
+}
+
+.leader-contact:hover {
+  color: var(--crimson);
+}
+
+.leader-btn {
+  margin-top: auto;
+  width: 100%;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .leadership-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .leadership-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .leadership-grid {
+    grid-template-columns: 1fr;
+  }
+}

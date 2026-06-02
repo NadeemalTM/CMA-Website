@@ -1,0 +1,43 @@
+.mc-page { }
+.mc-layout { display: grid; grid-template-columns: 280px 1fr; gap: 2.5rem; align-items: flex-start; }
+.mc-sidebar { position: sticky; top: calc(var(--nav-height) + var(--topbar-height) + 60px); }
+.mc-toc { background: var(--white); border: 1px solid var(--mid-gray); border-radius: var(--radius-md); padding: 1.5rem; }
+.mc-toc h3 { font-size: 1rem; margin-bottom: 1rem; color: var(--crimson); }
+.mc-toc ul { display: flex; flex-direction: column; gap: 0.25rem; }
+.mc-toc-item {
+  display: block; width: 100%; text-align: left; padding: 0.6rem 0.75rem; border: none; background: none;
+  border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--text-body); cursor: pointer; transition: var(--transition-fast);
+  font-family: var(--font-main);
+}
+.mc-toc-item:hover { background: var(--crimson-soft); color: var(--crimson); }
+.mc-toc-item.active { background: var(--crimson); color: var(--white); font-weight: 600; }
+
+.mc-accordion { display: flex; flex-direction: column; gap: 0.75rem; }
+.mc-panel { background: var(--white); border: 1px solid var(--mid-gray); border-radius: var(--radius-md); overflow: hidden; transition: var(--transition); }
+.mc-panel.open { border-color: var(--crimson); box-shadow: var(--shadow-md); }
+.mc-panel-trigger {
+  display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 1.25rem 1.5rem;
+  background: none; border: none; cursor: pointer; font-size: 1rem; font-weight: 600; color: var(--text-dark);
+  transition: var(--transition-fast); font-family: var(--font-main);
+}
+.mc-panel.open .mc-panel-trigger { color: var(--crimson); }
+.mc-panel-trigger:hover { background: var(--crimson-soft); }
+.mc-panel-body-wrapper { overflow: hidden; }
+.mc-panel-body { padding: 0 1.5rem 1.5rem; }
+.mc-content { line-height: 1.7; color: var(--text-body); }
+.mc-content h4 { color: var(--text-dark); margin: 1rem 0 0.5rem; font-size: 0.95rem; }
+.mc-content ul, .mc-content ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.mc-content li { margin-bottom: 0.5rem; }
+.mc-content p { margin-bottom: 0.75rem; }
+
+.fee-table-wrapper { overflow-x: auto; margin: 1rem 0; }
+.fee-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.fee-table th { background: var(--crimson); color: white; padding: 0.75rem 1rem; text-align: left; }
+.fee-table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--light-gray); }
+.fee-table tr:hover td { background: var(--crimson-soft); }
+.fee-note { font-size: 0.85rem; color: var(--text-muted); font-style: italic; }
+
+@media (max-width: 768px) {
+  .mc-layout { grid-template-columns: 1fr; }
+  .mc-sidebar { position: static; }
+}

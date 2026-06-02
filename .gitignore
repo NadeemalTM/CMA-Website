@@ -1,0 +1,133 @@
+# Laravel Backend
+backend/vendor/
+backend/.env
+backend/.env.local
+backend/.env.*.local
+backend/storage/logs/
+backend/storage/framework/cache/
+backend/storage/framework/sessions/
+backend/storage/framework/views/
+backend/storage/app/
+backend/bootstrap/cache/
+backend/node_modules/
+backend/package-lock.json
+backend/yarn.lock
+backend/public/storage
+backend/public/hot
+backend/.phpunit.result.cache
+backend/php.log
+
+# React Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+frontend/npm-debug.log
+frontend/yarn-error.log
+
+# Build outputs
+build/
+dist/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+*.iml
+*.iws
+*.ipr
+
+# OS files
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# PHP Composer
+composer.lock
+composer.phar
+
+# Environment files
+.env
+.env.backup
+.env.production.local
+.env.testing
+
+# IDE specific
+.vscode/settings.json
+.vscode/extensions.json
+
+# Cache
+.cache/
+
+# Database files
+*.sqlite
+*.sqlite-journal
+*.db
+*.db-journal
+
+# Misc
+.nuxt/
+.cache/
+.vuepress/dist/
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.vscode-test
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Asset optimization
+assets/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Queue
+queue/
+
+# Passport keys
+backend/storage/oauth-*.key
+
+# IDE and personal workspace settings
+*.userprefs
+.vscode/launch.json
+.vscode/settings.json

@@ -1,0 +1,168 @@
+/* ===========================
+   AboutPage.css
+   =========================== */
+
+/* Role Section */
+.about-role-wrapper {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 3rem;
+  align-items: flex-start;
+  background: var(--white);
+  border: 1px solid var(--mid-gray);
+  border-radius: var(--radius-lg);
+  padding: 3rem;
+  box-shadow: var(--shadow-md);
+}
+
+.about-role-icon {
+  width: 100px;
+  height: 100px;
+  background: var(--crimson-soft);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--crimson);
+  flex-shrink: 0;
+}
+
+.about-role-text {
+  color: var(--text-body);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+.about-role-text:last-child { margin-bottom: 0; }
+.about-role-text strong { color: var(--crimson); }
+
+/* VMQ Section */
+.about-vmq-section {
+  background: var(--off-white);
+}
+
+.vmq-card {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition);
+}
+
+.vmq-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
+.vmq-card-header {
+  background: linear-gradient(135deg, var(--crimson-dark), var(--crimson));
+  padding: 1.25rem 1.5rem;
+  color: var(--white);
+}
+
+.vmq-card-header h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.vmq-card-body {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.vmq-card-body p {
+  color: var(--text-body);
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+/* Key Services */
+.about-service-card {
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.about-service-icon {
+  width: 60px;
+  height: 60px;
+  background: var(--crimson-soft);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--crimson);
+  flex-shrink: 0;
+}
+
+.about-service-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.about-service-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* Leadership CTA */
+.about-leadership-cta {
+  background: var(--off-white);
+}
+
+.about-cta-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  background: linear-gradient(135deg, var(--crimson-dark), var(--crimson));
+  color: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 3rem;
+  box-shadow: var(--shadow-crimson);
+}
+
+.about-cta-box h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.about-cta-box p {
+  opacity: 0.85;
+  font-size: 0.95rem;
+}
+
+.about-cta-box .btn-primary {
+  background: var(--white);
+  color: var(--crimson);
+  border-color: var(--white);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.about-cta-box .btn-primary:hover {
+  background: var(--off-white);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about-role-wrapper {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+  }
+
+  .about-cta-box {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 2rem;
+  }
+}

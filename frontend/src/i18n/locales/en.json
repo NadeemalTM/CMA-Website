@@ -1,0 +1,287 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "laws": "Laws & Plans",
+    "applications": "Applications",
+    "mgmtCorps": "Management Corps",
+    "corps": "Management Corps",
+    "news": "News & Events",
+    "projects": "Projects",
+    "publications": "Publications",
+    "careers": "Careers",
+    "contact": "Contact Us",
+    "media": "News & Publications",
+    "login": "Login",
+    "search": "Search...",
+    "role": "Role of the CMA",
+    "objectives": "Objectives of the Authority",
+    "aboutPowers": "Powers",
+    "staff": "Staff Members",
+    "visionMission": "Vision & Mission",
+    "lawsList": "Condominium Laws",
+    "condoPlan": "Condominium Plan",
+    "certProcedure": "Certificate Procedure",
+    "consequence": "Main Consequence & Legal Status",
+    "appGuide": "Application Guide & Checklists",
+    "regFees": "Registration Fees",
+    "downloads": "Download Applications",
+    "setupMC": "How to Setup MC",
+    "structureMC": "MC Structure & Members",
+    "responsibilityMC": "Responsibility of the MC",
+    "powersMC": "Power of the MC",
+    "kataragama": "Kataragama Bungalow",
+    "orgName": "Condominium Management Authority",
+    "ministry": "Ministry of Urban Development & Housing — Sri Lanka",
+    "bookingBtn": "Bungalow Booking",
+    "searchPlaceholder": "Search CMA Sri Lanka..."
+  },
+  "topbar": {
+    "address": "No. 20, Sir Chittampalam A Gardiner Mawatha, Colombo 02",
+    "phone": "011 233 8146",
+    "email": "info@condominium.lk"
+  },
+  "notice": "NOTICE",
+  "home": {
+    "hero_badge": "Condominium Management Authority · Sri Lanka",
+    "hero_subtitle": "Welcome. How can we help you today?",
+    "hero_cta1": "Learn More",
+    "hero_cta2": "Contact Us",
+    "quick_title": "Quick Access",
+    "quick_links": {
+      "buying": "Buying a Flat",
+      "managing": "Managing My Home",
+      "register": "Register a Plan",
+      "news": "Latest News",
+      "laws": "Condo Laws",
+      "contact": "Contact Us"
+    },
+    "about_label": "Est. 1973 · Sri Lanka",
+    "about_title": "Building Sri Lanka's",
+    "about_title_em": "Urban Future",
+    "about_title_end": "Together",
+    "about_desc": "The Condominium Management Authority stands as the premier regulatory body overseeing condominium properties across Sri Lanka, ensuring excellence and transparency in urban living.",
+    "about_btn": "About CMA",
+    "leadership_label": "Leadership Team",
+    "leadership_title": "Our Board of Management",
+    "leadership_desc": "Meet the dedicated leaders steering Sri Lanka's condominium sector forward.",
+    "view_profile": "View",
+    "stats": {
+      "condominiums": "Registered Condominiums",
+      "mcs": "Management Corporations",
+      "years": "Years of Service",
+      "districts": "Districts Covered"
+    },
+    "news_label": "Latest Updates",
+    "news_title": "News & Events",
+    "news_more": "View All News",
+    "projects_label": "Our Work",
+    "projects_title": "Active Projects",
+    "vacancies_label": "Careers",
+    "vacancies_title": "Current Vacancies",
+    "vacancies_desc": "Join the CMA team and contribute to Sri Lanka's urban development",
+    "vacancies_apply": "Apply Now",
+    "deadline": "Deadline",
+    "cta_title": "Ready to Register Your Condominium?",
+    "cta_desc": "Our team is here to guide you through every step of the registration process.",
+    "cta_btn": "Start Application",
+    "cta_call": "Call Us"
+  },
+  "about": {
+    "label": "About Us",
+    "title": "Condominium Management Authority",
+    "desc": "Sri Lanka's premier regulatory body for condominium property management",
+    "role_title": "Role of the CMA",
+    "role_desc": "The Condominium Management Authority (CMA) was established under the Condominium Property Act No. 12 of 1973. The CMA is responsible for the registration and regulation of condominium properties and management corporations throughout Sri Lanka.",
+    "vision_title": "Our Vision",
+    "vision_desc": "Condominiums as a solution to the housing requirement of the country.",
+    "mission_title": "Our Mission",
+    "mission_desc": "Constructing condominium property to be apposite with the benefit and welfare of residents and establishing management corporations for the systematic administration and management of such property.",
+    "quality_title": "Our Quality Policy",
+    "quality_desc": "To endeavor to enhance the positive approach of the stakeholders to ensure the development of the condominium industry sector efficiently and productively as a service management organization to satisfy our clients.",
+    "leadership_title": "Our Leadership",
+    "staff_title": "Staff Members",
+    "services": {
+      "resident": "Resident Services",
+      "resident_desc": "Resident, communities maintenance services, and property management services.",
+      "maintenance": "Property Maintenance",
+      "maintenance_desc": "Empowering communities through efficient, transparent and fair management practices.",
+      "transparency": "Financial Transparency",
+      "transparency_desc": "Financial transference of financial transparency, and fair management.",
+      "governance": "Governance & Compliance",
+      "governance_desc": "Governance, governance and is compliance, government management compliance."
+    }
+  },
+  "laws": {
+    "label": "Legal Framework",
+    "title": "Condominium Laws & Plans",
+    "desc": "Access all relevant legislation governing condominium properties in Sri Lanka",
+    "acts": "Acts & Legislation",
+    "plans": "Condominium Plans",
+    "procedure": "Certificate Procedure",
+    "download": "Download PDF"
+  },
+  "applications": {
+    "label": "Applications",
+    "title": "Applications & Fees",
+    "desc": "Submit applications for condominium plan registration and management corporation formation",
+    "types": {
+      "plan": "Condominium Plan Registration",
+      "mc": "Management Corporation Registration",
+      "amendment": "Amendment Application",
+      "other": "Other Inquiry"
+    },
+    "form": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "type": "Application Type",
+      "submit": "Submit Application",
+      "success": "Application submitted successfully! Your reference number has been generated.",
+      "ref": "Reference Number"
+    }
+  },
+  "mgmt": {
+    "label": "Management Corporations",
+    "title": "Management Corporations",
+    "desc": "Everything you need to know about setting up and managing a condominium corporation",
+    "setup_title": "How to Setup MC",
+    "structure_title": "MC Structure & Appointed Members",
+    "responsibility_title": "Responsibility of the MC",
+    "power_title": "Power of the MC",
+    "admin_title": "Administration & Funds",
+    "unit_title": "Unit Owners Responsibility",
+    "habits_title": "Condominium Living Habits",
+    "reg_fee_title": "Registration Fee of Management Corporations"
+  },
+  "news": {
+    "label": "News & Events",
+    "title": "Latest News",
+    "categories": {
+      "all": "All",
+      "news": "News",
+      "event": "Events",
+      "announcement": "Announcements"
+    },
+    "read_more": "Read More",
+    "published": "Published"
+  },
+  "projects": {
+    "label": "Our Projects",
+    "title": "Projects",
+    "status": {
+      "ongoing": "Ongoing",
+      "completed": "Completed",
+      "planned": "Planned"
+    }
+  },
+  "publications": {
+    "label": "Publications",
+    "title": "Documents & Publications",
+    "types": {
+      "law": "Laws",
+      "publication": "Publications",
+      "form": "Forms",
+      "gazette": "Gazettes",
+      "annual_report": "Annual Reports"
+    }
+  },
+  "careers": {
+    "label": "Careers",
+    "title": "Join Our Team",
+    "desc": "Explore career opportunities at the Condominium Management Authority",
+    "apply": "Apply Now",
+    "deadline": "Application Deadline",
+    "no_vacancies": "No vacancies at the moment. Please check back later."
+  },
+  "contact": {
+    "label": "Get In Touch",
+    "title": "Contact Us",
+    "address_title": "Our Office",
+    "address": "No. 20, Sir Chittampalam A Gardiner Mawatha, Colombo 02, Sri Lanka",
+    "phone": "011 233 8146",
+    "fax": "011 233 8147",
+    "email": "info@condominium.lk",
+    "hours": "Office Hours",
+    "hours_val": "Monday – Friday: 8:30 AM – 4:30 PM",
+    "form_title": "Send a Message",
+    "name": "Your Name",
+    "email_f": "Email Address",
+    "phone_f": "Phone Number",
+    "subject": "Subject",
+    "message": "Your Message",
+    "send": "Send Message",
+    "success": "Your message has been received. We will respond within 2–3 business days."
+  },
+  "footer": {
+    "tagline": "Ministry of Urban Development & Housing — Sri Lanka",
+    "quick_links": "Quick Links",
+    "legal": "Legal",
+    "contact": "Contact",
+    "rights": "© 2025 Condominium Management Authority. All Rights Reserved.",
+    "ministry": "Ministry of Urban Development & Housing"
+  },
+  "common": {
+    "loading": "Loading...",
+    "view_all": "View All",
+    "back": "Back",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "no_results": "No results found",
+    "error": "An error occurred. Please try again.",
+    "select_lang": "SELECT LANGUAGE"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "leadership": "Leadership",
+    "hero_slides": "Hero Slides",
+    "vacancies": "Vacancies",
+    "documents": "Documents",
+    "news": "News & Events",
+    "announcements": "Announcements",
+    "projects": "Projects",
+    "condominiums": "Condominiums",
+    "applications": "Applications",
+    "complaints": "Complaints",
+    "feedbacks": "Feedbacks",
+    "logout": "Logout",
+    "logging_out": "Logging out…",
+    "panel": "Admin Panel",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm_delete": "Are you sure you want to delete this item?",
+    "welcome": "Welcome back",
+    "citizen_services": "Citizen E-Services",
+    "bungalow_bookings": "Bungalow Bookings",
+    "bungalow_rooms": "Bungalow Rooms"
+  },
+  "citizen": {
+    "nav": {
+      "property": "Buying & Renting Property",
+      "parkingRenew": "Renew Season Parking",
+      "devFee": "Pay Development Fee",
+      "renovation": "Renovate Property",
+      "parkingApply": "Apply Season Parking",
+      "payFines": "Pay Fines",
+      "more": "More E-Services"
+    }
+  },
+  "feedback": {
+    "title": "We Value Your Feedback",
+    "name": "Name (Optional)",
+    "email": "Email (Optional)",
+    "rating": "Your Rating",
+    "message": "Write your feedback or comments here...",
+    "submit": "Submit Feedback",
+    "submitting": "Submitting...",
+    "success_title": "Thank You!",
+    "success_message": "Your feedback has been submitted successfully and helps us improve our services.",
+    "close": "Close",
+    "button_tooltip": "Provide Feedback"
+  }
+}
+
