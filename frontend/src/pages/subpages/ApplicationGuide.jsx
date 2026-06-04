@@ -69,6 +69,21 @@ export default function ApplicationGuide() {
             </div>
           </div>
 
+          <div style={{ marginTop: '1.5rem', background: '#fff', border: '1px solid #e6edf3', borderRadius: 12, padding: '1.25rem' }}>
+            <h4 style={{ marginTop: 0, fontSize: '1rem', fontWeight: 800 }}>Downloads & Forms</h4>
+            <p style={{ color: '#475569', marginTop: 6 }}>Official forms and fee schedules (PDF):</p>
+            <ul style={{ marginTop: 8, color: '#334155' }}>
+              <li><a href="https://www.condominium.lk/images/stories/pdf/Instructions_application.pdf" target="_blank" rel="noreferrer">Application for the Registration of a Condominium Plan (Instructions)</a></li>
+              <li><a href="https://www.condominium.lk/images/stories/pdf/new_fees.pdf" target="_blank" rel="noreferrer">Registration Fees (PDF)</a></li>
+              <li style={{ marginTop: 6 }}>Application Forms:
+                <ul style={{ marginTop: 6 }}>
+                  <li><a href="https://www.condominium.lk/images/stories/pdf/APPLICATION%20PPC.pdf" target="_blank" rel="noreferrer">Application (PPC)</a></li>
+                  <li><a href="https://www.condominium.lk/images/stories/pdf/FINAL%20APPLICATION%20FOR%20THE%20CERTIFICATE%20-1.pdf" target="_blank" rel="noreferrer">Final Application for Full Certificate - Form 01</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+
         </div>
       </section>
     </div>

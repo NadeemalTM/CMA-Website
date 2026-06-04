@@ -72,5 +72,9 @@ class DatabaseSeeder extends Seeder
             ['title_en'=>'Urban Community Renewal Programme','title_si'=>'නාගරික ප්‍රජා ප්‍රතිනිර්මාණ වැඩසටහන','title_ta'=>'நகர்ப்புற சமூக புதுப்பித்தல் திட்டம்','description_en'=>'A comprehensive programme to renew and upgrade aging condominium complexes across major urban centres in Sri Lanka.','status'=>'ongoing','location'=>'Colombo, Kandy, Galle','is_active'=>1,'start_date'=>'2024-01-01','created_at'=>now(),'updated_at'=>now()],
             ['title_en'=>'Digital Management System for MCs','title_si'=>'කළමනාකරණ සංගම් සඳහා ඩිජිටල් පද්ධතිය','title_ta'=>'MC களுக்கான டிஜிட்டல் மேலாண்மை அமைப்பு','description_en'=>'Implementation of a digital platform for Management Corporations to handle fees, complaints and maintenance requests online.','status'=>'planned','location'=>'Island-wide','is_active'=>1,'start_date'=>'2026-06-01','created_at'=>now(),'updated_at'=>now()],
         ]);
+
+        $this->call([
+            CertificateSeeder::class,
+        ]);
     }
 }

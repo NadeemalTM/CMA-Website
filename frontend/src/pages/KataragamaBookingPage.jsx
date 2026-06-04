@@ -459,32 +459,16 @@ export default function KataragamaBookingPage() {
             <p className="bk-hero-desc">
               Reserve your stay at the Condominium Management Authority's exclusive circuit bungalow — nestled in the heart of Kataragama, offering tranquil accommodation for staff and visiting guests.
             </p>
-            <div className="bk-stats-row">
-              <div className="bk-stat">
-                <div className="bk-stat-num">4</div>
-                <span className="bk-stat-lbl">Rooms Available</span>
-              </div>
-              <div className="bk-stat">
-                <div className="bk-stat-num">LKR 4,500</div>
-                <span className="bk-stat-lbl">From / Night</span>
-              </div>
-              <div className="bk-stat">
-                <div className="bk-stat-num">★ 4.8</div>
-                <span className="bk-stat-lbl">Guest Rating</span>
-              </div>
-            </div>
           </div>
           <div className="bk-hero-gallery">
-            <div className="bk-gallery-img tall">
-              <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&auto=format&fit=crop&q=70" alt="Kataragama Bungalow" />
+            <div className="bk-gallery-img">
+              <img src="https://media-cdn.tripadvisor.com/media/photo-s/02/e0/70/a5/gem-river-edge-eco-home.jpg" alt="Kataragama Bungalow Exterior" />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div className="bk-gallery-img">
-                <img src="https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=400&auto=format&fit=crop&q=70" alt="Room Interior" />
-              </div>
-              <div className="bk-gallery-img">
-                <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=400&auto=format&fit=crop&q=70" alt="Garden View" />
-              </div>
+            <div className="bk-gallery-img">
+              <img src="https://scontent.fcmb1-2.fna.fbcdn.net/v/t1.6435-9/126420775_3373655879526837_7821034308813852164_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=536f4a&_nc_ohc=6Em481u_fMsQ7kNvwF96b4W&_nc_oc=Adrl-T0oCfLcKv8qUlTmK__jLBVhnbJ7bJuKHTUigBn7ErJQYtWS8QPsSE9X7BVru8g&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=6NzPiXPSvoMCYsyqE1bduA&_nc_ss=78289&oh=00_Af8jNNXtdz07lJe2kKCi7bPMCQlzcf_mazyI1FuCJfdVHw&oe=6A4870E0" alt="Bungalow Living Room" />
+            </div>
+            <div className="bk-gallery-img">
+              <img src="https://st5.depositphotos.com/19085394/64942/i/450/depositphotos_649426038-stock-photo-kirivehara-kiri-vehera-shrine-kataragama.jpg" alt="Kataragama Kiri Vehera Temple" />
             </div>
           </div>
         </div>
@@ -505,18 +489,6 @@ export default function KataragamaBookingPage() {
               <User size={14} />
               Visiting Guest
               <span className="role-badge">Public</span>
-            </button>
-            <button
-              className={`role-btn${currentRole === 'employee' ? ' active' : ''}`}
-              id="roleEmployee"
-              onClick={() => {
-                setCurrentRole('employee');
-                setSelectedRooms([]);
-              }}
-            >
-              <FileText size={14} />
-              CMA Employee
-              <span className="role-badge">Staff</span>
             </button>
             <span style={{ marginLeft: 'auto', fontSize: '12.5px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <ShieldCheck size={14} style={{ color: 'var(--success)' }} />
@@ -1578,7 +1550,7 @@ export default function KataragamaBookingPage() {
         }
         .bk-hero-gallery {
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: repeat(3, 1fr);
           gap: 12px;
         }
         .bk-gallery-img {
@@ -1589,16 +1561,13 @@ export default function KataragamaBookingPage() {
         }
         .bk-gallery-img img {
           width: 100%;
-          height: 130px;
+          height: 274px;
           object-fit: cover;
           display: block;
           transition: transform .4s;
         }
         .bk-gallery-img:hover img {
           transform: scale(1.05);
-        }
-        .bk-gallery-img.tall img {
-          height: 274px;
         }
 
         /* USER ROLE SELECTOR */

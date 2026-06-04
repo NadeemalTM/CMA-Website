@@ -400,7 +400,7 @@ export default function Navbar() {
                 {t('nav.orgName', 'Condominium Management Authority')}
               </span>
               <span style={s.logoSub}>
-                {t('nav.ministry', 'Ministry of Urban Development & Housing — Sri Lanka')}
+                {t('nav.ministry', 'Ministry of Transport, Highways and Urban Development — Sri Lanka')}
               </span>
             </div>
           </NavLink>

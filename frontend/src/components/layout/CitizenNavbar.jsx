@@ -2,21 +2,15 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import {
-  Key,
-  CreditCard,
-  Hammer,
-  Coins,
   LayoutGrid,
   UserCheck,
   LogOut,
+  Award,
 } from 'lucide-react';
 
 const SERVICES = [
-  { path: '/services/property',  key: 'citizen.nav.property',   label: 'Buying & Renting Private Property',          icon: Key },
-  { path: '/services/dev-fee',   key: 'citizen.nav.devFee',     label: 'Pay Electronic Development Application Fee',  icon: CreditCard },
-  { path: '/services/renovation',key: 'citizen.nav.renovation', label: 'Renovating Private Residential Property',     icon: Hammer },
-  { path: '/services/pay-fines', key: 'citizen.nav.payFines',   label: 'Pay Fines',                                  icon: Coins },
-  { path: '/services/more',      key: 'citizen.nav.more',       label: 'More E-Services',                            icon: LayoutGrid },
+  { path: '/services/certificate',  key: 'citizen.nav.certificate',  label: 'Get Certificate',  icon: Award },
+  { path: '/services/more',         key: 'citizen.nav.more',         label: 'More E-Services',  icon: LayoutGrid },
 ];
 
 export default function CitizenNavbar() {
@@ -52,7 +46,7 @@ export default function CitizenNavbar() {
           margin: '0 auto',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           flexWrap: 'wrap',
           gap: '0.75rem',
         }}
@@ -62,15 +56,14 @@ export default function CitizenNavbar() {
           style={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '0.5rem',
             flexWrap: 'wrap',
-            flex: 1,
-            minWidth: '280px',
           }}
         >
           {SERVICES.map((s) => {
             const Icon = s.icon;
-            const isActive = location.pathname === s.path;
+            const isCert = s.path === '/services/certificate';
             return (
               <a
                 key={s.path}
@@ -85,20 +78,20 @@ export default function CitizenNavbar() {
                   fontSize: '0.8rem',
                   fontWeight: 600,
                   textDecoration: 'none',
-                  color: isActive ? '#fff' : '#4a0000',
-                  background: isActive ? 'var(--crimson)' : 'transparent',
-                  border: `1px solid ${isActive ? 'var(--crimson)' : 'rgba(139,0,0,0.15)'}`,
+                  color: isCert ? '#fff' : '#4a0000',
+                  background: isCert ? 'var(--crimson)' : 'transparent',
+                  border: `1px solid ${isCert ? 'var(--crimson)' : 'rgba(139,0,0,0.15)'}`,
                   transition: 'all 0.2s ease',
                   whiteSpace: 'nowrap',
                 }}
                 onMouseEnter={(e) => {
-                  if (!isActive) {
+                  if (!isCert) {
                     e.currentTarget.style.background = 'rgba(139,0,0,0.06)';
                     e.currentTarget.style.borderColor = 'var(--crimson)';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (!isActive) {
+                  if (!isCert) {
                     e.currentTarget.style.background = 'transparent';
                     e.currentTarget.style.borderColor = 'rgba(139,0,0,0.15)';
                   }

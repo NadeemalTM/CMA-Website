@@ -21,11 +21,12 @@ export default function MoreServicesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Redirect if not logged in
-  if (!isCitizenLoggedIn) {
-    navigate('/login?redirect=/services/more');
-    return null;
-  }
+  // Redirect if not logged in — must be inside useEffect, not render body
+  useEffect(() => {
+    if (!isCitizenLoggedIn) {
+      navigate('/login?redirect=/services/more');
+    }
+  }, [isCitizenLoggedIn, navigate]);
 
   const fetchSubmissions = async () => {
     setLoading(true);
@@ -41,8 +42,11 @@ export default function MoreServicesPage() {
   };
 
   useEffect(() => {
-    fetchSubmissions();
-  }, []);
+    if (isCitizenLoggedIn) fetchSubmissions();
+  }, [isCitizenLoggedIn]);
+
+  // Don't render content while redirecting
+  if (!isCitizenLoggedIn) return null;
 
   const getServiceLabel = (type) => {
     switch (type) {

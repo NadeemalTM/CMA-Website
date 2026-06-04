@@ -14,9 +14,9 @@ const PageHeroFallback = ({ title }) => (
 );
 
 const LAWS = [
-  { title: 'Condominium Property Act No. 12 of 1973', desc: 'The foundational act that governs the subdivision of properties into units and common elements, and establishes ownership and registration criteria.' },
-  { title: 'Apartment Ownership (Amendment) Act No. 39 of 2003', desc: 'A vital amendment that established the Condominium Management Authority (CMA) and expands the regulatory powers over Management Corporations.' },
-  { title: 'Common Amenities Board Act No. 24 of 1973', desc: 'Legislation governing the control, administration, maintenance, and supervision of common amenities inside multi-family housing properties.' }
+  { title: 'Condominium Property Act No. 12 of 1973', desc: 'The foundational act governing subdivision of property into condominium parcels and common elements, defining ownership and registration requirements.' },
+  { title: 'Apartment Ownership (Amendment) Act No. 39 of 2003', desc: 'The amendment that established the Condominium Management Authority (CMA) and broadened regulatory powers over management corporations.' },
+  { title: 'Common Amenities Board Act No. 24 of 1973', desc: 'Legislation addressing administration, maintenance, and supervision of common amenities within multi-unit properties.' }
 ];
 
 export default function CondoLawsPage() {

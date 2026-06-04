@@ -29,7 +29,7 @@ class BungalowRoomController extends Controller
                 'emoji' => $r->emoji,
                 'price' => (float)$r->price,
                 'empPrice' => (float)$r->emp_price,
-                'image' => $r->image ? asset('storage/' . $r->image) : null,
+                'image' => $r->image ? '/storage/' . $r->image : null,
                 'image_path' => $r->image
             ];
         });

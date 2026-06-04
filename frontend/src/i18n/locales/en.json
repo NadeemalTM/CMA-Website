@@ -32,12 +32,12 @@
     "powersMC": "Power of the MC",
     "kataragama": "Kataragama Bungalow",
     "orgName": "Condominium Management Authority",
-    "ministry": "Ministry of Urban Development & Housing — Sri Lanka",
+    "ministry": "Ministry of Transport, Highways and Urban Development — Sri Lanka",
     "bookingBtn": "Bungalow Booking",
     "searchPlaceholder": "Search CMA Sri Lanka..."
   },
   "topbar": {
-    "address": "No. 20, Sir Chittampalam A Gardiner Mawatha, Colombo 02",
+    "address": "1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.",
     "phone": "011 233 8146",
     "email": "info@condominium.lk"
   },
@@ -198,7 +198,7 @@
     "label": "Get In Touch",
     "title": "Contact Us",
     "address_title": "Our Office",
-    "address": "No. 20, Sir Chittampalam A Gardiner Mawatha, Colombo 02, Sri Lanka",
+    "address": "1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.",
     "phone": "011 233 8146",
     "fax": "011 233 8147",
     "email": "info@condominium.lk",
@@ -214,12 +214,12 @@
     "success": "Your message has been received. We will respond within 2–3 business days."
   },
   "footer": {
-    "tagline": "Ministry of Urban Development & Housing — Sri Lanka",
+    "tagline": "Ministry of Transport, Highways and Urban Development — Sri Lanka",
     "quick_links": "Quick Links",
     "legal": "Legal",
     "contact": "Contact",
     "rights": "© 2025 Condominium Management Authority. All Rights Reserved.",
-    "ministry": "Ministry of Urban Development & Housing"
+    "ministry": "Ministry of Transport, Highways and Urban Development"
   },
   "common": {
     "loading": "Loading...",
@@ -258,10 +258,12 @@
     "welcome": "Welcome back",
     "citizen_services": "Citizen E-Services",
     "bungalow_bookings": "Bungalow Bookings",
-    "bungalow_rooms": "Bungalow Rooms"
+    "bungalow_rooms": "Bungalow Rooms",
+    "certificates": "Certificates"
   },
   "citizen": {
     "nav": {
+      "certificate": "Get Certificate",
       "property": "Buying & Renting Property",
       "parkingRenew": "Renew Season Parking",
       "devFee": "Pay Development Fee",

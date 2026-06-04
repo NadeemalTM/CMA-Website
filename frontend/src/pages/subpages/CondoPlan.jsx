@@ -57,45 +57,22 @@ export default function CondoPlanPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {STEPS.map((step) => (
-              <div
-                key={step.id}
-                style={{
-                  background: '#fff',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  padding: '1.25rem',
-                  boxShadow: 'var(--shadow-sm)',
-                  display: 'flex',
-                  gap: '1rem',
-                  alignItems: 'flex-start'
-                }}
-              >
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '6px',
-                    background: 'var(--crimson)',
-                    color: '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 800,
-                    fontSize: '0.9rem',
-                    flexShrink: 0
-                  }}
-                >
-                  {step.id}
-                </div>
-                <div>
-                  <h4 style={{ margin: '0 0 0.25rem', fontSize: '0.95rem', fontWeight: 700, color: '#1f2937' }}>
-                    {step.title}
-                  </h4>
-                  <p style={{ margin: 0, fontSize: '0.82rem', color: '#64748b', lineHeight: 1.4 }}>
-                    {step.desc}
-                  </p>
-                </div>
-              </div>
+            <div style={{ background: '#fff', border: '1px solid #e6edf3', borderRadius: 12, padding: '1.5rem' }}>
+              <h3 style={{ marginTop: 0 }}>What is a Plan of Condominium?</h3>
+              <p style={{ color: '#334155', lineHeight: 1.6 }}>
+                A plan of condominium is a method of dividing property so that an individual holds title to a portion of a building or a "unit", as well as a share of the rest of the property that is common to all unit owners. The term applies to residential, commercial or industrial properties and may be used for new or existing buildings.
+              </p>
+
+              <h4 style={{ marginTop: '1rem' }}>Key statutory requirements</h4>
+              <ul style={{ color: '#475569', lineHeight: 1.8 }}>
+                <li>The condominium plan must be prepared by a licensed surveyor and delineate external surface boundaries and the position of each subdivided building.</li>
+                <li>It must include vertical sections showing floors and ceilings, heights of storeys, and descriptions with dimensions for condominium parcels.</li>
+                <li>Each parcel must be identified, share values entered, and endorsements from registered professionals must be attached as required by the Act.</li>
+                <li>Accessory parcels and common elements must be defined and detailed in accordance with prescribed requirements.</li>
+              </ul>
+
+              <p style={{ color: '#475569' }}>For the full statutory text and downloadable PDF, see the original CMA publication.</p>
+            </div>
             ))}
           </div>
 

@@ -37,6 +37,11 @@ Route::prefix('v1')->group(function () {
     Route::post('complaints', [PublicController::class, 'submitComplaint']);
     Route::post('feedbacks', [PublicController::class, 'submitFeedback']);
     Route::post('translate', [PublicController::class, 'translate']);
+
+    // --- Public Certificate Routes ---
+    Route::get('certificates', [\App\Http\Controllers\Api\CertificateController::class, 'index']);
+    Route::get('certificates/{id}', [\App\Http\Controllers\Api\CertificateController::class, 'show'])->where('id', '[0-9]+');
+
     // ── Auth ────────────────────────────────────────────────────────────────
     Route::post('admin/register', [AuthController::class, 'register']);
     Route::post('admin/login', [AuthController::class, 'login']);
@@ -54,7 +59,14 @@ Route::prefix('v1')->group(function () {
         Route::post('bookings', [BookingController::class, 'store']);
         Route::get('bookings', [BookingController::class, 'history']);
         Route::post('citizen/upload', [PublicController::class, 'upload']);
+
+        // --- Citizen Protected Certificate Routes ---
+        Route::post('certificates/{id}/initiate-payment', [\App\Http\Controllers\Api\CertificateController::class, 'initiatePayment'])->where('id', '[0-9]+');
+        Route::post('certificates/payments/{ref}/complete', [\App\Http\Controllers\Api\CertificateController::class, 'completePayment']);
+        Route::get('certificates/payments/{ref}/status', [\App\Http\Controllers\Api\CertificateController::class, 'paymentStatus']);
+        Route::get('certificates/my-payments', [\App\Http\Controllers\Api\CertificateController::class, 'myPayments']);
     });
+
 
     // ── Admin (Protected) ───────────────────────────────────────────────────
     Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
@@ -90,6 +102,21 @@ Route::prefix('v1')->group(function () {
 
         Route::get('feedbacks', [\App\Http\Controllers\Admin\FeedbackController::class, 'index']);
         Route::delete('feedbacks/{id}', [\App\Http\Controllers\Admin\FeedbackController::class, 'destroy']);
+
+        // --- Certificate Admin Routes ---
+        Route::get('certificate-types', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'typesIndex']);
+        Route::post('certificate-types', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'typesStore']);
+        Route::get('certificate-types/{id}', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'typesShow']);
+        Route::put('certificate-types/{id}', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'typesUpdate']);
+        Route::delete('certificate-types/{id}', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'typesDestroy']);
+
+        Route::get('certificate-documents', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'docsIndex']);
+        Route::post('certificate-documents', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'docsStore']);
+        Route::get('certificate-documents/{id}', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'docsShow']);
+        Route::put('certificate-documents/{id}', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'docsUpdate']);
+        Route::delete('certificate-documents/{id}', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'docsDestroy']);
+
+        Route::get('certificate-payments', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'paymentsIndex']);
 
         Route::post('upload', [PublicController::class, 'upload']);
     });

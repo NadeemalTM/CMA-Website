@@ -207,7 +207,7 @@ class PublicController extends Controller
     {
         $request->validate(['file' => 'required|file|max:10240']);
         $path = $request->file('file')->store('uploads', 'public');
-        return response()->json(['path' => $path, 'url' => Storage::url($path)]);
+        return response()->json(['path' => $path, 'url' => '/storage/' . $path]);
     }
 
     // ── Localization Helpers ─────────────────────────────────────────────────
@@ -231,7 +231,7 @@ class PublicController extends Controller
             'description' => $this->loc($s, 'description'),
             'button_text' => $this->loc($s, 'button_text'),
             'button_link' => $s->button_link,
-            'image' => $s->image ? asset('storage/' . $s->image) : null,
+            'image' => $s->image ? '/storage/' . $s->image : null,
             'order' => $s->order,
         ];
     }
@@ -243,7 +243,7 @@ class PublicController extends Controller
             'name' => $l->name,
             'position' => $this->loc($l, 'position'),
             'bio' => $this->loc($l, 'bio'),
-            'photo' => $l->photo ? asset('storage/' . $l->photo) : null,
+            'photo' => $l->photo ? '/storage/' . $l->photo : null,
             'email' => $l->email,
             'phone' => $l->phone,
             'order' => $l->order,
@@ -281,7 +281,7 @@ class PublicController extends Controller
             'excerpt' => $this->loc($n, 'excerpt'),
             'slug' => $n->slug,
             'category' => $n->category,
-            'image' => $n->image ? asset('storage/' . $n->image) : null,
+            'image' => $n->image ? '/storage/' . $n->image : null,
             'published_at' => $n->published_at?->toDateString(),
         ];
         if ($full) $data['body'] = $this->loc($n, 'body');
@@ -307,7 +307,7 @@ class PublicController extends Controller
             'category' => $d->category,
             'language' => $d->language,
             'year' => $d->year,
-            'file_url' => asset('storage/' . $d->file_path),
+            'file_url' => '/storage/' . $d->file_path,
         ];
     }
 
@@ -317,7 +317,7 @@ class PublicController extends Controller
             'id' => $p->id,
             'title' => $this->loc($p, 'title'),
             'description' => $this->loc($p, 'description'),
-            'image' => $p->image ? asset('storage/' . $p->image) : null,
+            'image' => $p->image ? '/storage/' . $p->image : null,
             'status' => $p->status,
             'start_date' => $p->start_date?->toDateString(),
             'end_date' => $p->end_date?->toDateString(),

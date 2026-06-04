@@ -193,7 +193,7 @@ export default function Footer() {
                 {t('footer.orgName', 'Condominium Management Authority')}
               </div>
               <div style={s.ministry}>
-                {t('footer.ministry', 'Ministry of Urban Development & Housing')}
+                {t('footer.ministry', 'Ministry of Transport, Highways and Urban Development')}
               </div>
             </div>
           </div>
@@ -259,7 +259,7 @@ export default function Footer() {
           <div style={s.contactItem}>
             <MapPin size={16} style={s.contactIcon} />
             <span style={s.contactText}>
-              {t('footer.address', 'No. 9, Rotunda Gardens, Colombo 03, Sri Lanka')}
+              {t('footer.address', '1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.')}
             </span>
           </div>
           <div style={s.contactItem}>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { MessageSquare, X, Send, CheckCircle2, AlertCircle, ThumbsUp } from 'lucide-react';
 import { submitFeedback } from '../../services/api';
 
 const ratingEmojis = [
@@ -119,7 +119,7 @@ export default function FeedbackWidget() {
               transition={{ duration: 0.2 }}
               style={{ display: 'flex', position: 'relative' }}
             >
-              <MessageSquare size={24} />
+              <ThumbsUp size={24} />
               <span className="pulse-dot" style={{
                 position: 'absolute',
                 top: '-4px',
@@ -171,7 +171,7 @@ export default function FeedbackWidget() {
               justifyContent: 'space-between',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <MessageSquare size={18} style={{ opacity: 0.9 }} />
+                <ThumbsUp size={18} style={{ opacity: 0.9 }} />
                 <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, letterSpacing: '0.3px' }}>
                   {t('feedback.title') || 'We Value Your Feedback'}
                 </h3>

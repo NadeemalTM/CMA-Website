@@ -1,7 +1,12 @@
-import React from 'react';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import React, { useState } from 'react';
+import { MapPin, Phone, Mail, X, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import logo from '../../assets/logo.png';
+
+const MAP_URL = 'https://maps.app.goo.gl/5YC1ea1LY2bT6t5B6';
+// Google Maps embed with search query — shows a red pin marker on CMA HQ
+const MAP_EMBED_SRC =
+  'https://maps.google.com/maps?q=Condominium+Management+Authority,+No.+20+Sir+Chittampalam+A+Gardiner+Mawatha,+Colombo+02&z=17&output=embed';
 
 const styles = {
   topbar: {
@@ -34,6 +39,19 @@ const styles = {
     gap: '6px',
     color: 'rgba(255,255,255,0.85)',
     textDecoration: 'none',
+    transition: 'color 0.2s',
+  },
+  addressBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    color: 'rgba(255,255,255,0.85)',
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    cursor: 'pointer',
+    fontSize: '12px',
+    fontFamily: 'inherit',
     transition: 'color 0.2s',
   },
   icon: {
@@ -77,55 +95,222 @@ const FacebookIcon = () => (
   </svg>
 );
 
-export default function TopBar() {
-  const { t } = useTranslation();
-
+/* ── Google Maps Modal ── */
+function MapModal({ onClose }) {
   return (
-    <div style={styles.topbar}>
-      <div style={styles.container}>
-        <div style={styles.leftGroup}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '6px' }}>
-            <img src={logo} alt="CMA Emblem" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-            <span style={{ fontWeight: 800, fontSize: '10.5px', color: '#C9A227', letterSpacing: '0.5px', lineHeight: 1 }}>CMA</span>
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.55)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 99998,
+          animation: 'fadeInBackdrop 0.2s ease',
+        }}
+      />
+
+      {/* Modal box */}
+      <div
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 99999,
+          background: '#fff',
+          borderRadius: '16px',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.35)',
+          overflow: 'hidden',
+          width: 'min(680px, 95vw)',
+          animation: 'popIn 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '16px 20px',
+            background: '#1a0000',
+            color: '#fff',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'rgba(201,162,39,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <MapPin size={16} color="#C9A227" />
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '14px' }}>CMA Headquarters</div>
+              <div style={{ fontSize: '11.5px', color: 'rgba(255,255,255,0.65)' }}>
+                No. 20, Sir Chittampalam A Gardiner Mawatha, Colombo 02
+              </div>
+            </div>
           </div>
-          <div style={styles.divider} />
-          <span style={styles.item}>
-            <MapPin size={13} style={styles.icon} />
-            <span>{t('topbar.address', 'No. 9, Rotunda Gardens, Colombo 03')}</span>
-          </span>
-          <div style={styles.divider} />
-          <a href="tel:0112338146" style={styles.item}>
-            <Phone size={13} style={styles.icon} />
-            <span>{t('topbar.phone', '011 233 8146')}</span>
-          </a>
-          <div style={styles.divider} />
-          <a href="mailto:info@condominium.lk" style={styles.item}>
-            <Mail size={13} style={styles.icon} />
-            <span>{t('topbar.email', 'info@condominium.lk')}</span>
-          </a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <a
+              href={MAP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                background: '#C9A227',
+                color: '#1a0000',
+                textDecoration: 'none',
+                fontSize: '12px',
+                fontWeight: 700,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <ExternalLink size={12} />
+              Open in Maps
+            </a>
+            <button
+              onClick={onClose}
+              style={{
+                background: 'rgba(255,255,255,0.12)',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '30px',
+                height: '30px',
+              }}
+              aria-label="Close map"
+            >
+              <X size={15} />
+            </button>
+          </div>
         </div>
 
-        <div style={styles.rightGroup}>
-          <a
-            href="https://wa.me/94112338146"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ ...styles.socialLink, color: '#25D366' }}
-            aria-label="WhatsApp"
-          >
-            <WhatsAppIcon />
-          </a>
-          <a
-            href="https://www.facebook.com/p/Condominium-Management-Authority-100095347216878/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ ...styles.socialLink, color: '#1877F2' }}
-            aria-label="Facebook"
-          >
-            <FacebookIcon />
-          </a>
+        {/* Map iframe */}
+        <div style={{ position: 'relative', width: '100%', height: '420px' }}>
+          <iframe
+            title="CMA Location"
+            src={MAP_EMBED_SRC}
+            width="100%"
+            height="100%"
+            style={{ border: 0, display: 'block' }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            padding: '12px 20px',
+            background: '#fafafa',
+            borderTop: '1px solid #eee',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '12px',
+            color: '#666',
+          }}
+        >
+          <MapPin size={13} color="#C9A227" />
+          <span>Condominium Management Authority · Ministry of Transport, Highways and Urban Development, Sri Lanka</span>
         </div>
       </div>
-    </div>
+
+      <style>{`
+        @keyframes fadeInBackdrop { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes popIn {
+          from { opacity: 0; transform: translate(-50%, -48%) scale(0.94); }
+          to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+      `}</style>
+    </>
+  );
+}
+
+export default function TopBar() {
+  const { t } = useTranslation();
+  const [mapOpen, setMapOpen] = useState(false);
+
+  return (
+    <>
+      <div style={styles.topbar}>
+        <div style={styles.container}>
+          <div style={styles.leftGroup}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '6px' }}>
+              <img src={logo} alt="CMA Emblem" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+              <span style={{ fontWeight: 800, fontSize: '10.5px', color: '#C9A227', letterSpacing: '0.5px', lineHeight: 1 }}>CMA</span>
+            </div>
+            <div style={styles.divider} />
+
+            {/* ── Clickable Address ── */}
+            <button
+              id="topbar-address-btn"
+              style={styles.addressBtn}
+              onClick={() => setMapOpen(true)}
+              title="Click to view on Google Maps"
+            >
+              <MapPin size={13} style={styles.icon} />
+              <span style={{ borderBottom: '1px dashed rgba(255,255,255,0.4)', paddingBottom: '1px' }}>
+                {t('topbar.address', 'No. 20, Sir Chittampalam A Gardiner Mawatha, Colombo 02')}
+              </span>
+            </button>
+
+            <div style={styles.divider} />
+            <a href="tel:0112338146" style={styles.item}>
+              <Phone size={13} style={styles.icon} />
+              <span>{t('topbar.phone', '011 233 8146')}</span>
+            </a>
+            <div style={styles.divider} />
+            <a href="mailto:info@condominium.lk" style={styles.item}>
+              <Mail size={13} style={styles.icon} />
+              <span>{t('topbar.email', 'info@condominium.lk')}</span>
+            </a>
+          </div>
+
+          <div style={styles.rightGroup}>
+            <a
+              href="https://wa.me/94112338146"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ ...styles.socialLink, color: '#25D366' }}
+              aria-label="WhatsApp"
+            >
+              <WhatsAppIcon />
+            </a>
+            <a
+              href="https://www.facebook.com/p/Condominium-Management-Authority-100095347216878/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ ...styles.socialLink, color: '#1877F2' }}
+              aria-label="Facebook"
+            >
+              <FacebookIcon />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Map Modal */}
+      {mapOpen && <MapModal onClose={() => setMapOpen(false)} />}
+    </>
   );
 }

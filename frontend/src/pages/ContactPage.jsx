@@ -28,10 +28,10 @@ export default function ContactPage() {
   };
 
   const contactInfo = [
-    { icon: MapPin, title: t('contact.address_title'), text: t('contact.address'), color: 'var(--crimson)' },
-    { icon: Phone, title: 'Phone', text: t('contact.phone'), href: 'tel:0112338146', color: 'var(--success)' },
-    { icon: Mail, title: 'Email', text: t('contact.email'), href: 'mailto:info@condominium.lk', color: 'var(--gold)' },
-    { icon: Clock, title: t('contact.hours'), text: t('contact.hours_val'), color: 'var(--info)' },
+    { icon: MapPin, title: 'Address', text: '1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.', color: 'var(--crimson)' },
+    { icon: Phone, title: 'Phone', text: '+94-11-2447432, +94-11-2447429', href: 'tel:+94112447432', color: 'var(--success)' },
+    { icon: Mail, title: 'Email', text: 'info@condominium.lk', href: 'mailto:info@condominium.lk', color: 'var(--gold)' },
+    { icon: Clock, title: 'Office', text: 'Office hours by appointment', color: 'var(--info)' },
   ];
 
   return (
@@ -78,7 +78,7 @@ export default function ContactPage() {
               <div style={{ marginTop: '2rem', borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', border: '1px solid var(--mid-gray)' }}>
                 <iframe
                   title="CMA Sri Lanka Office Location"
-                  src="https://maps.google.com/maps?q=Condominium+Management+Authority,+No.+9,+Rotunda+Gardens,+Colombo+03,+Sri+Lanka&output=embed&z=16"
+                  src="https://maps.google.com/maps?q=Condominium+Management+Authority,+National+Housing+Department+Building,+Sir+Chittampalam+A+Gardiner+Mawatha,+Colombo+02&output=embed&z=16"
                   width="100%"
                   height="280"
                   style={{ border: 0, display: 'block' }}

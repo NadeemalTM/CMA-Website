@@ -39,14 +39,6 @@ function HeroSlider({ slides }) {
           )}
           <div className="hero-overlay" />
           <div className="container hero-content">
-            <motion.span
-              className="hero-badge"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              {slides[current].subtitle || 'Condominium Management Authority · Sri Lanka'}
-            </motion.span>
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -181,9 +173,7 @@ function LeaderCard({ leader }) {
           {leader.position}
         </p>
       </div>
-      <div className="leader-card-footer">
-        <button className="btn btn-outline btn-sm w-full">◎ {t('home.view_profile')}</button>
-      </div>
+
     </div>
   );
 }
@@ -269,17 +259,6 @@ export default function HomePage() {
                 </div>
                 <div className="about-img about-img-2">
                   <div className="about-img-badge-bottom">🏢 Sri Lanka's Premier Property Authority</div>
-                </div>
-              </div>
-              <div className="about-cta-card">
-                <div>
-                  <Phone size={20} style={{ color: 'var(--gold)' }} />
-                  <strong>005 203 7830</strong>
-                  <p style={{ margin: 0, fontSize: '0.8rem', opacity: 0.8 }}>info@conormem.com</p>
-                </div>
-                <div style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
-                  <Mail size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                  Colombo, Sri Lanka
                 </div>
               </div>
             </motion.div>

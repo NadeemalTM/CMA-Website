@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Users, Image, BriefcaseBusiness, FileText,
   Newspaper, Megaphone, FolderOpen, Building2, ClipboardList,
-  MessageSquare, LogOut, Menu, X, CheckSquare, Calendar, Home, Star,
+  MessageSquare, LogOut, Menu, X, CheckSquare, Calendar, Home, Star, Award
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { adminLogout } from '../../services/api';
@@ -27,8 +27,9 @@ const NAV_ITEM_DEFS = [
   { to: '/admin/complaints',          tKey: 'admin.complaints',         icon: MessageSquare },
   { to: '/admin/feedbacks',           tKey: 'admin.feedbacks',          icon: Star },
   { to: '/admin/citizen-submissions', tKey: 'admin.citizen_services',   icon: CheckSquare },
-  { to: '/admin/bookings',            tKey: 'admin.bungalow_bookings',  icon: Calendar },
+  { to: '/admin/bookings',            tKey: 'admin.bookings',           icon: Calendar },
   { to: '/admin/bungalow-rooms',      tKey: 'admin.bungalow_rooms',     icon: Home },
+  { to: '/admin/certificates',        tKey: 'admin.certificates',       icon: Award },
 ];
 
 // Route → i18n key map for page titles
@@ -47,8 +48,9 @@ const PAGE_TITLE_KEYS = {
   '/admin/complaints':          'admin.complaints',
   '/admin/feedbacks':           'admin.feedbacks',
   '/admin/citizen-submissions': 'admin.citizen_services',
-  '/admin/bookings':            'admin.bungalow_bookings',
+  '/admin/bookings':            'admin.bookings',
   '/admin/bungalow-rooms':      'admin.bungalow_rooms',
+  '/admin/certificates':        'admin.certificates',
 };
 
 

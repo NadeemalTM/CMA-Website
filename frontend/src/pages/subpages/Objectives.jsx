@@ -15,11 +15,13 @@ const PageHeroFallback = ({ title }) => (
 );
 
 const OBJECTIVES = [
-  { id: 1, text: 'To foster, promote, and establish a modern condominium high-rise dwelling culture among the citizens of Sri Lanka.' },
-  { id: 2, text: 'To ensure all developers, building corporations, and unit owners adhere strictly to safety and maintenance guidelines for common property.' },
-  { id: 3, text: 'To mandate, supervise, and verify the systematic establishment of Management Corporations for every registered condominium.' },
-  { id: 4, text: 'To promote financial transparency, ensuring sinking funds and maintenance levies are utilized fairly and audited annually.' },
-  { id: 5, text: 'To resolve property management conflicts and resident grievances amicably through statutory mediation boards.' }
+  { id: 1, text: 'To control, manage, maintain and administer condominium parcels, common elements and common amenities of condominium properties.' },
+  { id: 2, text: 'To ensure common elements and common amenities of condominium properties are properly maintained and periodic repairs are carried out.' },
+  { id: 3, text: 'To ensure buildings comprising condominium parcels are insured against fire and other risks and assist management corporations where necessary.' },
+  { id: 4, text: 'To remove unauthorized constructions or intervene where registered plans are not complied with, protecting stakeholder interests.' },
+  { id: 5, text: 'To assist management corporations to establish and maintain open spaces, roads, gardens and play areas and transfer maintenance responsibilities where appropriate.' },
+  { id: 6, text: 'To monitor construction progress of registered condominium plans and intervene to protect stakeholder interests when required.' },
+  { id: 7, text: 'To undertake redevelopment programmes and capital investment plans for approval by the Minister and coordinate implementation with relevant agencies.' }
 ];
 
 export default function Objectives() {

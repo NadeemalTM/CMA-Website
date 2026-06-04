@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+
 import { useEffect, useState } from 'react';
-import { Mail, Phone, User, ChevronRight, Loader } from 'lucide-react';
+import { Mail, Phone, User, Loader } from 'lucide-react';
 import api, { getLeaders } from '../services/api';
 import './LeadershipPage.css';
 
@@ -76,11 +76,7 @@ function LeaderCard({ leader, index }) {
             <Phone size={14} /> {leader.phone}
           </a>
         )}
-        {leader.slug && (
-          <Link to={`/about/leadership/${leader.slug}`} className="btn btn-outline btn-sm leader-btn">
-            View Profile <ChevronRight size={14} />
-          </Link>
-        )}
+
       </div>
     </motion.div>
   );

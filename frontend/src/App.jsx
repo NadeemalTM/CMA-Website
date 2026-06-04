@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useState, useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
+import logo from './assets/logo.png';
 import './i18n/index.js';
 import './index.css';
 import './App.css';
@@ -49,6 +50,10 @@ const DevFeePage = lazy(() => import('./pages/services/DevFeePage'));
 const RenovationPage = lazy(() => import('./pages/services/RenovationPage'));
 const PayFinesPage = lazy(() => import('./pages/services/PayFinesPage'));
 const MoreServicesPage = lazy(() => import('./pages/services/MoreServicesPage'));
+const CertificatePage = lazy(() => import('./pages/services/CertificatePage'));
+const CertificateDownloadPage = lazy(() => import('./pages/services/CertificateDownloadPage'));
+
+
 
 // Admin Layout & Pages
 const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
@@ -70,14 +75,149 @@ const CitizenSubmissionsAdminPage = lazy(() => import('./pages/admin/CitizenSubm
 const BookingsAdminPage = lazy(() => import('./pages/admin/BookingsAdminPage'));
 const BungalowRoomsAdminPage = lazy(() => import('./pages/admin/BungalowRoomsAdminPage'));
 const StaffAdminPage = lazy(() => import('./pages/admin/StaffAdminPage'));
+const CertificatesAdminPage = lazy(() => import('./pages/admin/CertificatesAdminPage'));
 
 
-function LoadingFallback() {
+/* ─────────────────────────────────────────────
+   Branded CMA Splash Screen v2
+   Modern minimal style: fade-up logo + name,
+   shimmer progress bar, auto-dismisses in 2.5s
+───────────────────────────────────────────── */
+function AppSplash({ children }) {
+  const [visible, setVisible] = useState(true);
+  const [fading, setFading]   = useState(false);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setFading(true),  2000);
+    const t2 = setTimeout(() => setVisible(false), 2600);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', flexDirection: 'column', gap: '1rem' }}>
-      <div className="spinner" />
-      <p style={{ color: 'var(--text-muted)' }}>Loading...</p>
-    </div>
+    <>
+      {children}
+      {visible && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 99999,
+          background: '#0d0000',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          opacity: fading ? 0 : 1,
+          transition: 'opacity 0.6s cubic-bezier(0.4,0,0.2,1)',
+          pointerEvents: fading ? 'none' : 'all',
+          overflow: 'hidden',
+        }}>
+
+          {/* Subtle dark-red vignette layer */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'radial-gradient(ellipse at 50% 40%, #3a0000 0%, #0d0000 70%)',
+            pointerEvents: 'none',
+          }} />
+
+          {/* ── Center content ── */}
+          <div style={{
+            position: 'relative',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', gap: '28px',
+            animation: 'sl-rise 0.8s cubic-bezier(0.22,1,0.36,1) both',
+          }}>
+
+            {/* Logo with gold ring */}
+            <div style={{ position: 'relative', width: 108, height: 108 }}>
+              {/* outer gold ring */}
+              <div style={{
+                position: 'absolute', inset: -4,
+                borderRadius: '50%',
+                border: '1.5px solid rgba(201,162,39,0.5)',
+              }} />
+              {/* inner white ring */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                borderRadius: '50%',
+                background: '#fff',
+                boxShadow: '0 8px 40px rgba(0,0,0,0.6), 0 0 0 6px rgba(201,162,39,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <img src={logo} alt="CMA Logo"
+                  style={{ width: 76, height: 76, objectFit: 'contain' }} />
+              </div>
+            </div>
+
+            {/* Text block */}
+            <div style={{ textAlign: 'center', lineHeight: 1 }}>
+              <div style={{
+                fontSize: '11px', fontWeight: 700, letterSpacing: '5px',
+                color: '#C9A227', textTransform: 'uppercase',
+                marginBottom: '10px', opacity: 0.9,
+              }}>
+                Sri Lanka
+              </div>
+              <div style={{
+                fontSize: '26px', fontWeight: 800, letterSpacing: '1px',
+                color: '#ffffff', marginBottom: '10px',
+                textShadow: '0 2px 20px rgba(0,0,0,0.5)',
+              }}>
+                Condominium
+              </div>
+              <div style={{
+                fontSize: '26px', fontWeight: 800, letterSpacing: '1px',
+                color: '#ffffff', marginBottom: '14px',
+                textShadow: '0 2px 20px rgba(0,0,0,0.5)',
+              }}>
+                Management Authority
+              </div>
+              {/* Gold separator line */}
+              <div style={{
+                width: '48px', height: '2px',
+                background: 'linear-gradient(90deg, transparent, #C9A227, transparent)',
+                margin: '0 auto',
+              }} />
+            </div>
+          </div>
+
+          {/* ── Progress bar ── */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0,
+            height: '3px',
+            background: 'rgba(255,255,255,0.06)',
+          }}>
+            <div style={{
+              height: '100%',
+              background: 'linear-gradient(90deg, #8B0000, #C9A227, #8B0000)',
+              backgroundSize: '200% 100%',
+              animation: 'sl-bar 2s ease-in-out forwards, sl-shimmer 1.2s linear infinite',
+            }} />
+          </div>
+
+          {/* ── Bottom label ── */}
+          <div style={{
+            position: 'absolute', bottom: '18px',
+            fontSize: '9.5px', letterSpacing: '2.5px',
+            color: 'rgba(255,255,255,0.22)', fontWeight: 500,
+            textTransform: 'uppercase',
+            animation: 'sl-rise 1s 0.3s both',
+          }}>
+            Ministry of Transport, Highways and Urban Development
+          </div>
+
+          <style>{`
+            @keyframes sl-rise {
+              from { opacity: 0; transform: translateY(18px); }
+              to   { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes sl-bar {
+              from { width: 0%; }
+              to   { width: 100%; }
+            }
+            @keyframes sl-shimmer {
+              0%   { background-position: 200% 0; }
+              100% { background-position: -200% 0; }
+            }
+          `}</style>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -85,8 +225,9 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
+        <AppSplash>
+          <Suspense fallback={null}>
+            <Routes>
             {/* ── Public Site ──────────────────────────────── */}
             <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />
@@ -132,8 +273,11 @@ export default function App() {
               <Route path="services/renovation" element={<RenovationPage />} />
               <Route path="services/pay-fines" element={<PayFinesPage />} />
               <Route path="services/more" element={<MoreServicesPage />} />
+              <Route path="services/certificate" element={<CertificatePage />} />
+              <Route path="services/certificate/downloads/:id" element={<CertificateDownloadPage />} />
               <Route path="booking/kataragama" element={<KataragamaBookingPage />} />
             </Route>
+
 
             {/* ── Admin ────────────────────────────────────── */}
             <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -156,14 +300,18 @@ export default function App() {
               <Route path="citizen-submissions" element={<CitizenSubmissionsAdminPage />} />
               <Route path="bookings" element={<BookingsAdminPage />} />
               <Route path="bungalow-rooms" element={<BungalowRoomsAdminPage />} />
+              <Route path="certificates" element={<CertificatesAdminPage />} />
             </Route>
+
 
             {/* 404 */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </Suspense>
+          </Suspense>
+        </AppSplash>
       </BrowserRouter>
     </AuthProvider>
+
   );
 }
 

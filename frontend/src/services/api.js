@@ -10,7 +10,9 @@ api.interceptors.request.use((config) => {
   const lang = localStorage.getItem('cma_lang') || 'en';
   config.params = { ...config.params, lang };
   
-  const isCitizenApi = config.url.includes('/citizen/') || (config.url.includes('/bookings') && !config.url.includes('/admin/'));
+  const isCitizenApi = config.url.includes('/citizen/') || 
+                       (config.url.includes('/bookings') && !config.url.includes('/admin/')) ||
+                       (config.url.includes('/certificates') && !config.url.includes('/admin/'));
   const token = isCitizenApi
     ? localStorage.getItem('cma_citizen_token')
     : localStorage.getItem('cma_token');
@@ -107,5 +109,19 @@ export const adminUpdateBookingStatus = (id, status) => api.patch(`/admin/bookin
 // ── Kataragama Bungalow Rooms ──
 export const getBungalowRooms = () => api.get('/bungalow-rooms');
 export const adminBungalowRooms = adminCRUD('bungalow-rooms');
+
+// ── Certificate Services ──
+export const getCertificates = () => api.get('/certificates');
+export const getCertificate = (id) => api.get(`/certificates/${id}`);
+export const initiateCertificatePayment = (id) => api.post(`/certificates/${id}/initiate-payment`);
+export const completeCertificatePayment = (ref, data) => api.post(`/certificates/payments/${ref}/complete`, data);
+export const getCertificatePaymentStatus = (ref) => api.get(`/certificates/payments/${ref}/status`);
+export const getMyCertificatePayments = () => api.get('/certificates/my-payments');
+
+// ── Certificate Admin CRUD ──
+export const adminCertificateTypes = adminCRUD('certificate-types');
+export const adminCertificateDocuments = adminCRUD('certificate-documents');
+export const adminGetCertificatePayments = () => api.get('/admin/certificate-payments');
+
 
 
