@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ChevronDown, Phone, Mail } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, Phone, Mail, Home, Building2, ClipboardList, Newspaper, Scale } from 'lucide-react';
 import { getHeroSlides, getLeaders, getNews, getProjects, getVacancies } from '../services/api';
 import './HomePage.css';
 
@@ -86,20 +86,20 @@ function HeroSlider({ slides }) {
 function QuickLinks() {
   const { t } = useTranslation();
   const links = [
-    { key: 'buying', to: '/applications', icon: '🏠' },
-    { key: 'managing', to: '/management-corps', icon: '🏢' },
-    { key: 'register', to: '/applications', icon: '📋' },
-    { key: 'news', to: '/news', icon: '📰' },
-    { key: 'laws', to: '/laws', icon: '⚖️' },
-    { key: 'contact', to: '/contact', icon: '📞' },
+    { key: 'buying',   to: '/applications',    Icon: Home },
+    { key: 'managing', to: '/management-corps', Icon: Building2 },
+    { key: 'register', to: '/applications',    Icon: ClipboardList },
+    { key: 'news',     to: '/news',            Icon: Newspaper },
+    { key: 'laws',     to: '/laws',            Icon: Scale },
+    { key: 'contact',  to: '/contact',         Icon: Phone },
   ];
   return (
     <div className="quick-links-bar">
       <div className="container">
         <div className="quick-links-grid">
-          {links.map(({ key, to, icon }) => (
+          {links.map(({ key, to, Icon }) => (
             <Link key={key} to={to} className="quick-link-item">
-              <span className="quick-link-icon">{icon}</span>
+              <span className="quick-link-icon"><Icon size={26} strokeWidth={1.6} /></span>
               <span>{t(`home.quick_links.${key}`)}</span>
             </Link>
           ))}
@@ -238,6 +238,7 @@ export default function HomePage() {
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', flexWrap: 'wrap' }}>
                 <Link to="/about" className="btn btn-primary">{t('home.about_btn')}</Link>
+                <Link to="/about/history" className="btn btn-gold">{t('home.history_btn', 'CMA History')}</Link>
                 <Link to="/contact" className="btn btn-outline">
                   <Phone size={16} /> {t('home.cta_call')}
                 </Link>

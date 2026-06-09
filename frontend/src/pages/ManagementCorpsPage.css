@@ -37,7 +37,16 @@
 .fee-table tr:hover td { background: var(--crimson-soft); }
 .fee-note { font-size: 0.85rem; color: var(--text-muted); font-style: italic; }
 
+@media (max-width: 1024px) {
+  .mc-layout { grid-template-columns: 220px 1fr; gap: 2rem; }
+}
 @media (max-width: 768px) {
-  .mc-layout { grid-template-columns: 1fr; }
+  .mc-layout { grid-template-columns: 1fr; gap: 1.5rem; }
   .mc-sidebar { position: static; }
+  .mc-panel-trigger { padding: 1rem 1.25rem; font-size: 0.95rem; }
+  .mc-panel-body { padding: 0 1.25rem 1.25rem; }
+}
+@media (max-width: 480px) {
+  .mc-toc { padding: 1rem; }
+  .mc-panel-trigger { font-size: 0.9rem; }
 }

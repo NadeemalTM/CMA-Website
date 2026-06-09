@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Users, Image, BriefcaseBusiness, FileText,
   Newspaper, Megaphone, FolderOpen, Building2, ClipboardList,
-  MessageSquare, LogOut, Menu, X, CheckSquare, Calendar, Home, Star, Award
+  MessageSquare, LogOut, Menu, X, CheckSquare, Calendar, Home, Star, Award, Landmark, Banknote
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { adminLogout } from '../../services/api';
@@ -18,11 +18,13 @@ const NAV_ITEM_DEFS = [
   { to: '/admin/staff',               tKey: 'admin.staff',              icon: BriefcaseBusiness },
   { to: '/admin/hero-slides',         tKey: 'admin.hero_slides',        icon: Image },
   { to: '/admin/vacancies',           tKey: 'admin.vacancies',          icon: BriefcaseBusiness },
+  { to: '/admin/job-applications',    tKey: 'Job Applications',         icon: FileText },
   { to: '/admin/documents',           tKey: 'admin.documents',          icon: FileText },
   { to: '/admin/news',                tKey: 'admin.news',               icon: Newspaper },
   { to: '/admin/announcements',       tKey: 'admin.announcements',      icon: Megaphone },
   { to: '/admin/projects',            tKey: 'admin.projects',           icon: FolderOpen },
   { to: '/admin/condominiums',        tKey: 'admin.condominiums',       icon: Building2 },
+  { to: '/admin/application-tariffs', tKey: 'Application Fees',         icon: Banknote },
   { to: '/admin/applications',        tKey: 'admin.applications',       icon: ClipboardList },
   { to: '/admin/complaints',          tKey: 'admin.complaints',         icon: MessageSquare },
   { to: '/admin/feedbacks',           tKey: 'admin.feedbacks',          icon: Star },
@@ -30,6 +32,7 @@ const NAV_ITEM_DEFS = [
   { to: '/admin/bookings',            tKey: 'admin.bookings',           icon: Calendar },
   { to: '/admin/bungalow-rooms',      tKey: 'admin.bungalow_rooms',     icon: Home },
   { to: '/admin/certificates',        tKey: 'admin.certificates',       icon: Award },
+  { to: '/admin/mc-fees',             tKey: 'admin.mc_fees',            icon: Landmark },
 ];
 
 // Route → i18n key map for page titles
@@ -44,6 +47,7 @@ const PAGE_TITLE_KEYS = {
   '/admin/announcements':       'admin.announcements',
   '/admin/projects':            'admin.projects',
   '/admin/condominiums':        'admin.condominiums',
+  '/admin/application-tariffs': 'Application Fees',
   '/admin/applications':        'admin.applications',
   '/admin/complaints':          'admin.complaints',
   '/admin/feedbacks':           'admin.feedbacks',
@@ -51,6 +55,7 @@ const PAGE_TITLE_KEYS = {
   '/admin/bookings':            'admin.bookings',
   '/admin/bungalow-rooms':      'admin.bungalow_rooms',
   '/admin/certificates':        'admin.certificates',
+  '/admin/mc-fees':             'admin.mc_fees',
 };
 
 

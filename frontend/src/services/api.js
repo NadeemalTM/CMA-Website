@@ -46,6 +46,8 @@ export const getVacancies = () => api.get('/vacancies');
 export const getDocuments = (params) => api.get('/documents', { params });
 export const getProjects = () => api.get('/projects');
 export const getCondominiums = (params) => api.get('/condominiums', { params });
+export const getApplicationTariffs = () => api.get('/application-tariffs');
+export const getMcFees = () => api.get('/mc-fees');
 export const submitApplication = (data) => api.post('/applications', data);
 export const submitComplaint = (data) => api.post('/complaints', data);
 export const submitFeedback = (data) => api.post('/feedbacks', data);
@@ -75,7 +77,11 @@ export const adminVacancies = adminCRUD('vacancies');
 export const adminDocuments = adminCRUD('documents');
 export const adminProjects = adminCRUD('projects');
 export const adminCondominiums = adminCRUD('condominiums');
+export const adminApplicationTariffs = adminCRUD('application-tariffs');
 export const adminFeedbacks = adminCRUD('feedbacks');
+export const adminMcFees = adminCRUD('mc-fees');
+export const getMcFeeSettings = () => api.get('/admin/mc-fees/settings');
+export const updateMcFeeSettings = (data) => api.post('/admin/mc-fees/settings', data);
 
 export const uploadFile = (file) => {
   const fd = new FormData();
@@ -105,6 +111,7 @@ export const citizenUploadFile = (file) => {
 };
 export const adminGetBookings = (params) => api.get('/admin/bookings', { params });
 export const adminUpdateBookingStatus = (id, status) => api.patch(`/admin/bookings/${id}/status`, { status });
+export const adminCreateBooking = (data) => api.post('/admin/bookings', data);
 
 // ── Kataragama Bungalow Rooms ──
 export const getBungalowRooms = () => api.get('/bungalow-rooms');
@@ -123,5 +130,11 @@ export const adminCertificateTypes = adminCRUD('certificate-types');
 export const adminCertificateDocuments = adminCRUD('certificate-documents');
 export const adminGetCertificatePayments = () => api.get('/admin/certificate-payments');
 
-
-
+// ── Job Applications & Vacancies (Form Data) ──
+export const adminCreateVacancy = (data) => api.post('/admin/vacancies', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const adminUpdateVacancy = (id, data) => api.post(`/admin/vacancies/${id}?_method=PUT`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const submitVacancyApplication = (id, data) => api.post(`/vacancies/${id}/apply`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const adminJobApplications = {
+  list: () => api.get('/admin/job-applications'),
+  remove: (id) => api.delete(`/admin/job-applications/${id}`)
+};

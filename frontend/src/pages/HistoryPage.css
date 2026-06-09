@@ -1,0 +1,460 @@
+/* ==========================================================================
+   HistoryPage.css - Pure Ceylon Tea Style Serpentine Timeline
+   ========================================================================== */
+
+.history-page {
+  background-color: #ffffff; /* Clean pure white background */
+  padding-bottom: 8rem;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Page Intro */
+.history-intro {
+  text-align: center;
+  max-width: 900px;
+  margin: 5rem auto 3rem;
+  padding: 0 24px;
+  position: relative;
+  z-index: 10;
+}
+
+.history-intro h2 {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 2.8rem;
+  color: var(--crimson-dark);
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.5px;
+}
+
+.history-intro p {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  font-weight: 400;
+}
+
+/* Timeline Outer Area */
+.timeline-container {
+  position: relative;
+  max-width: 1300px;
+  margin: 6rem auto;
+  padding: 0 24px;
+}
+
+/* Winding SVG Track in Background */
+.timeline-svg-backdrop {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.timeline-svg-backdrop svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Timeline Rows */
+.timeline-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10rem;
+  position: relative;
+  z-index: 5;
+}
+
+.timeline-row:last-child {
+  margin-bottom: 2rem;
+}
+
+/* Alternate flex directions */
+.timeline-row-left {
+  flex-direction: row;
+}
+
+.timeline-row-right {
+  flex-direction: row-reverse;
+}
+
+/* Columns */
+.timeline-col {
+  width: 44%;
+  position: relative;
+}
+
+.timeline-spacer {
+  width: 44%;
+}
+
+/* Year node directly on the curve path */
+.timeline-year-node-absolute {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #e8c13a;
+  box-shadow: 0 10px 30px rgba(232, 193, 58, 0.25), 0 0 0 10px rgba(232, 193, 58, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.timeline-year-node-absolute.active {
+  background: var(--crimson-dark);
+  border-color: var(--gold);
+  box-shadow: 0 12px 35px rgba(139, 0, 0, 0.35), 0 0 0 12px rgba(201, 162, 39, 0.15);
+}
+
+.timeline-year-node-absolute span.node-year-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--crimson-dark);
+  transition: color 0.3s;
+}
+
+.timeline-year-node-absolute.active span.node-year-text {
+  color: #ffffff;
+}
+
+.timeline-year-node-absolute span.node-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e8c13a;
+  margin-top: 4px;
+  opacity: 0.8;
+}
+
+.timeline-year-node-absolute.active span.node-status-dot {
+  background: var(--gold);
+}
+
+.timeline-year-node-absolute:hover {
+  transform: translate(-50%, -50%) scale(1.12);
+}
+
+/* Alignment rules for nodes */
+.node-left {
+  left: 32.5%;
+}
+
+.node-right {
+  left: 67.5%;
+}
+
+/* Card Styling - Transparent and Elegant */
+.timeline-card {
+  padding: 1.5rem 0;
+  transition: transform 0.4s ease;
+}
+
+.card-year-header {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--crimson-dark);
+  line-height: 1;
+  margin-bottom: 1.25rem;
+  letter-spacing: -1px;
+}
+
+.card-text {
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: var(--text-body);
+  margin-bottom: 2.5rem;
+  font-weight: 400;
+}
+
+/* Organic Masked Image blobs */
+.card-media-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+/* Organic blobs for single images */
+.blob-shape-1 {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+.blob-shape-2 {
+  border-radius: 50% 50% 30% 70% / 50% 60% 40% 50%;
+}
+.blob-shape-3 {
+  border-radius: 40% 60% 50% 50% / 60% 40% 60% 40%;
+}
+.blob-shape-4 {
+  border-radius: 70% 30% 50% 50% / 50% 50% 50% 50%;
+}
+
+.card-image-blob {
+  width: 100%;
+  height: 330px;
+  overflow: hidden;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.12);
+  border: 6px solid #ffffff;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  position: relative;
+  z-index: 5;
+}
+
+.card-image-blob img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.card-media-wrapper:hover .card-image-blob {
+  box-shadow: 0 20px 50px rgba(139, 0, 0, 0.18);
+  border-color: rgba(201, 162, 39, 0.15);
+  transform: translateY(-8px);
+}
+
+.card-media-wrapper:hover .card-image-blob img {
+  transform: scale(1.05);
+}
+
+/* Document stack styles for 1959 */
+.card-stacked-media {
+  position: relative;
+  height: 380px;
+  width: 100%;
+}
+
+.stacked-bg-img {
+  width: 70%;
+  height: 280px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 6px solid #ffffff;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  transition: all 0.4s ease;
+}
+
+.stacked-bg-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.stacked-fg-img {
+  width: 52%;
+  height: 270px;
+  overflow: hidden;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+  border: 6px solid #ffffff;
+  cursor: pointer;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 5;
+  transform: rotate(7deg) translateY(-10px);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+}
+
+.stacked-fg-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.stacked-bg-img:hover {
+  transform: translateY(-5px);
+  z-index: 6;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.stacked-fg-img:hover {
+  transform: rotate(0deg) scale(1.04) translateY(-8px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  z-index: 7;
+}
+
+/* Image overlays */
+.media-hover-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(139, 0, 0, 0.4);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+.card-media-wrapper:hover .media-hover-overlay,
+.stacked-bg-img:hover .media-hover-overlay,
+.stacked-fg-img:hover .media-hover-overlay {
+  opacity: 1;
+}
+
+/* Lightbox Modal */
+.photo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  background: rgba(13, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(8px);
+}
+
+.photo-modal-content {
+  position: relative;
+  max-width: 900px;
+  max-height: 85vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.photo-modal-content img {
+  max-width: 100%;
+  max-height: 78vh;
+  border-radius: var(--radius-md);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  object-fit: contain;
+}
+
+.photo-modal-close {
+  position: absolute;
+  top: -45px;
+  right: 0;
+  background: none;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.photo-modal-close:hover {
+  opacity: 1;
+}
+
+/* Floating leaves animations */
+.floating-leaf {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.08;
+  z-index: 2;
+  animation: floatLeaf 8s ease-in-out infinite alternate;
+}
+
+@keyframes floatLeaf {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(30px) rotate(15deg); }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .timeline-svg-backdrop {
+    display: none;
+  }
+
+  .timeline-year-node-absolute {
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+    margin-bottom: 2rem;
+    width: 80px;
+    height: 80px;
+  }
+  
+  .timeline-year-node-absolute:hover {
+    transform: scale(1.05);
+  }
+
+  .timeline-row {
+    flex-direction: column !important;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .timeline-col {
+    width: 100%;
+  }
+
+  .timeline-spacer {
+    display: none;
+  }
+
+  .card-media-wrapper {
+    margin: 2rem auto 0;
+  }
+  
+  .card-stacked-media {
+    max-width: 480px;
+    margin: 2rem auto 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .history-intro h2 {
+    font-size: 1.8rem;
+  }
+
+  .history-intro { margin: 2.5rem auto 2rem; }
+
+  .timeline-row { margin-bottom: 2.5rem; }
+
+  .card-year-header {
+    font-size: 2.2rem;
+  }
+
+  .card-image-blob {
+    height: 200px;
+  }
+
+  .card-stacked-media {
+    height: 240px;
+  }
+
+  .stacked-bg-img {
+    height: 170px;
+  }
+
+  .stacked-fg-img {
+    height: 160px;
+  }
+}

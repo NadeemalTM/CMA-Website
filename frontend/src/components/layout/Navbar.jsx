@@ -10,6 +10,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../../assets/logo.png';
 
 const LANGUAGES = [
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
       { key: 'nav.leadership', default: 'Leadership', path: '/about/leadership' },
       { key: 'nav.staff', default: 'Staff Members', path: '/about/staff' },
       { key: 'nav.visionMission', default: 'Vision & Mission', path: '/about/vision-mission' },
+      { key: 'nav.history', default: 'History', path: '/about/history' },
     ],
   },
   {
@@ -52,10 +54,14 @@ const NAV_ITEMS = [
   {
     key: 'nav.corps', default: 'Management Corps', path: '/management-corps',
     children: [
-      { key: 'nav.setupMC', default: 'How to Setup MC', path: '/management-corps/setup' },
-      { key: 'nav.structureMC', default: 'MC Structure & Members', path: '/management-corps/structure' },
+      { key: 'nav.setupMC', default: 'Management Corporation', path: '/management-corps/setup' },
+      { key: 'nav.structureMC', default: 'Composition of the MC Official and Council', path: '/management-corps/structure' },
       { key: 'nav.responsibilityMC', default: 'Responsibility of the MC', path: '/management-corps/responsibility' },
       { key: 'nav.powersMC', default: 'Power of the MC', path: '/management-corps/powers' },
+      { key: 'nav.adminFundsMC', default: 'Administration & Funds', path: '/management-corps/administration-funds' },
+      { key: 'nav.unitOwnersRespMC', default: 'Unit Owners Responsibility', path: '/management-corps/unit-owners-responsibility' },
+      { key: 'nav.livingHabitsMC', default: 'Condominium Living Habits', path: '/management-corps/living-habits' },
+      { key: 'nav.regFeeMC', default: 'Registration Fee of Management Corporations', path: '/management-corps/registration-fees' },
     ],
   },
   {
@@ -87,6 +93,7 @@ export default function Navbar() {
   const langRef = useRef(null);
   const dropdownRefs = useRef({});
   const searchRef = useRef(null);
+  const searchBtnRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -99,7 +106,10 @@ export default function Navbar() {
       if (langRef.current && !langRef.current.contains(e.target)) {
         setLangOpen(false);
       }
-      if (searchRef.current && !searchRef.current.contains(e.target)) {
+      if (
+        searchRef.current && !searchRef.current.contains(e.target) &&
+        searchBtnRef.current && !searchBtnRef.current.contains(e.target)
+      ) {
         setSearchOpen(false);
       }
       if (!Object.values(dropdownRefs.current).some(ref => ref && ref.contains(e.target))) {
@@ -155,7 +165,8 @@ export default function Navbar() {
       gap: '10px',
       textDecoration: 'none',
       flexShrink: 0,
-      maxWidth: '380px',
+      maxWidth: '320px',
+      minWidth: 0,
     },
     logoIcon: {
       width: '44px',
@@ -178,14 +189,12 @@ export default function Navbar() {
       color: '#8B0000',
       lineHeight: 1.25,
       letterSpacing: '0.01em',
-      whiteSpace: 'nowrap',
     },
     logoSub: {
       fontSize: logoSubSize,
       color: '#666',
       lineHeight: 1.3,
       fontWeight: '500',
-      whiteSpace: 'nowrap',
     },
     navLinks: {
       display: 'flex',
@@ -361,28 +370,39 @@ export default function Navbar() {
       borderBottom: '1px solid #f8f8f8',
     },
     searchOverlay: {
-      position: 'absolute',
-      top: '80px',
+      position: 'fixed',
+      top: 'calc(var(--topbar-height, 40px) + var(--nav-height, 80px))',
       left: 0,
       right: 0,
       backgroundColor: '#fff',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-      padding: '16px 24px',
-      zIndex: 997,
-      display: searchOpen ? 'flex' : 'none',
-      alignItems: 'center',
-      gap: '12px',
+      boxShadow: '0 6px 16px rgba(0,0,0,0.06)',
+      padding: '16px 0',
+      zIndex: 99999,
+      borderTop: '1px solid #f0f0f0',
+      borderBottom: '3px solid #8B0000',
     },
     searchInput: {
       flex: 1,
-      maxWidth: '600px',
-      margin: '0 auto',
-      padding: '10px 16px',
-      border: '2px solid #8B0000',
-      borderRadius: '8px',
-      fontSize: '15px',
+      border: 'none',
+      fontSize: '18px',
+      color: '#333',
       outline: 'none',
       fontFamily: 'inherit',
+      background: 'transparent',
+    },
+    searchSubmitBtn: {
+      backgroundColor: '#8B0000',
+      color: '#fff',
+      border: 'none',
+      padding: '10px 20px',
+      fontSize: '14px',
+      fontWeight: '600',
+      borderRadius: '8px',
+      cursor: 'pointer',
+      transition: 'background 0.2s',
+      boxShadow: '0 4px 6px rgba(139,0,0,0.2)',
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
     },
   };
 
@@ -463,8 +483,9 @@ export default function Navbar() {
           <div style={s.actions}>
             {/* Search */}
             <button
+              ref={searchBtnRef}
               style={s.iconBtn}
-              onMouseDown={(e) => { e.stopPropagation(); setSearchOpen(prev => !prev); }}
+              onClick={() => setSearchOpen(prev => !prev)}
               aria-label="Search"
               title="Search"
             >
@@ -554,18 +575,40 @@ export default function Navbar() {
       </nav>
 
       {/* Search Overlay */}
-      <div style={s.searchOverlay} ref={searchRef}>
-        <form onSubmit={handleSearch} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <input
-            style={s.searchInput}
-            type="text"
-            placeholder={t('nav.searchPlaceholder', 'Search CMA Sri Lanka...')}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            autoFocus={searchOpen}
-          />
-        </form>
-      </div>
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div 
+            style={s.searchOverlay} 
+            ref={searchRef}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+          >
+            <div style={{ maxWidth: '1440px', width: '100%', margin: '0 auto', padding: '0 24px' }}>
+              <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%' }}>
+                <Search size={22} color="#8B0000" />
+                <input
+                  style={s.searchInput}
+                  type="text"
+                  placeholder={t('nav.searchPlaceholder', 'Search CMA Sri Lanka...')}
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  autoFocus
+                />
+                <motion.button 
+                  type="submit" 
+                  style={s.searchSubmitBtn}
+                  whileHover={{ backgroundColor: '#A50000', scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {t('nav.searchBtn', 'Search')}
+                </motion.button>
+              </form>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile Menu */}
       <div style={s.mobileMenu}>

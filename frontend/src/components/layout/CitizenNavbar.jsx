@@ -6,11 +6,13 @@ import {
   UserCheck,
   LogOut,
   Award,
+  Info
 } from 'lucide-react';
 
 const SERVICES = [
-  { path: '/services/certificate',  key: 'citizen.nav.certificate',  label: 'Get Certificate',  icon: Award },
-  { path: '/services/more',         key: 'citizen.nav.more',         label: 'More E-Services',  icon: LayoutGrid },
+  { path: '/about-certificate', key: 'citizen.nav.about_cert', label: 'About Certificate', icon: Info, requireLogin: false },
+  { path: '/services/certificate',  key: 'citizen.nav.certificate',  label: 'Get Certificate',  icon: Award, requireLogin: true },
+  { path: '/services/more',         key: 'citizen.nav.more',         label: 'More E-Services',  icon: LayoutGrid, requireLogin: true },
 ];
 
 export default function CitizenNavbar() {
@@ -19,13 +21,13 @@ export default function CitizenNavbar() {
   const location = useLocation();
   const { isCitizenLoggedIn, citizen, citizenLogout } = useAuth();
 
-  const handleServiceClick = (e, path) => {
+  const handleServiceClick = (e, service) => {
     e.preventDefault();
-    if (!isCitizenLoggedIn) {
+    if (service.requireLogin && !isCitizenLoggedIn) {
       // Redirect to login page and preserve requested destination
-      navigate(`/login?redirect=${encodeURIComponent(path)}`);
+      navigate(`/login?redirect=${encodeURIComponent(service.path)}`);
     } else {
-      navigate(path);
+      navigate(service.path);
     }
   };
 
@@ -68,7 +70,7 @@ export default function CitizenNavbar() {
               <a
                 key={s.path}
                 href={s.path}
-                onClick={(e) => handleServiceClick(e, s.path)}
+                onClick={(e) => handleServiceClick(e, s)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\CondominiumController;
 use App\Http\Controllers\Admin\ApplicationController;
+use App\Http\Controllers\Admin\ApplicationTariffController;
 use App\Http\Controllers\Admin\ComplaintController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Api\BookingController;
@@ -30,9 +31,12 @@ Route::prefix('v1')->group(function () {
 
     Route::get('news/{slug}', [PublicController::class, 'newsShow']);
     Route::get('vacancies', [PublicController::class, 'vacancies']);
+    Route::post('vacancies/{id}/apply', [\App\Http\Controllers\Admin\JobApplicationController::class, 'store']);
     Route::get('documents', [PublicController::class, 'documents']);
     Route::get('projects', [PublicController::class, 'projects']);
     Route::get('condominiums', [PublicController::class, 'condominiums']);
+    Route::get('application-tariffs', [PublicController::class, 'applicationTariffs']);
+    Route::get('mc-fees', [\App\Http\Controllers\Admin\McFeeController::class, 'index']);
     Route::post('applications', [PublicController::class, 'submitApplication']);
     Route::post('complaints', [PublicController::class, 'submitComplaint']);
     Route::post('feedbacks', [PublicController::class, 'submitFeedback']);
@@ -77,6 +81,7 @@ Route::prefix('v1')->group(function () {
         Route::patch('citizen-submissions/{id}', [\App\Http\Controllers\Api\CitizenSubmissionController::class, 'adminUpdate']);
 
         Route::get('bookings', [BookingAdminController::class, 'index']);
+        Route::post('bookings', [BookingAdminController::class, 'store']);
         Route::patch('bookings/{id}/status', [BookingAdminController::class, 'updateStatus']);
 
         Route::get('bungalow-rooms', [BungalowRoomController::class, 'adminIndex']);
@@ -93,6 +98,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('documents', DocumentController::class);
         Route::apiResource('projects', ProjectController::class);
         Route::apiResource('condominiums', CondominiumController::class);
+        Route::apiResource('application-tariffs', ApplicationTariffController::class);
         Route::get('applications', [ApplicationController::class, 'index']);
         Route::get('applications/{id}', [ApplicationController::class, 'show']);
         Route::patch('applications/{id}/status', [ApplicationController::class, 'updateStatus']);
@@ -102,6 +108,9 @@ Route::prefix('v1')->group(function () {
 
         Route::get('feedbacks', [\App\Http\Controllers\Admin\FeedbackController::class, 'index']);
         Route::delete('feedbacks/{id}', [\App\Http\Controllers\Admin\FeedbackController::class, 'destroy']);
+
+        Route::get('job-applications', [\App\Http\Controllers\Admin\JobApplicationController::class, 'index']);
+        Route::delete('job-applications/{id}', [\App\Http\Controllers\Admin\JobApplicationController::class, 'destroy']);
 
         // --- Certificate Admin Routes ---
         Route::get('certificate-types', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'typesIndex']);
@@ -119,5 +128,8 @@ Route::prefix('v1')->group(function () {
         Route::get('certificate-payments', [\App\Http\Controllers\Admin\CertificateAdminController::class, 'paymentsIndex']);
 
         Route::post('upload', [PublicController::class, 'upload']);
+        Route::get('mc-fees/settings', [\App\Http\Controllers\Admin\McFeeController::class, 'getSettings']);
+        Route::post('mc-fees/settings', [\App\Http\Controllers\Admin\McFeeController::class, 'updateSettings']);
+        Route::apiResource('mc-fees', \App\Http\Controllers\Admin\McFeeController::class);
     });
 });

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\{HeroSlide, Leader, Announcement, NewsEvent, Vacancy, Document, Project, Condominium, Application, Complaint, Feedback, StaffMember};
+use App\Models\{HeroSlide, Leader, Announcement, NewsEvent, Vacancy, Document, Project, Condominium, Application, Complaint, Feedback, StaffMember, ApplicationTariff};
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -50,7 +50,15 @@ class PublicController extends Controller
         if ($request->category) {
             $query->where('category', $request->category);
         }
-        $news = $query->paginate(12)->through(fn($n) => $this->localizeNews($n));
+        if ($request->search) {
+            $s = $request->search;
+            $query->where(function($q) use ($s) {
+                $q->where('title', 'like', "%{$s}%")
+                  ->orWhere('excerpt', 'like', "%{$s}%");
+            });
+        }
+        $perPage = $request->per_page ?: 12;
+        $news = $query->paginate($perPage)->through(fn($n) => $this->localizeNews($n));
         return response()->json($news);
     }
 
@@ -60,13 +68,22 @@ class PublicController extends Controller
         return response()->json(['data' => $this->localizeNews($news, true)]);
     }
 
-    public function vacancies()
+    public function vacancies(Request $request)
     {
-        $vacancies = Vacancy::where('is_active', true)
+        $query = Vacancy::where('is_active', true)
             ->where(function ($q) {
                 $q->whereNull('deadline')->orWhere('deadline', '>=', now()->toDateString());
-            })
-            ->orderByDesc('created_at')->get()
+            });
+        
+        if ($request->search) {
+            $s = $request->search;
+            $query->where(function($q) use ($s) {
+                $q->where('title', 'like', "%{$s}%")
+                  ->orWhere('description', 'like', "%{$s}%");
+            });
+        }
+            
+        $vacancies = $query->orderByDesc('created_at')->get()
             ->map(fn($v) => $this->localizeVacancy($v));
         return response()->json(['data' => $vacancies]);
     }
@@ -75,14 +92,30 @@ class PublicController extends Controller
     {
         $query = Document::where('is_active', true);
         if ($request->type) $query->where('type', $request->type);
+        if ($request->search) {
+            $s = $request->search;
+            $query->where(function($q) use ($s) {
+                $q->where('title', 'like', "%{$s}%")
+                  ->orWhere('description', 'like', "%{$s}%");
+            });
+        }
         $docs = $query->orderByDesc('year')->orderByDesc('created_at')->get()
             ->map(fn($d) => $this->localizeDocument($d));
         return response()->json(['data' => $docs]);
     }
 
-    public function projects()
+    public function projects(Request $request)
     {
-        $projects = Project::where('is_active', true)->orderByDesc('created_at')->get()
+        $query = Project::where('is_active', true);
+        if ($request->search) {
+            $s = $request->search;
+            $query->where(function($q) use ($s) {
+                $q->where('title', 'like', "%{$s}%")
+                  ->orWhere('description', 'like', "%{$s}%")
+                  ->orWhere('location', 'like', "%{$s}%");
+            });
+        }
+        $projects = $query->orderByDesc('created_at')->get()
             ->map(fn($p) => $this->localizeProject($p));
         return response()->json(['data' => $projects]);
     }
@@ -97,6 +130,25 @@ class PublicController extends Controller
         }
         if ($request->district) $query->where('district', $request->district);
         return response()->json($query->orderBy('name')->paginate(20));
+    }
+
+    public function applicationTariffs()
+    {
+        $tariffs = ApplicationTariff::where('is_active', true)
+            ->orderBy('category')
+            ->orderBy('order')
+            ->orderBy('id')
+            ->get()
+            ->map(function($t) {
+                return [
+                    'id' => $t->id,
+                    'category' => $t->category,
+                    'description' => $this->loc($t, 'description'),
+                    'fee' => $t->fee,
+                    'remarks' => $t->remarks,
+                ];
+            });
+        return response()->json(['data' => $tariffs]);
     }
 
     public function submitApplication(Request $request)
@@ -295,6 +347,7 @@ class PublicController extends Controller
             'title' => $this->loc($v, 'title'),
             'description' => $this->loc($v, 'description'),
             'deadline' => $v->deadline?->toDateString(),
+            'document_path' => $v->document_path,
         ];
     }
 

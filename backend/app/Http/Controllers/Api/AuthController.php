@@ -44,6 +44,12 @@ class AuthController extends Controller
             ]);
         }
 
+        if ($user->role === 'citizen') {
+            throw ValidationException::withMessages([
+                'email' => ['Access denied. This portal is for administrative staff only.'],
+            ]);
+        }
+
         $token = $user->createToken('cma-admin')->plainTextToken;
 
         return response()->json([

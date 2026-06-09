@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, X, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import logo from '../../assets/logo.png';
@@ -6,7 +6,7 @@ import logo from '../../assets/logo.png';
 const MAP_URL = 'https://maps.app.goo.gl/5YC1ea1LY2bT6t5B6';
 // Google Maps embed with search query — shows a red pin marker on CMA HQ
 const MAP_EMBED_SRC =
-  'https://maps.google.com/maps?q=Condominium+Management+Authority,+No.+20+Sir+Chittampalam+A+Gardiner+Mawatha,+Colombo+02&z=17&output=embed';
+  'https://maps.google.com/maps?q=Condominium+Management+Authority,+National+Housing+Department+Building,+Sir+Chittampalam+A+Gardiner+Mawatha,+Colombo+02&z=17&output=embed';
 
 const styles = {
   topbar: {
@@ -20,18 +20,20 @@ const styles = {
   container: {
     maxWidth: '1280px',
     margin: '0 auto',
-    padding: '0 24px',
+    padding: '0 16px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: '16px',
+    gap: '8px',
     flexWrap: 'wrap',
   },
   leftGroup: {
     display: 'flex',
     alignItems: 'center',
-    gap: '20px',
+    gap: '12px',
     flexWrap: 'wrap',
+    minWidth: 0,
+    flex: 1,
   },
   item: {
     display: 'flex',
@@ -40,6 +42,7 @@ const styles = {
     color: 'rgba(255,255,255,0.85)',
     textDecoration: 'none',
     transition: 'color 0.2s',
+    whiteSpace: 'nowrap',
   },
   addressBtn: {
     display: 'flex',
@@ -53,6 +56,7 @@ const styles = {
     fontSize: '12px',
     fontFamily: 'inherit',
     transition: 'color 0.2s',
+    whiteSpace: 'nowrap',
   },
   icon: {
     color: '#C9A227',
@@ -62,6 +66,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
+    flexShrink: 0,
   },
   socialLink: {
     display: 'flex',
@@ -80,6 +85,7 @@ const styles = {
     width: '1px',
     height: '16px',
     backgroundColor: 'rgba(255,255,255,0.2)',
+    flexShrink: 0,
   },
 };
 
@@ -97,6 +103,8 @@ const FacebookIcon = () => (
 
 /* ── Google Maps Modal ── */
 function MapModal({ onClose }) {
+  const { t } = useTranslation();
+
   return (
     <>
       {/* Backdrop */}
@@ -156,7 +164,7 @@ function MapModal({ onClose }) {
             <div>
               <div style={{ fontWeight: 700, fontSize: '14px' }}>CMA Headquarters</div>
               <div style={{ fontSize: '11.5px', color: 'rgba(255,255,255,0.65)' }}>
-                No. 20, Sir Chittampalam A Gardiner Mawatha, Colombo 02
+                {t('topbar.address', '1st Floor, National Housing Department Buiding, Sir Chittampalam A Gardiner Mawatha, Colombo 02.')}
               </div>
             </div>
           </div>
@@ -249,41 +257,58 @@ function MapModal({ onClose }) {
 export default function TopBar() {
   const { t } = useTranslation();
   const [mapOpen, setMapOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    const fn = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', fn);
+    return () => window.removeEventListener('resize', fn);
+  }, []);
 
   return (
     <>
       <div style={styles.topbar}>
         <div style={styles.container}>
           <div style={styles.leftGroup}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '4px' }}>
               <img src={logo} alt="CMA Emblem" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
               <span style={{ fontWeight: 800, fontSize: '10.5px', color: '#C9A227', letterSpacing: '0.5px', lineHeight: 1 }}>CMA</span>
             </div>
             <div style={styles.divider} />
 
-            {/* ── Clickable Address ── */}
-            <button
-              id="topbar-address-btn"
-              style={styles.addressBtn}
-              onClick={() => setMapOpen(true)}
-              title="Click to view on Google Maps"
-            >
-              <MapPin size={13} style={styles.icon} />
-              <span style={{ borderBottom: '1px dashed rgba(255,255,255,0.4)', paddingBottom: '1px' }}>
-                {t('topbar.address', 'No. 20, Sir Chittampalam A Gardiner Mawatha, Colombo 02')}
-              </span>
-            </button>
+            {/* Address – hide on mobile */}
+            {!isMobile && (
+              <>
+                <button
+                  id="topbar-address-btn"
+                  style={styles.addressBtn}
+                  onClick={() => setMapOpen(true)}
+                  title="Click to view on Google Maps"
+                >
+                  <MapPin size={13} style={styles.icon} />
+                  <span style={{ borderBottom: '1px dashed rgba(255,255,255,0.4)', paddingBottom: '1px' }}>
+                    {t('topbar.address', '1st Floor, National Housing Department Buiding, Sir Chittampalam A Gardiner Mawatha, Colombo 02.')}
+                  </span>
+                </button>
+                <div style={styles.divider} />
+              </>
+            )}
 
-            <div style={styles.divider} />
             <a href="tel:0112338146" style={styles.item}>
               <Phone size={13} style={styles.icon} />
               <span>{t('topbar.phone', '011 233 8146')}</span>
             </a>
-            <div style={styles.divider} />
-            <a href="mailto:info@condominium.lk" style={styles.item}>
-              <Mail size={13} style={styles.icon} />
-              <span>{t('topbar.email', 'info@condominium.lk')}</span>
-            </a>
+
+            {/* Email – hide on mobile */}
+            {!isMobile && (
+              <>
+                <div style={styles.divider} />
+                <a href="mailto:info@condominium.lk" style={styles.item}>
+                  <Mail size={13} style={styles.icon} />
+                  <span>{t('topbar.email', 'info@condominium.lk')}</span>
+                </a>
+              </>
+            )}
           </div>
 
           <div style={styles.rightGroup}>

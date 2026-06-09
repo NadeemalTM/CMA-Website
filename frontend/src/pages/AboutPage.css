@@ -158,11 +158,23 @@
   .about-role-wrapper {
     grid-template-columns: 1fr;
     padding: 1.5rem;
+    gap: 1.5rem;
   }
 
   .about-cta-box {
     flex-direction: column;
     align-items: flex-start;
-    padding: 2rem;
+    padding: 1.5rem;
+  }
+}
+@media (max-width: 480px) {
+  .about-role-wrapper {
+    padding: 1.25rem;
+  }
+  .about-cta-box {
+    padding: 1.25rem;
+  }
+  .about-cta-box h3 {
+    font-size: 1.25rem;
   }
 }

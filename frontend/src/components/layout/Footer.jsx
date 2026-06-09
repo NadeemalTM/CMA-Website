@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   Building2,
@@ -11,6 +11,16 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
+function useIsMobile(bp = 768) {
+  const [mobile, setMobile] = useState(() => window.innerWidth <= bp);
+  useEffect(() => {
+    const fn = () => setMobile(window.innerWidth <= bp);
+    window.addEventListener('resize', fn);
+    return () => window.removeEventListener('resize', fn);
+  }, [bp]);
+  return mobile;
+}
+
 const FacebookSvg = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>;
 const TwitterSvg = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>;
 const YoutubeSvg = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>;
@@ -22,14 +32,14 @@ const s = {
     backgroundColor: '#1a0000',
     color: '#ffffff',
   },
-  topSection: {
+  topSection: (cols) => ({
     maxWidth: '1280px',
     margin: '0 auto',
-    padding: '56px 24px 40px',
+    padding: '48px 24px 36px',
     display: 'grid',
-    gridTemplateColumns: '1.4fr 1fr 1fr 1.2fr',
-    gap: '40px',
-  },
+    gridTemplateColumns: cols,
+    gap: '32px',
+  }),
   logoBlock: {},
   logoRow: {
     display: 'flex',
@@ -178,10 +188,13 @@ const LEGAL_LINKS = [
 export default function Footer() {
   const { t } = useTranslation();
   const year = new Date().getFullYear();
+  const isMobile = useIsMobile(600);
+  const isTablet = useIsMobile(900);
+  const cols = isMobile ? '1fr' : isTablet ? '1fr 1fr' : '1.4fr 1fr 1fr 1.2fr';
 
   return (
     <footer style={s.footer}>
-      <div style={s.topSection}>
+      <div style={s.topSection(cols)}>
         {/* Logo & Tagline */}
         <div style={s.logoBlock}>
           <div style={s.logoRow}>
@@ -259,7 +272,7 @@ export default function Footer() {
           <div style={s.contactItem}>
             <MapPin size={16} style={s.contactIcon} />
             <span style={s.contactText}>
-              {t('footer.address', '1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.')}
+              {t('footer.address', '1st Floor, National Housing Department Buiding, Sir Chittampalam A Gardiner Mawatha, Colombo 02.')}
             </span>
           </div>
           <div style={s.contactItem}>
@@ -299,12 +312,8 @@ export default function Footer() {
       <style>{`
         footer a:hover { color: #C9A227 !important; }
         footer .social-btn:hover { background-color: rgba(201,162,39,0.2) !important; color: #C9A227 !important; }
-        @media (max-width: 900px) {
-          footer > div:first-child { grid-template-columns: 1fr 1fr !important; }
-        }
         @media (max-width: 600px) {
-          footer > div:first-child { grid-template-columns: 1fr !important; }
-          footer > div:last-child { flex-direction: column; gap: 8px !important; }
+          footer > div:nth-child(3) { flex-direction: column; text-align: center; align-items: center; }
         }
       `}</style>
     </footer>

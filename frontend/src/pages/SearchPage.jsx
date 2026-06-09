@@ -187,25 +187,18 @@ export default function SearchPage() {
     setError(null);
     try {
       const [newsRes, docsRes, projRes, vacRes] = await Promise.allSettled([
-        getNews({ per_page: 50 }),
-        getDocuments({ per_page: 50 }),
-        getProjects(),
-        getVacancies(),
+        getNews({ search: query, per_page: 100 }),
+        getDocuments({ search: query }),
+        getProjects({ search: query }),
+        getVacancies({ search: query }),
       ]);
 
-      const rawNews      = newsRes.status      === 'fulfilled' ? (newsRes.value.data?.data      || []) : [];
-      const rawDocs      = docsRes.status      === 'fulfilled' ? (docsRes.value.data?.data      || []) : [];
-      const rawProjects  = projRes.status      === 'fulfilled' ? (projRes.value.data?.data      || projRes.value.data || []) : [];
-      const rawVacancies = vacRes.status       === 'fulfilled' ? (vacRes.value.data?.data       || []) : [];
+      const news      = newsRes.status      === 'fulfilled' ? (newsRes.value.data?.data      || []) : [];
+      const documents = docsRes.status      === 'fulfilled' ? (docsRes.value.data?.data      || docsRes.value.data || []) : [];
+      const projects  = projRes.status      === 'fulfilled' ? (projRes.value.data?.data      || projRes.value.data || []) : [];
+      const vacancies = vacRes.status       === 'fulfilled' ? (vacRes.value.data?.data       || vacRes.value.data || []) : [];
 
-      const lower = query.toLowerCase();
-
-      setResults({
-        news:      rawNews.filter(i => matchesQuery([i.title, i.excerpt, i.category], query)),
-        documents: rawDocs.filter(i => matchesQuery([i.title, i.description, i.type], query)),
-        projects:  rawProjects.filter(i => matchesQuery([i.title, i.description, i.location, i.status], query)),
-        vacancies: rawVacancies.filter(i => matchesQuery([i.title, i.description?.replace(/<[^>]*>/g, '')], query)),
-      });
+      setResults({ news, documents, projects, vacancies });
     } catch (e) {
       setError('Search failed. Please try again.');
     } finally {
@@ -256,47 +249,7 @@ export default function SearchPage() {
             Search CMA Sri Lanka
           </h1>
 
-          {/* Search bar */}
-          <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '0.75rem', maxWidth: '640px' }}>
-            <div style={{ flex: 1, position: 'relative' }}>
-              <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-              <input
-                type="text"
-                value={inputValue}
-                onChange={e => setInputValue(e.target.value)}
-                placeholder="Search news, laws, documents, vacancies..."
-                autoFocus
-                style={{
-                  width: '100%',
-                  padding: '0.8rem 1rem 0.8rem 2.75rem',
-                  borderRadius: '10px',
-                  border: '2px solid rgba(255,255,255,0.2)',
-                  background: 'rgba(255,255,255,0.12)',
-                  color: '#fff',
-                  fontSize: '0.95rem',
-                  outline: 'none',
-                  backdropFilter: 'blur(8px)',
-                  boxSizing: 'border-box',
-                }}
-              />
-              {inputValue && (
-                <button
-                  type="button"
-                  onClick={() => { setInputValue(''); setSearchParams({}); }}
-                  style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0 }}
-                >
-                  <XCircle size={16} />
-                </button>
-              )}
-            </div>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{ whiteSpace: 'nowrap', padding: '0 1.5rem', borderRadius: '10px', fontSize: '0.95rem' }}
-            >
-              Search
-            </button>
-          </form>
+
         </div>
       </div>
 

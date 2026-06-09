@@ -256,16 +256,7 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        {/* Link to register */}
-        <div style={{ marginTop: '1.25rem', textAlign: 'center', fontSize: '0.85rem' }}>
-          <span style={{ color: '#666' }}>Don't have an account? </span>
-          <span
-            style={{ color: '#8B0000', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}
-            onClick={() => navigate('/admin/register')}
-          >
-            Register here
-          </span>
-        </div>
+
 
         <p
           style={{

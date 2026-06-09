@@ -95,7 +95,7 @@ export default function NewsPage() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '3rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '3rem', flexWrap: 'wrap' }}>
                   {Array.from({ length: totalPages }, (_, i) => (
                     <button
                       key={i + 1}

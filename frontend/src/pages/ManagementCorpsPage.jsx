@@ -17,112 +17,89 @@ const PageHeroFallback = ({ title, subtitle }) => (
   </div>
 );
 
-const ACCORDION_SECTIONS = [
+const getAccordionSections = (t) => [
   {
     id: 'setup',
-    title: 'How to Setup a Management Corporation (MC)',
+    title: t('mc_corporation.title', 'Management Corporation'),
     content: (
-      <div className="mc-content">
-        <p>
-          A Management Corporation (MC) is a legal entity formed by the unit owners of a
-          condominium property. It is responsible for managing the common property and ensuring the
-          smooth operation of the condominium.
-        </p>
-        <h4>Steps to Establish a Management Corporation:</h4>
-        <ol>
-          <li>
-            <strong>Condominium Plan Registration:</strong> Ensure the condominium plan is
-            registered with the CMA under the Condominium Property Act No. 12 of 1973.
-          </li>
-          <li>
-            <strong>Convene the First Annual General Meeting (AGM):</strong> The developer must
-            convene the first AGM once all or a majority of units are sold or 12 months after the
-            first sale, whichever is earlier.
-          </li>
-          <li>
-            <strong>Elect Management Council:</strong> Unit owners elect members to the Management
-            Council at the AGM. The council must have a minimum of 3 and maximum of 7 members.
-          </li>
-          <li>
-            <strong>Adopt By-Laws &amp; Constitution:</strong> The MC must adopt its by-laws
-            governing the management of common property, maintenance contributions, and conduct of
-            unit owners.
-          </li>
-          <li>
-            <strong>Register with CMA:</strong> Submit the registration application to CMA within
-            30 days of the first AGM, along with the prescribed fee and required documentation.
-          </li>
-          <li>
-            <strong>Open a Bank Account:</strong> The MC must open a dedicated bank account in its
-            registered name for all financial transactions.
-          </li>
-        </ol>
-        <p>
-          Once registered, the MC obtains a unique registration number and is legally empowered to
-          manage the condominium property.
-        </p>
+      <div className="mc-content" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div>
+          <h4 style={{ color: 'var(--crimson)', margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>
+            {t('mc_corporation.para1_title', 'Legal Status and Membership')}
+          </h4>
+          <p style={{ margin: 0, fontSize: '0.88rem', lineHeight: 1.5, color: '#475569' }}>
+            {t('mc_corporation.para1')}
+          </p>
+        </div>
+        <div>
+          <h4 style={{ color: 'var(--crimson)', margin: '1rem 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>
+            {t('mc_corporation.para2_title', 'Permanence and Continuity')}
+          </h4>
+          <p style={{ margin: 0, fontSize: '0.88rem', lineHeight: 1.5, color: '#475569' }}>
+            {t('mc_corporation.para2')}
+          </p>
+        </div>
+        <div>
+          <h4 style={{ color: 'var(--crimson)', margin: '1rem 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>
+            {t('mc_corporation.para3_title', 'Lifespan and Governance')}
+          </h4>
+          <p style={{ margin: 0, fontSize: '0.88rem', lineHeight: 1.5, color: '#475569' }}>
+            {t('mc_corporation.para3')}
+          </p>
+        </div>
+        <div>
+          <h4 style={{ color: 'var(--crimson)', margin: '1rem 0 0.25rem 0', fontSize: '1rem', fontWeight: 700 }}>
+            {t('mc_corporation.para4_title', 'Active Maintenance & Challenges')}
+          </h4>
+          <p style={{ margin: 0, fontSize: '0.88rem', lineHeight: 1.5, color: '#475569' }}>
+            {t('mc_corporation.para4')}
+          </p>
+        </div>
       </div>
     ),
   },
   {
     id: 'structure',
-    title: 'MC Structure & Appointed Members',
+    title: t('mgmt.structure_title', 'Composition of the MC Official and Council'),
     content: (
       <div className="mc-content">
         <p>
-          The Management Corporation is governed by an elected Management Council comprising unit
-          owners of the condominium property.
+          At a Annual General Meeting of the Management Corporation, an executive committee must be elected
+          to carry out Administration, Maintenance &amp; Management on behalf of all members. This executive
+          body is referred to as the Committee (Board).
         </p>
-        <h4>Key Positions:</h4>
+        <h4>Committee Size:</h4>
         <ul>
-          <li>
-            <strong>Chairperson:</strong> Presides over meetings, represents the MC in legal
-            proceedings, and provides leadership to the Management Council.
-          </li>
-          <li>
-            <strong>Secretary:</strong> Maintains minutes of meetings, handles correspondence,
-            manages records, and convenes meetings as required.
-          </li>
-          <li>
-            <strong>Treasurer:</strong> Manages the financial affairs of the MC, maintains accounts,
-            prepares financial statements, and oversees the sinking fund.
-          </li>
-          <li>
-            <strong>Council Members (3–4):</strong> Assist in the management of common property,
-            attend meetings, and participate in decision-making.
-          </li>
+          <li><strong>Minimum:</strong> 3 condominium unit owners</li>
+          <li><strong>Maximum:</strong> 14 condominium unit owners</li>
+          <li><strong>Term:</strong> Expires at the next Annual General Meeting</li>
+          <li><strong>Quorum:</strong> One-half of the total number of committee members</li>
+          <li><strong>Voting:</strong> Simple majority vote at committee meetings</li>
         </ul>
-        <h4>Professional Staff (where applicable):</h4>
+        <h4>Key Office Bearers:</h4>
         <ul>
-          <li>Property Manager</li>
-          <li>Building Superintendent / Caretaker</li>
-          <li>Security Personnel</li>
-          <li>Cleaning &amp; Maintenance Staff</li>
+          <li><strong>Chairperson:</strong> Presides over all council meetings, ensures by-laws are enforced.</li>
+          <li><strong>Secretary:</strong> Maintains MC registers, documents meetings, files certifications to CMA.</li>
+          <li><strong>Treasurer:</strong> Manages maintenance levy collections, sinking funds, and audited accounts.</li>
         </ul>
-        <p>
-          The Management Council meets at least once every three months. Unit owners may attend
-          council meetings but may not vote unless they are elected members.
-        </p>
       </div>
     ),
   },
+
   {
     id: 'responsibility',
-    title: 'Responsibility of the Management Corporation',
+    title: t('mc_responsibilities.title', 'Responsibility of the Management Corporation'),
     content: (
       <div className="mc-content">
-        <p>The MC has a broad set of statutory responsibilities under the Condominium Property Act:</p>
-        <ul>
-          <li>Manage, maintain, and repair common property including lifts, corridors, lobbies, and recreational facilities.</li>
-          <li>Effect adequate insurance on the buildings and common property.</li>
-          <li>Collect maintenance contributions (levies) from unit owners.</li>
-          <li>Maintain a sinking fund for major repairs and capital expenditure.</li>
-          <li>Prepare and maintain proper financial accounts, subject to annual audit.</li>
-          <li>Convene Annual General Meetings (AGMs) as required by law.</li>
-          <li>Enforce the by-laws and rules of the condominium.</li>
-          <li>Comply with all applicable laws, including fire safety and building regulations.</li>
-          <li>Handle disputes between unit owners in accordance with the by-laws.</li>
-          <li>Submit annual returns and reports to the CMA.</li>
+        <p style={{ marginBottom: '1rem', fontWeight: 600, color: '#4a5568', fontSize: '0.9rem' }}>
+          {t('mc_responsibilities.intro')}
+        </p>
+        <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', paddingLeft: '1.25rem', listStyleType: 'disc' }}>
+          {['p01', 'p02', 'p03', 'p04', 'p05', 'p06', 'p07', 'p08', 'p09'].map((key) => (
+            <li key={key} style={{ fontSize: '0.88rem', lineHeight: 1.55, color: '#475569', textAlign: 'justify' }}>
+              <strong>{t(`mc_responsibilities.${key}_title`)}:</strong> {t(`mc_responsibilities.${key}`)}
+            </li>
+          ))}
         </ul>
       </div>
     ),
@@ -181,79 +158,45 @@ const ACCORDION_SECTIONS = [
   },
   {
     id: 'unit_owners',
-    title: 'Unit Owners\' Responsibilities',
+    title: t('mc_unit_owner.title', "Unit Owners' Responsibilities"),
     content: (
       <div className="mc-content">
-        <p>Unit owners have both rights and responsibilities within the condominium:</p>
-        <h4>Financial Obligations:</h4>
-        <ul>
-          <li>Pay maintenance levies on time as determined by the MC.</li>
-          <li>Contribute to the sinking fund as required.</li>
-          <li>Pay any special levies approved by a General Meeting.</li>
-        </ul>
-        <h4>Conduct &amp; Compliance:</h4>
-        <ul>
-          <li>Comply with the by-laws and rules of the condominium.</li>
-          <li>Not carry out any works to the unit that affect structural integrity without MC consent.</li>
-          <li>Notify the MC of any change of ownership or tenancy.</li>
-          <li>Ensure tenants comply with the by-laws.</li>
-          <li>Not create unreasonable noise or disturbance to other residents.</li>
-        </ul>
-        <h4>Participation:</h4>
-        <ul>
-          <li>Attend Annual General Meetings and exercise voting rights.</li>
-          <li>Stand for election to the Management Council.</li>
-          <li>Raise complaints or suggestions through proper channels.</li>
+        <p style={{ marginBottom: '1rem', fontWeight: 600, color: '#4a5568', fontSize: '0.9rem' }}>
+          {t('mc_unit_owner.intro')}
+        </p>
+        <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', paddingLeft: '1.25rem', listStyleType: 'disc' }}>
+          {['p01', 'p02', 'p03', 'p04', 'p05', 'p06', 'p07', 'p08', 'p09', 'p10', 'p11', 'p12'].map((key) => (
+            <li key={key} style={{ fontSize: '0.88rem', lineHeight: 1.55, color: '#475569', textAlign: 'justify' }}>
+              <strong>{t(`mc_unit_owner.${key}_title`)}:</strong> {t(`mc_unit_owner.${key}`)}
+              {key === 'p07' && (
+                <ul style={{ listStyleType: 'circle', paddingLeft: '1.25rem', marginTop: '0.35rem', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                  {['sub1', 'sub2', 'sub3', 'sub4'].map((sub) => (
+                    <li key={sub} style={{ fontSize: '0.82rem', color: '#556172' }}>
+                      {t(`mc_unit_owner.p07_${sub}`)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
         </ul>
       </div>
     ),
   },
   {
     id: 'habits',
-    title: 'Condominium Living Habits',
+    title: t('mc_living_habits.title', 'Condominium Living Habits'),
     content: (
       <div className="mc-content">
-        <p>
-          Harmonious condominium living depends on mutual respect and consideration among all
-          residents. The following good habits are encouraged:
+        <p style={{ marginBottom: '1rem', fontWeight: 600, color: '#4a5568', fontSize: '0.9rem' }}>
+          {t('mc_living_habits.intro')}
         </p>
-        <ul>
-          <li>
-            <strong>Noise Control:</strong> Avoid loud music, renovations, or disturbances between
-            10:00 PM and 7:00 AM.
-          </li>
-          <li>
-            <strong>Common Area Etiquette:</strong> Keep corridors, lobbies, and recreational areas
-            clean and free of personal belongings.
-          </li>
-          <li>
-            <strong>Waste Disposal:</strong> Separate recyclables from general waste and use
-            designated disposal points only.
-          </li>
-          <li>
-            <strong>Parking:</strong> Park only in your designated parking bay and do not obstruct
-            others.
-          </li>
-          <li>
-            <strong>Pet Policy:</strong> Follow the MC's pet policy, including leash requirements
-            and waste cleanup obligations.
-          </li>
-          <li>
-            <strong>Energy Conservation:</strong> Switch off lights and air-conditioning in common
-            areas when not in use.
-          </li>
-          <li>
-            <strong>Visitor Management:</strong> Register guests as required and ensure they comply
-            with building rules.
-          </li>
-          <li>
-            <strong>Balcony &amp; Window:</strong> Do not hang laundry or leave items on balconies
-            visible from outside where prohibited.
-          </li>
-          <li>
-            <strong>Community Engagement:</strong> Participate in community events, AGMs, and
-            initiatives that improve the condominium environment.
-          </li>
+        <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingLeft: '1.25rem', listStyleType: 'disc' }}>
+          {['p01', 'p02', 'p03', 'p04', 'p05', 'p06', 'p07', 'p08', 'p09', 'p10', 'p11', 'p12', 'p13'].map((key) => (
+            <li key={key} style={{ fontSize: '0.88rem', lineHeight: 1.5, color: '#475569', textAlign: 'justify' }}>
+              {t(`mc_living_habits.${key}`)}
+            </li>
+          ))}
         </ul>
       </div>
     ),
@@ -324,6 +267,7 @@ const ACCORDION_SECTIONS = [
 
 export default function ManagementCorpsPage() {
   const { t } = useTranslation();
+  const ACCORDION_SECTIONS = getAccordionSections(t);
   const [openId, setOpenId] = useState('setup');
 
   useEffect(() => {

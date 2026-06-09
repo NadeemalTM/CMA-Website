@@ -1,7 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ClipboardList, Calendar, CheckSquare, X, Check, Trash2, ArrowUpRight, Search } from 'lucide-react';
-import { adminGetBookings, adminUpdateBookingStatus } from '../../services/api';
+import { ClipboardList, Calendar, CheckSquare, X, Check, Trash2, ArrowUpRight, Search, Plus } from 'lucide-react';
+import { adminGetBookings, adminUpdateBookingStatus, adminCreateBooking } from '../../services/api';
+
+const SimpleModal = ({ isOpen, onClose, title, children }) => !isOpen ? null : (
+  <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} onClick={onClose} />
+    <div style={{ position: 'relative', background: 'white', borderRadius: 12, padding: '2rem', maxWidth: 700, width: '90%', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 25px 60px rgba(0,0,0,0.25)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', alignItems: 'center' }}>
+        <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-dark)' }}>{title}</h2>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.5rem', color: '#666', lineHeight: 1 }}>×</button>
+      </div>
+      {children}
+    </div>
+  </div>
+);
 
 const statusColors = {
   Pending: '#d97706',
@@ -19,6 +32,26 @@ export default function BookingsAdminPage() {
   const [roomFilter, setRoomFilter] = useState('All Rooms');
   const [searchQuery, setSearchQuery] = useState('');
   const [alert, setAlert] = useState({ text: '', type: '' }); // success, danger
+  const [modalOpen, setModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    guest_name: '',
+    email: 'admin@condominium.lk',
+    phone: '0112338146',
+    nic: 'BLOCK-0000',
+    unit_number: 'Room A – Deluxe',
+    check_in: '',
+    check_out: '',
+    adults: 0,
+    children: 0,
+    amount: 0,
+    is_cma_employee: false,
+    employee_id: '',
+    permanent_address: 'Colombo, Sri Lanka',
+    occupation: 'Official / Admin Block',
+    status: 'Confirmed',
+    notes: ''
+  });
 
   const load = async () => {
     setLoading(true);
@@ -42,6 +75,74 @@ export default function BookingsAdminPage() {
   useEffect(() => {
     load();
   }, [statusFilter, roomFilter]);
+
+  const handleCreateBooking = async (e) => {
+    e.preventDefault();
+    if (!form.guest_name || !form.check_in || !form.check_out || !form.unit_number) {
+      setAlert({ text: 'Please fill in all required fields.', type: 'danger' });
+      return;
+    }
+    if (new Date(form.check_out) < new Date(form.check_in)) {
+      setAlert({ text: 'Check-out date cannot be before check-in date.', type: 'danger' });
+      return;
+    }
+    setSaving(true);
+    setAlert({ text: '', type: '' });
+    try {
+      const payload = {
+        ...form,
+        email: form.email || 'admin@condominium.lk',
+        phone: form.phone || '0112338146',
+        nic: form.nic || 'BLOCK-0000',
+        permanent_address: form.permanent_address || 'Colombo, Sri Lanka',
+        occupation: form.occupation || 'Official / Admin Block',
+        adults: Number(form.adults ?? 0),
+        children: Number(form.children ?? 0),
+        amount: Number(form.amount ?? 0),
+        is_cma_employee: Boolean(form.is_cma_employee),
+        check_in: `${form.check_in}T13:00`,
+        check_out: `${form.check_out}T10:00`
+      };
+      const res = await adminCreateBooking(payload);
+      if (res.data && res.data.status === 'success') {
+        setAlert({ text: 'Manual booking / date block successfully registered!', type: 'success' });
+        setModalOpen(false);
+        setForm({
+          guest_name: '',
+          email: 'admin@condominium.lk',
+          phone: '0112338146',
+          nic: 'BLOCK-0000',
+          unit_number: 'Room A – Deluxe',
+          check_in: '',
+          check_out: '',
+          adults: 0,
+          children: 0,
+          amount: 0,
+          is_cma_employee: false,
+          employee_id: '',
+          permanent_address: 'Colombo, Sri Lanka',
+          occupation: 'Official / Admin Block',
+          status: 'Confirmed',
+          notes: ''
+        });
+        load();
+      }
+    } catch (err) {
+      const backendErrors = err?.response?.data?.errors;
+      let errorMsg = 'Failed to create manual booking. Overlapping reservation may exist.';
+      if (backendErrors && typeof backendErrors === 'object') {
+        errorMsg = Object.values(backendErrors).flat().join(' ');
+      } else if (err?.response?.data?.message) {
+        errorMsg = err.response.data.message;
+      }
+      setAlert({
+        text: errorMsg,
+        type: 'danger'
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleAction = async (id, targetStatus) => {
     setAlert({ text: '', type: '' });
@@ -112,11 +213,14 @@ export default function BookingsAdminPage() {
             Process guest booking requests, verify employee IDs, and manage status lifecycles.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="btn btn-outline btn-sm" onClick={() => window.open('/booking/kataragama', '_blank')}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => setModalOpen(true)}>
+            <Plus size={16} /> Add Reservation / Block
+          </button>
+          <button className="btn btn-outline btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => window.open('/booking/kataragama', '_blank')}>
             Open Public Booking <ArrowUpRight size={14} />
           </button>
-          <button className="btn btn-primary btn-sm" onClick={load}>
+          <button className="btn btn-outline btn-sm" onClick={load}>
             Refresh Sync
           </button>
         </div>
@@ -382,6 +486,110 @@ export default function BookingsAdminPage() {
         </div>
 
       </div>
+
+      {/* SimpleModal for manual booking/blocking */}
+      <SimpleModal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add Reservation / Block Dates">
+        <form onSubmit={handleCreateBooking}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Guest Name / Purpose *</label>
+              <input className="form-control" type="text" placeholder="e.g. Blocked for maintenance / John Doe" value={form.guest_name} onChange={e => setForm({ ...form, guest_name: e.target.value })} required />
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Room / Unit *</label>
+              <select className="form-control" value={form.unit_number} onChange={e => setForm({ ...form, unit_number: e.target.value })} required>
+                <option value="Room A – Deluxe">Room A – Deluxe</option>
+                <option value="Room B – Standard">Room B – Standard</option>
+                <option value="Room C – Suite">Room C – Suite</option>
+                <option value="Room D – Budget">Room D – Budget</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Check-In Date *</label>
+              <input className="form-control" type="date" value={form.check_in} onChange={e => setForm({ ...form, check_in: e.target.value })} required />
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Check-Out Date *</label>
+              <input className="form-control" type="date" value={form.check_out} onChange={e => setForm({ ...form, check_out: e.target.value })} required />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Email</label>
+              <input className="form-control" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Phone</label>
+              <input className="form-control" type="text" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>NIC / Ref</label>
+              <input className="form-control" type="text" value={form.nic} onChange={e => setForm({ ...form, nic: e.target.value })} />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Adults</label>
+              <input className="form-control" type="number" min="0" value={form.adults} onChange={e => setForm({ ...form, adults: parseInt(e.target.value) || 0 })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Children</label>
+              <input className="form-control" type="number" min="0" value={form.children} onChange={e => setForm({ ...form, children: parseInt(e.target.value) || 0 })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Amount (LKR)</label>
+              <input className="form-control" type="number" min="0" value={form.amount} onChange={e => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })} />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Occupation / Category</label>
+              <input className="form-control" type="text" value={form.occupation} onChange={e => setForm({ ...form, occupation: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Status</label>
+              <select className="form-control" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+                <option value="Confirmed">Confirmed (Approved)</option>
+                <option value="Pending">Pending Approval</option>
+                <option value="Done">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem', alignItems: 'center' }}>
+            <div className="form-group">
+              <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Permanent Address</label>
+              <input className="form-control" type="text" value={form.permanent_address} onChange={e => setForm({ ...form, permanent_address: e.target.value })} />
+            </div>
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', justifyContent: 'center', height: '100%', paddingTop: '1rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem', cursor: 'pointer', fontWeight: 600 }}>
+                <input type="checkbox" checked={form.is_cma_employee} onChange={e => setForm({ ...form, is_cma_employee: e.target.checked })} style={{ width: 18, height: 18 }} />
+                <span>CMA / Ministry Employee</span>
+              </label>
+              {form.is_cma_employee && (
+                <input className="form-control" type="text" placeholder="Employee ID" value={form.employee_id || ''} onChange={e => setForm({ ...form, employee_id: e.target.value })} />
+              )}
+            </div>
+          </div>
+
+          <div className="form-group" style={{ marginTop: '1rem' }}>
+            <label className="form-label" style={{ fontWeight: 600, fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>Notes / Block Reason</label>
+            <textarea className="form-control" rows="3" placeholder="e.g. Blocked for renovation work..." value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
+            <button type="button" className="btn btn-outline" onClick={() => setModalOpen(false)}>Cancel</button>
+            <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Saving...' : 'Register Reservation'}</button>
+          </div>
+        </form>
+      </SimpleModal>
 
     </div>
   );

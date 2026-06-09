@@ -28,7 +28,7 @@ export default function ContactPage() {
   };
 
   const contactInfo = [
-    { icon: MapPin, title: 'Address', text: '1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.', color: 'var(--crimson)' },
+    { icon: MapPin, title: t('contact.address_title', 'Address'), text: t('contact.address', '1st Floor, National Housing Department Buiding, Sir Chittampalam A Gardiner Mawatha, Colombo 02.'), color: 'var(--crimson)' },
     { icon: Phone, title: 'Phone', text: '+94-11-2447432, +94-11-2447429', href: 'tel:+94112447432', color: 'var(--success)' },
     { icon: Mail, title: 'Email', text: 'info@condominium.lk', href: 'mailto:info@condominium.lk', color: 'var(--gold)' },
     { icon: Clock, title: 'Office', text: 'Office hours by appointment', color: 'var(--info)' },
@@ -45,7 +45,7 @@ export default function ContactPage() {
       </div>
       <section className="section">
         <div className="container">
-          <div className="grid-2" style={{ gap: '3rem' }}>
+          <div className="grid-2" style={{ gap: 'clamp(1.5rem, 4vw, 3rem)' }}>
             {/* Left - Contact Info */}
             <div>
               <h2 style={{ marginBottom: '2rem', fontSize: '1.5rem' }}>{t('contact.address_title')}</h2>
@@ -78,7 +78,7 @@ export default function ContactPage() {
               <div style={{ marginTop: '2rem', borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', border: '1px solid var(--mid-gray)' }}>
                 <iframe
                   title="CMA Sri Lanka Office Location"
-                  src="https://maps.google.com/maps?q=Condominium+Management+Authority,+National+Housing+Department+Building,+Sir+Chittampalam+A+Gardiner+Mawatha,+Colombo+02&output=embed&z=16"
+                  src={t('contact.map_url', 'https://maps.google.com/maps?q=Condominium+Management+Authority,+National+Housing+Department+Building,+Sir+Chittampalam+A+Gardiner+Mawatha,+Colombo+02&output=embed&z=16')}
                   width="100%"
                   height="280"
                   style={{ border: 0, display: 'block' }}
@@ -130,7 +130,7 @@ export default function ContactPage() {
                     <label className="form-label">{t('contact.name')} *</label>
                     <input className="form-control" name="name" value={form.name} onChange={handleChange} required />
                   </div>
-                  <div className="grid-2" style={{ gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
                     <div className="form-group">
                       <label className="form-label">{t('contact.email_f')} *</label>
                       <input className="form-control" type="email" name="email" value={form.email} onChange={handleChange} required />

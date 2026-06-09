@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FileText, Plus, Edit, Trash2, X } from 'lucide-react';
-import { adminDocuments } from '../../services/api';
+import { FileText, Plus, Edit, Trash2, X, Upload } from 'lucide-react';
+import { adminDocuments, uploadFile } from '../../services/api';
 
 const SimpleModal = ({ isOpen, onClose, title, children }) => !isOpen ? null : (
   <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -21,6 +21,7 @@ export default function DocumentsAdminPage() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({ title_en: '', title_si: '', title_ta: '', type: 'law', category: '', file_path: '', language: 'en', year: 2025, is_active: true });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [typeFilter, setTypeFilter] = useState('');
 
   const load = () => { setLoading(true); adminDocuments.list({ type: typeFilter || undefined }).then(r => setItems(r.data.data || [])).catch(() => {}).finally(() => setLoading(false)); };
@@ -30,6 +31,20 @@ export default function DocumentsAdminPage() {
   const openEdit = (item) => { setEditing(item); setForm({ title_en: item.title_en||'', title_si: item.title_si||'', title_ta: item.title_ta||'', type: item.type||'law', category: item.category||'', file_path: item.file_path||'', language: item.language||'en', year: item.year||2025, is_active: item.is_active??true }); setModal(true); };
   const handleSave = async () => { setSaving(true); try { if (editing) await adminDocuments.update(editing.id, form); else await adminDocuments.create(form); setModal(false); load(); } catch (e) { alert(e.response?.data?.message || 'Error'); } finally { setSaving(false); } };
   const handleDelete = async (id) => { if (!window.confirm(t('admin.confirm_delete'))) return; try { await adminDocuments.remove(id); load(); } catch (e) { alert('Error'); } };
+
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const res = await uploadFile(file);
+      setForm(f => ({ ...f, file_path: res.data.path }));
+    } catch (e) {
+      alert(e.response?.data?.message || 'File upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const docTypes = ['', 'law', 'publication', 'form', 'gazette', 'annual_report'];
 
@@ -67,7 +82,43 @@ export default function DocumentsAdminPage() {
           <div className="form-group"><label className="form-label">Type</label><select className="form-control" value={form.type || 'law'} onChange={e => setForm({...form, type: e.target.value})}><option value="law">Law</option><option value="publication">Publication</option><option value="form">Form</option><option value="gazette">Gazette</option><option value="annual_report">Annual Report</option></select></div>
           <div className="form-group"><label className="form-label">Category</label><input className="form-control" value={form.category || ''} onChange={e => setForm({...form, category: e.target.value})} /></div>
         </div>
-        <div className="form-group"><label className="form-label">File Path</label><input className="form-control" value={form.file_path || ''} onChange={e => setForm({...form, file_path: e.target.value})} placeholder="documents/filename.pdf" /></div>
+        <div className="form-group">
+          <label className="form-label" style={{ fontWeight: 600, color: 'var(--dark-gray)', display: 'block', marginBottom: '0.5rem' }}>Upload Document *</label>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <label style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.6rem 1.2rem',
+              background: 'var(--crimson)',
+              color: '#fff',
+              borderRadius: 8,
+              fontWeight: 600,
+              cursor: uploading ? 'not-allowed' : 'pointer',
+              fontSize: '0.9rem',
+              transition: 'all 0.2s',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              <Upload size={16} />
+              <input 
+                type="file" 
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" 
+                onChange={handleUpload} 
+                style={{ display: 'none' }} 
+                disabled={uploading}
+              />
+              {uploading ? 'Uploading...' : 'Choose File'}
+            </label>
+            <div style={{ fontSize: '0.85rem', color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {form.file_path ? (
+                <span>Current: <strong style={{ color: 'var(--crimson)' }}>{form.file_path.split('/').pop()}</strong></span>
+              ) : (
+                'No file uploaded'
+              )}
+            </div>
+          </div>
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
           <div className="form-group"><label className="form-label">Language</label><select className="form-control" value={form.language || 'en'} onChange={e => setForm({...form, language: e.target.value})}><option value="en">English</option><option value="si">Sinhala</option><option value="ta">Tamil</option><option value="all">All</option></select></div>
           <div className="form-group"><label className="form-label">Year</label><input className="form-control" type="number" value={form.year ?? 2025} onChange={e => setForm({...form, year: parseInt(e.target.value) || 2025})} /></div>
