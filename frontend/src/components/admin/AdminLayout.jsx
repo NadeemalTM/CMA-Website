@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Users, Image, BriefcaseBusiness, FileText,
   Newspaper, Megaphone, FolderOpen, Building2, ClipboardList,
-  MessageSquare, LogOut, Menu, X, CheckSquare, Calendar, Home, Star, Award, Landmark, Banknote
+  MessageSquare, LogOut, Menu, X, CheckSquare, Calendar, Home, Star, Award, Landmark, Banknote, Download
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { adminLogout } from '../../services/api';
@@ -25,6 +25,7 @@ const NAV_ITEM_DEFS = [
   { to: '/admin/projects',            tKey: 'admin.projects',           icon: FolderOpen },
   { to: '/admin/condominiums',        tKey: 'admin.condominiums',       icon: Building2 },
   { to: '/admin/application-tariffs', tKey: 'Application Fees',         icon: Banknote },
+  { to: '/admin/application-forms',   tKey: 'Application Forms',        icon: Download },
   { to: '/admin/applications',        tKey: 'admin.applications',       icon: ClipboardList },
   { to: '/admin/complaints',          tKey: 'admin.complaints',         icon: MessageSquare },
   { to: '/admin/feedbacks',           tKey: 'admin.feedbacks',          icon: Star },
@@ -48,6 +49,7 @@ const PAGE_TITLE_KEYS = {
   '/admin/projects':            'admin.projects',
   '/admin/condominiums':        'admin.condominiums',
   '/admin/application-tariffs': 'Application Fees',
+  '/admin/application-forms':   'Application Forms',
   '/admin/applications':        'admin.applications',
   '/admin/complaints':          'admin.complaints',
   '/admin/feedbacks':           'admin.feedbacks',

@@ -56,7 +56,6 @@ export default function CondoPlanPage() {
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {STEPS.map((step) => (
             <div style={{ background: '#fff', border: '1px solid #e6edf3', borderRadius: 12, padding: '1.5rem' }}>
               <h3 style={{ marginTop: 0 }}>What is a Plan of Condominium?</h3>
               <p style={{ color: '#334155', lineHeight: 1.6 }}>
@@ -73,6 +72,25 @@ export default function CondoPlanPage() {
 
               <p style={{ color: '#475569' }}>For the full statutory text and downloadable PDF, see the original CMA publication.</p>
             </div>
+
+            {STEPS.map((step) => (
+              <div key={step.id} style={{ background: '#fff', border: '1px solid #e6edf3', borderRadius: 12, padding: '1.5rem', display: 'flex', gap: '1rem' }}>
+                <div style={{ 
+                  background: '#f8f9fa', 
+                  color: 'var(--crimson)', 
+                  fontWeight: 800, 
+                  width: 40, height: 40, 
+                  borderRadius: '50%', 
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                  flexShrink: 0 
+                }}>
+                  {step.id}
+                </div>
+                <div>
+                  <h4 style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', color: '#1f2937' }}>{step.title}</h4>
+                  <p style={{ margin: 0, color: '#475569', fontSize: '0.95rem', lineHeight: 1.6 }}>{step.desc}</p>
+                </div>
+              </div>
             ))}
           </div>
 

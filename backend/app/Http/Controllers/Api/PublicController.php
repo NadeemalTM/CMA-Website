@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\{HeroSlide, Leader, Announcement, NewsEvent, Vacancy, Document, Project, Condominium, Application, Complaint, Feedback, StaffMember, ApplicationTariff};
+use App\Models\{HeroSlide, Leader, Announcement, NewsEvent, Vacancy, Document, Project, Condominium, Application, Complaint, Feedback, StaffMember, ApplicationTariff, ApplicationForm};
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -149,6 +149,24 @@ class PublicController extends Controller
                 ];
             });
         return response()->json(['data' => $tariffs]);
+    }
+
+    public function applicationForms()
+    {
+        $forms = ApplicationForm::where('is_active', true)
+            ->orderBy('order')
+            ->orderByDesc('id')
+            ->get()
+            ->map(function($f) {
+                return [
+                    'id' => $f->id,
+                    'form' => $this->loc($f, 'title'),
+                    'type' => $f->file_type,
+                    'size' => $f->file_size,
+                    'file_path' => '/storage/' . $f->file_path
+                ];
+            });
+        return response()->json(['data' => $forms]);
     }
 
     public function submitApplication(Request $request)

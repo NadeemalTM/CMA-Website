@@ -47,6 +47,7 @@ export const getDocuments = (params) => api.get('/documents', { params });
 export const getProjects = () => api.get('/projects');
 export const getCondominiums = (params) => api.get('/condominiums', { params });
 export const getApplicationTariffs = () => api.get('/application-tariffs');
+export const getApplicationForms = () => api.get('/application-forms');
 export const getMcFees = () => api.get('/mc-fees');
 export const submitApplication = (data) => api.post('/applications', data);
 export const submitComplaint = (data) => api.post('/complaints', data);
@@ -138,3 +139,4 @@ export const adminJobApplications = {
   list: () => api.get('/admin/job-applications'),
   remove: (id) => api.delete(`/admin/job-applications/${id}`)
 };
+export const adminApplicationForms = adminCRUD('application-forms');

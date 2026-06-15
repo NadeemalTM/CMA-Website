@@ -20,6 +20,8 @@ function HeroSlider({ slides }) {
   }, [slides.length]);
 
   if (!slides.length) return null;
+  const slide = slides[current] || slides[0];
+  if (!slide) return null;
 
   return (
     <div className="hero-slider">
@@ -32,8 +34,8 @@ function HeroSlider({ slides }) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
         >
-          {slides[current].image ? (
-            <img src={slides[current].image} alt={slides[current].title} className="hero-bg-img" />
+          {slide.image ? (
+            <img src={slide.image} alt={slide.title} className="hero-bg-img" />
           ) : (
             <div className="hero-bg-gradient" />
           )}
@@ -44,15 +46,15 @@ function HeroSlider({ slides }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              {slides[current].title}
+              {slide.title}
             </motion.h1>
-            {slides[current].description && (
+            {slide.description && (
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                {slides[current].description}
+                {slide.description}
               </motion.p>
             )}
             <motion.div

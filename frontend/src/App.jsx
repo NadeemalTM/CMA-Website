@@ -85,6 +85,7 @@ const StaffAdminPage = lazy(() => import('./pages/admin/StaffAdminPage'));
 const CertificatesAdminPage = lazy(() => import('./pages/admin/CertificatesAdminPage'));
 const McFeesAdminPage = lazy(() => import('./pages/admin/McFeesAdminPage'));
 const JobApplicationsAdminPage = lazy(() => import('./pages/admin/JobApplicationsAdminPage'));
+const ApplicationFormsAdminPage = lazy(() => import('./pages/admin/ApplicationFormsAdminPage'));
 
 
 /* ─────────────────────────────────────────────
@@ -318,6 +319,7 @@ export default function App() {
               <Route path="bungalow-rooms" element={<BungalowRoomsAdminPage />} />
               <Route path="certificates" element={<CertificatesAdminPage />} />
               <Route path="mc-fees" element={<McFeesAdminPage />} />
+              <Route path="application-forms" element={<ApplicationFormsAdminPage />} />
             </Route>
 
 

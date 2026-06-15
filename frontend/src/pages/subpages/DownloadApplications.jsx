@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, FileText, FileSpreadsheet } from 'lucide-react';
+import { getApplicationForms } from '../../services/api';
 
 const PageHeroFallback = ({ title }) => (
   <div className="page-hero" style={{ background: 'linear-gradient(135deg, #1a0000 0%, #4a0000 100%)', padding: '3.5rem 1rem', color: '#fff' }}>
@@ -13,19 +14,19 @@ const PageHeroFallback = ({ title }) => (
   </div>
 );
 
-const FORMS = [
-  { form: 'Form A - Application for Registration of Condominium Plan', type: 'PDF', size: '1.2 MB' },
-  { form: 'Form B - Application for Amendment of a Registered Condominium Plan', type: 'PDF', size: '840 KB' },
-  { form: 'Form C - Management Corporation (MC) Establishment & Registration Form', type: 'PDF', size: '1.5 MB' },
-  { form: 'Form D - Application for Certificate of Structural Stability', type: 'PDF', size: '650 KB' },
-  { form: 'Form E - Complaint/Dispute Submission to the CMA Mediation Board', type: 'PDF', size: '920 KB' }
-];
-
 export default function DownloadApplications() {
   const { t } = useTranslation();
+  const [forms, setForms] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     document.title = 'Download Applications – Condominium Management Authority';
+    
+    // Fetch forms dynamically from API
+    getApplicationForms().then(res => {
+      setForms(res.data.data || []);
+    }).catch(err => console.error(err))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -53,9 +54,13 @@ export default function DownloadApplications() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {FORMS.map((f, index) => (
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <div className="spinner"></div>
+              </div>
+            ) : forms.map((f, index) => (
               <div
-                key={index}
+                key={f.id || index}
                 style={{
                   background: '#fff',
                   border: '1px solid #e2e8f0',
@@ -82,8 +87,10 @@ export default function DownloadApplications() {
                 </div>
                 
                 <a
-                  href="#"
-                  onClick={(e) => e.preventDefault()}
+                  href={f.file_path}
+                  download
+                  target="_blank"
+                  rel="noreferrer"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -104,6 +111,12 @@ export default function DownloadApplications() {
                 </a>
               </div>
             ))}
+            
+            {!loading && forms.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                No application forms available to download at this moment.
+              </div>
+            )}
           </div>
 
         </div>

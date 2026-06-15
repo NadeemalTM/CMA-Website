@@ -36,6 +36,7 @@ Route::prefix('v1')->group(function () {
     Route::get('projects', [PublicController::class, 'projects']);
     Route::get('condominiums', [PublicController::class, 'condominiums']);
     Route::get('application-tariffs', [PublicController::class, 'applicationTariffs']);
+    Route::get('application-forms', [PublicController::class, 'applicationForms']);
     Route::get('mc-fees', [\App\Http\Controllers\Admin\McFeeController::class, 'index']);
     Route::post('applications', [PublicController::class, 'submitApplication']);
     Route::post('complaints', [PublicController::class, 'submitComplaint']);
@@ -99,6 +100,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('projects', ProjectController::class);
         Route::apiResource('condominiums', CondominiumController::class);
         Route::apiResource('application-tariffs', ApplicationTariffController::class);
+        Route::apiResource('application-forms', \App\Http\Controllers\Admin\ApplicationFormController::class);
         Route::get('applications', [ApplicationController::class, 'index']);
         Route::get('applications/{id}', [ApplicationController::class, 'show']);
         Route::patch('applications/{id}/status', [ApplicationController::class, 'updateStatus']);
