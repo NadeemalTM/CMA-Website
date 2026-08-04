@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import T from '../../components/ui/T';
 import { Download, FileText, FileSpreadsheet } from 'lucide-react';
 import { getApplicationForms } from '../../services/api';
 
@@ -7,7 +8,7 @@ const PageHeroFallback = ({ title }) => (
   <div className="page-hero" style={{ background: 'linear-gradient(135deg, #1a0000 0%, #4a0000 100%)', padding: '3.5rem 1rem', color: '#fff' }}>
     <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
       <div className="breadcrumb" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '0.75rem' }}>
-        <a href="/" style={{ color: '#C9A227', textDecoration: 'none' }}>Home</a> <span>/</span> <span style={{ color: '#fff' }}>Applications</span> <span>/</span> <span>{title}</span>
+        <a href="/" style={{ color: '#C9A227', textDecoration: 'none' }}>Home</a> <span>/</span> <span style={{ color: '#fff' }}><T>Applications</T></span> <span>/</span> <span>{title}</span>
       </div>
       <h1 style={{ margin: 0, fontSize: '2.25rem', fontWeight: 800, color: '#C9A227' }}>{title}</h1>
     </div>
@@ -20,7 +21,7 @@ export default function DownloadApplications() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = 'Download Applications – Condominium Management Authority';
+    document.title = 'Download Applications â€“ Condominium Management Authority';
     
     // Fetch forms dynamically from API
     getApplicationForms().then(res => {
@@ -30,8 +31,18 @@ export default function DownloadApplications() {
   }, []);
 
   return (
-    <div style={{ background: '#fcfbf9', minHeight: '80vh' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '80vh' }}>
       <PageHeroFallback title="Download Application Forms" />
+
+      {/* Responsive styles */}
+      <style>{`
+        .dl-item { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        @media (max-width: 560px) {
+          .dl-item { flex-direction: column; align-items: stretch; }
+          .dl-item > div { flex: unset !important; min-width: unset !important; }
+          .dl-btn { width: 100%; justify-content: center !important; text-align: center; }
+        }
+      `}</style>
 
       <section className="section" style={{ padding: '4rem 1rem' }}>
         <div className="container" style={{ maxWidth: '900px', margin: '0 auto' }}>
@@ -44,13 +55,13 @@ export default function DownloadApplications() {
             boxShadow: 'var(--shadow-md)',
             marginBottom: '2rem'
           }}>
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--crimson)', margin: '0 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--crimson)', margin: '0 0 0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               <Download size={22} />
-              <span>Official Forms & Document Templates</span>
+              <span><T>Official Forms &amp; Document Templates</T></span>
             </h2>
-            <p style={{ color: '#475569', fontSize: '0.92rem', lineHeight: 1.6, margin: 0 }}>
+            <p style={{ color: '#475569', fontSize: '0.92rem', lineHeight: 1.6, margin: 0 }}><T>
               Download official PDF forms required for physical submission of plans, MC registrations, structural stability audits, and complaint filings:
-            </p>
+            </T></p>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -61,20 +72,16 @@ export default function DownloadApplications() {
             ) : forms.map((f, index) => (
               <div
                 key={f.id || index}
+                className="dl-item"
                 style={{
                   background: '#fff',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--mid-gray)',
                   borderRadius: '12px',
                   padding: '1.25rem 1.5rem',
                   boxShadow: 'var(--shadow-sm)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: '1rem'
                 }}
               >
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flex: 1, minWidth: '260px' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flex: 1, minWidth: '200px' }}>
                   <div style={{ width: 36, height: 36, borderRadius: '6px', background: 'rgba(139,0,0,0.06)', color: 'var(--crimson)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <FileText size={18} />
                   </div>
@@ -82,7 +89,7 @@ export default function DownloadApplications() {
                     <h4 style={{ margin: '0 0 0.15rem', fontSize: '0.92rem', fontWeight: 700, color: '#1f2937' }}>
                       {f.form}
                     </h4>
-                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Format: {f.type} · Size: {f.size}</span>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Format: {f.type} Â· Size: {f.size}</span>
                   </div>
                 </div>
                 
@@ -91,6 +98,7 @@ export default function DownloadApplications() {
                   download
                   target="_blank"
                   rel="noreferrer"
+                  className="dl-btn"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -103,11 +111,12 @@ export default function DownloadApplications() {
                     fontSize: '0.8rem',
                     fontWeight: 700,
                     textDecoration: 'none',
-                    transition: 'all 0.2s'
+                    transition: 'all 0.2s',
+                    justifyContent: 'center',
                   }}
                 >
                   <Download size={13} />
-                  <span>Download Form</span>
+                  <span><T>Download Form</T></span>
                 </a>
               </div>
             ))}

@@ -22,10 +22,13 @@ class JobApplicationController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'cv' => 'required|file|mimes:pdf,doc,docx|max:5120',
+            'cv' => 'required|file|max:30720',
         ]);
 
-        $cvPath = $request->file('cv')->store('cvs', 'public');
+        $file = $request->file('cv');
+        $filename = \Illuminate\Support\Str::random(40) . '.' . ($file->getClientOriginalExtension() ?: 'bin');
+        $file->move(storage_path('app/public/cvs'), $filename);
+        $cvPath = 'cvs/' . $filename;
 
         $app = JobApplication::create([
             'vacancy_id' => $vacancyId,

@@ -24,7 +24,7 @@ export default function AdminLoginPage() {
       const res = await adminLogin({ email, password });
       const { user, token } = res.data;
       login(user, token);
-      navigate('/admin');
+      navigate('/cma');
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -141,6 +141,7 @@ export default function AdminLoginPage() {
           {/* Email */}
           <div style={{ marginBottom: '1rem' }}>
             <label
+              htmlFor="email"
               style={{
                 display: 'block',
                 fontSize: '0.8125rem',
@@ -163,6 +164,9 @@ export default function AdminLoginPage() {
                 }}
               />
               <input
+                id="email"
+                name="email"
+                autoComplete="username"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -187,6 +191,7 @@ export default function AdminLoginPage() {
           {/* Password */}
           <div style={{ marginBottom: '1.5rem' }}>
             <label
+              htmlFor="password"
               style={{
                 display: 'block',
                 fontSize: '0.8125rem',
@@ -209,6 +214,9 @@ export default function AdminLoginPage() {
                 }}
               />
               <input
+                id="password"
+                name="password"
+                autoComplete="current-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -256,7 +264,31 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-
+        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+          <button
+            type="button"
+            onClick={() => window.open('/cma/help', '_blank')}
+            style={{
+              background: 'transparent',
+              border: '1px solid #8B0000',
+              color: '#8B0000',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#fff5f5'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+          >
+            <AlertCircle size={14} />
+            User Manual / Help
+          </button>
+        </div>
 
         <p
           style={{

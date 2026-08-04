@@ -1,4 +1,6 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
+import { getAdminProfile } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -9,6 +11,7 @@ export function AuthProvider({ children }) {
     return u ? JSON.parse(u) : null;
   });
   const [token, setToken] = useState(() => localStorage.getItem('cma_token') || null);
+  const [adminProfileReady, setAdminProfileReady] = useState(() => !localStorage.getItem('cma_token'));
 
   // Citizen Auth State
   const [citizen, setCitizen] = useState(() => {
@@ -23,6 +26,7 @@ export function AuthProvider({ children }) {
     setToken(tokenStr);
     localStorage.setItem('cma_user', JSON.stringify(userData));
     localStorage.setItem('cma_token', tokenStr);
+    setAdminProfileReady(true);
   };
 
   const logout = () => {
@@ -30,6 +34,7 @@ export function AuthProvider({ children }) {
     setToken(null);
     localStorage.removeItem('cma_user');
     localStorage.removeItem('cma_token');
+    setAdminProfileReady(true);
   };
 
   // Citizen Login/Logout
@@ -47,10 +52,38 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('cma_citizen_token');
   };
 
-  // Interceptor auto-refresh headers when token changes
   useEffect(() => {
-    // Both tokens will be intercepted properly in api.js
-  }, [token, citizenToken]);
+    if (!token) {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    getAdminProfile()
+      .then((response) => {
+        if (cancelled) return;
+        const refreshedUser = response.data?.data;
+        if (refreshedUser) {
+          setUser(refreshedUser);
+          localStorage.setItem('cma_user', JSON.stringify(refreshedUser));
+        }
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        const code = error.response?.data?.code;
+        if (error.response?.status === 401 || code === 'account_disabled' || code === 'admin_access_required') {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem('cma_user');
+          localStorage.removeItem('cma_token');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setAdminProfileReady(true);
+      });
+
+    return () => { cancelled = true; };
+  }, [token]);
 
   return (
     <AuthContext.Provider
@@ -60,6 +93,7 @@ export function AuthProvider({ children }) {
         login,
         logout,
         isLoggedIn: !!token,
+        adminProfileReady,
         
         citizen,
         citizenToken,

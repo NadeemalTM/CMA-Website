@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ExternalLink } from 'lucide-react';
 
+import { getAnnouncements } from '../../services/api';
+
 const TICKER_ANIMATION_ID = 'cma-ticker-keyframes';
 
 function injectTickerKeyframes() {
@@ -122,12 +124,9 @@ export default function NoticeTicker() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/v1/announcements?lang=${activeLang}`)
-      .then(r => {
-        if (!r.ok) throw new Error('Network error');
-        return r.json();
-      })
-      .then(data => {
+    getAnnouncements()
+      .then(res => {
+        const data = res.data;
         if (!cancelled) {
           const items = Array.isArray(data)
             ? data

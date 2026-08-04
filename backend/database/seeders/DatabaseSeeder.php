@@ -17,12 +17,27 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Super Admin
-        User::updateOrCreate(['email' => 'admin@condominium.lk'], [
-            'name' => 'Super Administrator',
-            'password' => Hash::make('password'),
-            'role' => 'super_admin',
-        ]);
+        // Never overwrite the production super administrator password when reseeding.
+        $superAdmin = User::where('email', User::SUPER_ADMIN_EMAIL)->first();
+        if ($superAdmin) {
+            $superAdmin->update([
+                'name' => 'Super Administrator',
+                'role' => 'super_admin',
+                'admin_permissions' => array_keys(config('admin_permissions', [])),
+                'is_active' => true,
+            ]);
+        } elseif ($password = env('SUPER_ADMIN_PASSWORD')) {
+            User::create([
+                'name' => 'Super Administrator',
+                'email' => User::SUPER_ADMIN_EMAIL,
+                'password' => Hash::make($password),
+                'role' => 'super_admin',
+                'admin_permissions' => array_keys(config('admin_permissions', [])),
+                'is_active' => true,
+            ]);
+        } else {
+            $this->command?->warn('Super administrator was not seeded because SUPER_ADMIN_PASSWORD is not configured.');
+        }
 
         // Hero Slides
         HeroSlide::insert([
@@ -32,11 +47,11 @@ class DatabaseSeeder extends Seeder
 
         // Leadership
         Leader::insert([
-            ['name'=>'Anura Kumara Dissanayake','position_en'=>'President of the Democratic Socialist Republic of Sri Lanka','position_si'=>'ශ්‍රී ලංකා ප්‍රජාතාන්ත්‍රික සමාජවාදී ජනරජයේ ජනාධිපති','position_ta'=>'ஜனாதிபதி','photo'=>null,'order'=>1,'is_active'=>1,'created_at'=>now(),'updated_at'=>now()],
-            ['name'=>'Harini Amarasuriya','position_en'=>'Hon. Prime Minister of the Democratic Socialist Republic of Sri Lanka','position_si'=>'ගරු අග්‍රාමාත්‍ය','position_ta'=>'கௌரவ பிரதமர்','photo'=>null,'order'=>2,'is_active'=>1,'created_at'=>now(),'updated_at'=>now()],
-            ['name'=>'Bimal Rathnayake','position_en'=>'Hon. Minister of the Democratic Socialist Republic of Sri Lanka','position_si'=>'ගරු ඇමතිතුමා','position_ta'=>'கௌரவ அமைச்சர்','photo'=>null,'order'=>3,'is_active'=>1,'created_at'=>now(),'updated_at'=>now()],
-            ['name'=>'Eranga Gunasekara','position_en'=>'Deputy Minister of Urban Development of Sri Lanka','position_si'=>'නාගරික සංවර්ධන නියෝජ්‍ය ඇමතිතුමා','position_ta'=>'துணை அமைச்சர்','photo'=>null,'order'=>4,'is_active'=>1,'created_at'=>now(),'updated_at'=>now()],
-            ['name'=>'Bandula Karunarathne','position_en'=>'Chairman of the Condominium Management Authority','position_si'=>'සහාධිපත්‍ය කළමනාකරණ අධිකාරියේ සභාපති','position_ta'=>'தலைவர்','photo'=>null,'order'=>5,'is_active'=>1,'created_at'=>now(),'updated_at'=>now()],
+            ['name_en'=>'Anura Kumara Dissanayake','name_si'=>'අනුර කුමාර දිසානායක','name_ta'=>'அநுர குமார திசாநாயக்க','position_en'=>'President of the Democratic Socialist Republic of Sri Lanka','position_si'=>'ශ්‍රී ලංකා ප්‍රජාතාන්ත්‍රික සමාජවාදී ජනරජයේ ජනාධිපති','position_ta'=>'ஜனாதிபதி','photo'=>null,'order'=>1,'is_active'=>1,'created_at'=>now(),'updated_at'=>now()],
+            ['name_en'=>'Harini Amarasuriya','name_si'=>'හරිනි අමරසූරිය','name_ta'=>'ஹரிணி அமரசூரிய','position_en'=>'Hon. Prime Minister of the Democratic Socialist Republic of Sri Lanka','position_si'=>'ගරු අග්‍රාමාත්‍ය','position_ta'=>'கௌரவ பிரதமர்','photo'=>null,'order'=>2,'is_active'=>1,'created_at'=>now(),'updated_at'=>now()],
+            ['name_en'=>'Bimal Rathnayake','name_si'=>'බිමල් රත්නායක','name_ta'=>'பிமல் ரத்நாயக்க','position_en'=>'Hon. Minister of the Democratic Socialist Republic of Sri Lanka','position_si'=>'ගරු ඇමතිතුමා','position_ta'=>'கௌரவ அமைச்சர்','photo'=>null,'order'=>3,'is_active'=>1,'created_at'=>now(),'updated_at'=>now()],
+            ['name_en'=>'Eranga Gunasekara','name_si'=>'එරංග ගුණසේකර','name_ta'=>'எரங்க குணசேகர','position_en'=>'Deputy Minister of Urban Development of Sri Lanka','position_si'=>'නාගරික සංවර්ධන නියෝජ්‍ය ඇමතිතුමා','position_ta'=>'துணை அமைச்சர்','photo'=>null,'order'=>4,'is_active'=>1,'created_at'=>now(),'updated_at'=>now()],
+            ['name_en'=>'Bandula Karunarathne','name_si'=>'බන්දුල කරුණාරත්න','name_ta'=>'பந்துல கருணாரத்ன','position_en'=>'Chairman of the Condominium Management Authority','position_si'=>'සහාධිපත්‍ය කළමනාකරණ අධිකාරියේ සභාපති','position_ta'=>'தலைவர்','photo'=>null,'order'=>5,'is_active'=>1,'created_at'=>now(),'updated_at'=>now()],
         ]);
 
         // Announcements

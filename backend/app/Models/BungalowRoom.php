@@ -18,6 +18,10 @@ class BungalowRoom extends Model
         'emoji',
         'price',
         'emp_price',
+        'additional_charge',
+        'additional_charge_label',
+        'sst_rate',
+        'vat_rate',
         'image',
     ];
 
@@ -25,5 +29,8 @@ class BungalowRoom extends Model
         'ac' => 'boolean',
         'price' => 'decimal:2',
         'emp_price' => 'decimal:2',
+        'additional_charge' => 'decimal:2',
+        'sst_rate' => 'decimal:2',
+        'vat_rate' => 'decimal:2',
     ];
 }

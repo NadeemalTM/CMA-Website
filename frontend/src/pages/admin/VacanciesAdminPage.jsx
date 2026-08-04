@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Briefcase, Plus, Edit, Trash2, X } from 'lucide-react';
-import { adminVacancies, adminCreateVacancy, adminUpdateVacancy } from '../../services/api';
+import { adminVacancies, adminCreateVacancy, adminUpdateVacancy, getStorageURL } from '../../services/api';
 
 const SimpleModal = ({ isOpen, onClose, title, children }) => !isOpen ? null : (
   <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -73,7 +73,7 @@ export default function VacanciesAdminPage() {
                 <td style={{ padding: '0.75rem 1rem', fontWeight: 500 }}>{item.title_en}</td>
                 <td style={{ padding: '0.75rem 1rem', color: 'var(--crimson)', fontWeight: 600 }}>{item.deadline || '—'}</td>
                 <td style={{ padding: '0.75rem 1rem' }}><span className={`badge badge-${item.is_active ? 'success' : 'warning'}`}>{item.is_active ? 'Active' : 'Inactive'}</span></td>
-                <td style={{ padding: '0.75rem 1rem' }}>{item.document_path ? <a href={`http://localhost:8000/storage/${item.document_path}`} target="_blank" rel="noreferrer" style={{color: 'var(--primary)'}}>View</a> : '—'}</td>
+                <td style={{ padding: '0.75rem 1rem' }}>{item.document_path ? <a href={getStorageURL(item.document_path)} target="_blank" rel="noreferrer" style={{color: 'var(--primary)'}}>View</a> : '—'}</td>
                 <td style={{ padding: '0.75rem 1rem' }}><div style={{ display: 'flex', gap: '0.5rem' }}><button className="btn btn-outline btn-sm" onClick={() => openEdit(item)}><Edit size={14} /></button><button className="btn btn-sm" style={{ color: 'var(--error)', border: '1px solid var(--error)' }} onClick={() => handleDelete(item.id)}><Trash2 size={14} /></button></div></td>
               </tr>
             ))}</tbody>
@@ -85,10 +85,10 @@ export default function VacanciesAdminPage() {
         <div className="form-group"><label className="form-label">Title ({langTab.toUpperCase()})</label><input className="form-control" value={form[`title_${langTab}`] || ''} onChange={e => setForm({...form, [`title_${langTab}`]: e.target.value})} /></div>
         <div className="form-group"><label className="form-label">Description ({langTab.toUpperCase()})</label><textarea className="form-control" rows={5} value={form[`description_${langTab}`] || ''} onChange={e => setForm({...form, [`description_${langTab}`]: e.target.value})} /></div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div className="form-group"><label className="form-label">Deadline</label><input className="form-control" type="date" value={form.deadline || ''} onChange={e => setForm({...form, deadline: e.target.value})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="deadline" htmlFor="deadline">Deadline</label><input id="deadline" name="deadline" className="form-control" type="date" value={form.deadline || ''} onChange={e => setForm({...form, deadline: e.target.value})} /></div>
           <div className="form-group"><label className="form-label">Attach Document (PDF/Word)</label><input type="file" className="form-control" accept=".pdf,.doc,.docx" onChange={e => setForm({...form, document: e.target.files[0]})} /></div>
         </div>
-        <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end', marginTop: '1rem' }}><label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="checkbox" checked={form.is_active ?? true} onChange={e => setForm({...form, is_active: e.target.checked})} /> Active Vacancy</label></div>
+        <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end', marginTop: '1rem' }}><label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input id="is_active" name="is_active" type="checkbox" checked={form.is_active ?? true} onChange={e => setForm({...form, is_active: e.target.checked})} /> Active Vacancy</label></div>
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
           <button className="btn btn-outline" onClick={() => setModal(false)}>{t('admin.cancel')}</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : t('admin.save')}</button>
@@ -97,3 +97,5 @@ export default function VacanciesAdminPage() {
     </div>
   );
 }
+
+

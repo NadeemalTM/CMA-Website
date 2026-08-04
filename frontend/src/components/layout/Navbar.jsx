@@ -13,10 +13,21 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../../assets/logo.png';
 
+/* â”€â”€ Responsive breakpoint hook â”€â”€ */
+function useWindowWidth() {
+  const [width, setWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const fn = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', fn, { passive: true });
+    return () => window.removeEventListener('resize', fn);
+  }, []);
+  return width;
+}
+
 const LANGUAGES = [
-  { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'si', label: 'සිංහල', flag: '🇱🇰' },
-  { code: 'ta', label: 'தமிழ்', flag: '🇱🇰' },
+  { code: 'en', label: 'English' },
+  { code: 'si', label: 'Sinhala' },
+  { code: 'ta', label: 'Tamil' },
 ];
 
 const NAV_ITEMS = [
@@ -30,7 +41,6 @@ const NAV_ITEMS = [
       { key: 'nav.leadership', default: 'Leadership', path: '/about/leadership' },
       { key: 'nav.staff', default: 'Staff Members', path: '/about/staff' },
       { key: 'nav.visionMission', default: 'Vision & Mission', path: '/about/vision-mission' },
-      { key: 'nav.history', default: 'History', path: '/about/history' },
     ],
   },
   {
@@ -80,20 +90,37 @@ const NAV_ITEMS = [
 export default function Navbar() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const windowWidth = useWindowWidth();
+  const isMobile = windowWidth <= 1024;
   const lang = i18n.language || 'en';
-  const isCompactLang = lang === 'ta' || lang === 'si'; // Tamil & Sinhala need smaller sizes
+  const isCompactLang = lang === 'ta' || lang === 'si';
   const logoTitleSize = lang === 'ta' ? '10.5px' : lang === 'si' ? '12px' : '13px';
   const logoSubSize = lang === 'ta' ? '8px' : lang === 'si' ? '8.5px' : '9.5px';
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [openDropdown, setOpenDropdown] = useState(null);
+  // Accordion: which mobile nav item is expanded
+  const [mobileExpanded, setMobileExpanded] = useState(null);
+
   const langRef = useRef(null);
   const dropdownRefs = useRef({});
   const searchRef = useRef(null);
   const searchBtnRef = useRef(null);
+
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    if (!isMobile) setMobileOpen(false);
+  }, [isMobile]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -103,15 +130,11 @@ export default function Navbar() {
 
   useEffect(() => {
     const onClickOutside = (e) => {
-      if (langRef.current && !langRef.current.contains(e.target)) {
-        setLangOpen(false);
-      }
+      if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false);
       if (
         searchRef.current && !searchRef.current.contains(e.target) &&
         searchBtnRef.current && !searchBtnRef.current.contains(e.target)
-      ) {
-        setSearchOpen(false);
-      }
+      ) setSearchOpen(false);
       if (!Object.values(dropdownRefs.current).some(ref => ref && ref.contains(e.target))) {
         setOpenDropdown(null);
       }
@@ -138,24 +161,28 @@ export default function Navbar() {
     }
   };
 
+  const toggleMobileExpanded = (key) => {
+    setMobileExpanded(prev => prev === key ? null : key);
+  };
+
   const s = {
     nav: {
       position: 'relative',
       zIndex: 999,
       backgroundColor: '#ffffff',
       height: '80px',
-
       display: 'flex',
       alignItems: 'center',
       transition: 'box-shadow 0.3s ease',
       boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.12)' : '0 1px 4px rgba(0,0,0,0.06)',
     },
     container: {
-      maxWidth: '1440px',
+      maxWidth: '1280px',
       margin: '0 auto',
-      padding: '0 24px',
+      padding: isMobile ? '0 12px' : '0 24px',
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'space-between',
       width: '100%',
       gap: '8px',
     },
@@ -165,36 +192,29 @@ export default function Navbar() {
       gap: '10px',
       textDecoration: 'none',
       flexShrink: 0,
-      maxWidth: '320px',
+      maxWidth: isMobile ? '220px' : '320px',
       minWidth: 0,
     },
     logoIcon: {
-      width: '44px',
-      height: '44px',
+      width: isMobile ? '36px' : '44px',
+      height: isMobile ? '36px' : '44px',
       borderRadius: '8px',
-      backgroundColor: '#8B0000',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: '#C9A227',
       flexShrink: 0,
     },
-    logoText: {
-      display: 'flex',
-      flexDirection: 'column',
-    },
+    logoText: { display: 'flex', flexDirection: 'column' },
     logoTitle: {
-      fontSize: logoTitleSize,
+      fontSize: isMobile ? '11px' : logoTitleSize,
       fontWeight: '700',
       color: '#8B0000',
       lineHeight: 1.25,
       letterSpacing: '0.01em',
     },
     logoSub: {
-      fontSize: logoSubSize,
+      fontSize: isMobile ? '8px' : logoSubSize,
       color: '#666',
       lineHeight: 1.3,
       fontWeight: '500',
+      display: isMobile ? 'none' : 'block',
     },
     navLinks: {
       display: 'flex',
@@ -204,9 +224,7 @@ export default function Navbar() {
       justifyContent: 'center',
       flexWrap: 'nowrap',
     },
-    navItem: {
-      position: 'relative',
-    },
+    navItem: { position: 'relative' },
     navLink: {
       display: 'flex',
       alignItems: 'center',
@@ -223,9 +241,6 @@ export default function Navbar() {
       border: 'none',
       background: 'transparent',
       fontFamily: 'inherit',
-    },
-    navLinkActive: {
-      color: '#8B0000',
     },
     dropdown: {
       position: 'absolute',
@@ -252,21 +267,23 @@ export default function Navbar() {
     actions: {
       display: 'flex',
       alignItems: 'center',
-      gap: '8px',
+      gap: isMobile ? '4px' : '8px',
       flexShrink: 0,
     },
     iconBtn: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      width: '36px',
-      height: '36px',
+      width: isMobile ? '40px' : '36px',
+      height: isMobile ? '40px' : '36px',
       borderRadius: '50%',
       border: 'none',
       background: 'transparent',
       cursor: 'pointer',
       color: '#555',
       transition: 'background 0.2s, color 0.2s',
+      padding: 0,
+      margin: 0,
     },
     langBtn: {
       display: 'flex',
@@ -282,6 +299,7 @@ export default function Navbar() {
       color: '#444',
       transition: 'border-color 0.2s',
       fontFamily: 'inherit',
+      margin: 0,
     },
     langDropdown: {
       position: 'absolute',
@@ -310,26 +328,10 @@ export default function Navbar() {
       textAlign: 'left',
       fontFamily: 'inherit',
       transition: 'background 0.15s',
-    },
-    loginBtn: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '6px',
-      padding: '8px 14px',
-      backgroundColor: '#8B0000',
-      color: '#fff',
-      border: 'none',
-      borderRadius: '6px',
-      fontSize: '12.5px',
-      fontWeight: '600',
-      cursor: 'pointer',
-      textDecoration: 'none',
-      whiteSpace: 'nowrap',
-      transition: 'background 0.2s',
-      fontFamily: 'inherit',
+      margin: 0,
     },
     hamburger: {
-      display: 'none',
+      display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       width: '40px',
@@ -338,40 +340,13 @@ export default function Navbar() {
       background: 'transparent',
       cursor: 'pointer',
       color: '#333',
-    },
-    mobileMenu: {
-      position: 'fixed',
-      top: '80px',
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: '#fff',
-      zIndex: 998,
-      overflowY: 'auto',
-      padding: '16px',
-      transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
-      transition: 'transform 0.3s ease',
-    },
-    mobileNavLink: {
-      display: 'block',
-      padding: '12px 16px',
-      fontSize: '15px',
-      fontWeight: '600',
-      color: '#333',
-      textDecoration: 'none',
-      borderBottom: '1px solid #f0f0f0',
-    },
-    mobileSubLink: {
-      display: 'block',
-      padding: '10px 32px',
-      fontSize: '14px',
-      color: '#666',
-      textDecoration: 'none',
-      borderBottom: '1px solid #f8f8f8',
+      flexShrink: 0,
+      padding: 0,
+      margin: 0,
     },
     searchOverlay: {
       position: 'fixed',
-      top: 'calc(var(--topbar-height, 40px) + var(--nav-height, 80px))',
+      top: 'calc(var(--topbar-height, 40px) + 80px)',
       left: 0,
       right: 0,
       backgroundColor: '#fff',
@@ -389,6 +364,7 @@ export default function Navbar() {
       outline: 'none',
       fontFamily: 'inherit',
       background: 'transparent',
+      minWidth: 0,
     },
     searchSubmitBtn: {
       backgroundColor: '#8B0000',
@@ -400,7 +376,6 @@ export default function Navbar() {
       borderRadius: '8px',
       cursor: 'pointer',
       transition: 'background 0.2s',
-      boxShadow: '0 4px 6px rgba(139,0,0,0.2)',
       whiteSpace: 'nowrap',
       flexShrink: 0,
     },
@@ -412,72 +387,72 @@ export default function Navbar() {
         <div style={s.container}>
           {/* Logo */}
           <NavLink to="/" style={s.logo} onClick={() => setMobileOpen(false)}>
-            <div style={{ ...s.logoIcon, background: 'transparent', width: '44px', height: '44px' }}>
-              <img src={logo} alt="CMA Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-            </div>
+            <img src={logo} alt="CMA Logo" style={{ ...s.logoIcon, objectFit: 'contain' }} />
             <div style={s.logoText}>
               <span style={s.logoTitle}>
                 {t('nav.orgName', 'Condominium Management Authority')}
               </span>
               <span style={s.logoSub}>
-                {t('nav.ministry', 'Ministry of Transport, Highways and Urban Development — Sri Lanka')}
+                {t('nav.ministry', 'Ministry of Transport, Highways and Urban Development')}
               </span>
             </div>
           </NavLink>
 
           {/* Desktop Nav Links */}
-          <div style={s.navLinks} className="desktop-nav">
-            {NAV_ITEMS.map((item) => (
-              <div
-                key={item.key}
-                style={s.navItem}
-                ref={el => dropdownRefs.current[item.key] = el}
-              >
-                {item.children ? (
-                  <>
-                    <button
-                      style={s.navLink}
-                      onClick={() => setOpenDropdown(openDropdown === item.key ? null : item.key)}
-                      onMouseEnter={() => setOpenDropdown(item.key)}
+          {!isMobile && (
+            <div style={s.navLinks}>
+              {NAV_ITEMS.map((item) => (
+                <div
+                  key={item.key}
+                  style={s.navItem}
+                  ref={el => dropdownRefs.current[item.key] = el}
+                >
+                  {item.children ? (
+                    <>
+                      <button
+                        style={s.navLink}
+                        onClick={() => setOpenDropdown(openDropdown === item.key ? null : item.key)}
+                        onMouseEnter={() => setOpenDropdown(item.key)}
+                      >
+                        {t(item.key, item.default)}
+                        <ChevronDown size={12} style={{ transition: 'transform 0.2s', transform: openDropdown === item.key ? 'rotate(180deg)' : 'rotate(0)' }} />
+                      </button>
+                      {openDropdown === item.key && (
+                        <div style={s.dropdown} onMouseLeave={() => setOpenDropdown(null)}>
+                          {item.children.map(child => (
+                            <NavLink
+                              key={child.key}
+                              to={child.path}
+                              style={({ isActive }) => ({
+                                ...s.dropdownLink,
+                                backgroundColor: isActive ? '#fff5f5' : 'transparent',
+                                color: isActive ? '#8B0000' : '#444',
+                              })}
+                              onClick={() => setOpenDropdown(null)}
+                            >
+                              {t(child.key, child.default)}
+                            </NavLink>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <NavLink
+                      to={item.path}
+                      style={({ isActive }) => ({
+                        ...s.navLink,
+                        color: isActive ? '#8B0000' : '#333',
+                        backgroundColor: isActive ? '#fff0f0' : 'transparent',
+                      })}
+                      end={item.path === '/'}
                     >
                       {t(item.key, item.default)}
-                      <ChevronDown size={12} style={{ transition: 'transform 0.2s', transform: openDropdown === item.key ? 'rotate(180deg)' : 'rotate(0)' }} />
-                    </button>
-                    {openDropdown === item.key && (
-                      <div style={s.dropdown} onMouseLeave={() => setOpenDropdown(null)}>
-                        {item.children.map(child => (
-                          <NavLink
-                            key={child.key}
-                            to={child.path}
-                            style={({ isActive }) => ({
-                              ...s.dropdownLink,
-                              backgroundColor: isActive ? '#fff5f5' : 'transparent',
-                              color: isActive ? '#8B0000' : '#444',
-                            })}
-                            onClick={() => setOpenDropdown(null)}
-                          >
-                            {t(child.key, child.default)}
-                          </NavLink>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <NavLink
-                    to={item.path}
-                    style={({ isActive }) => ({
-                      ...s.navLink,
-                      color: isActive ? '#8B0000' : '#333',
-                      backgroundColor: isActive ? '#fff0f0' : 'transparent',
-                    })}
-                    end={item.path === '/'}
-                  >
-                    {t(item.key, item.default)}
-                  </NavLink>
-                )}
-              </div>
-            ))}
-          </div>
+                    </NavLink>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Actions */}
           <div style={s.actions}>
@@ -487,89 +462,77 @@ export default function Navbar() {
               style={s.iconBtn}
               onClick={() => setSearchOpen(prev => !prev)}
               aria-label="Search"
-              title="Search"
             >
               <Search size={18} />
             </button>
 
-            {/* Language Switcher */}
-            <div style={{ position: 'relative' }} ref={langRef} className="nav-action-lang">
-              <button
-                style={s.langBtn}
-                onClick={() => setLangOpen(!langOpen)}
-                aria-label="Change Language"
+            {/* Language Switcher â€” desktop only */}
+            {!isMobile && (
+              <div style={{ position: 'relative' }} ref={langRef}>
+                <button style={s.langBtn} onClick={() => setLangOpen(!langOpen)} aria-label="Change Language">
+                  <Globe size={14} />
+                  <span>{currentLang.label}</span>
+                  <ChevronDown size={12} style={{ transform: langOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} />
+                </button>
+                {langOpen && (
+                  <div style={s.langDropdown}>
+                    {LANGUAGES.map(lang => (
+                      <button
+                        key={lang.code}
+                        style={{
+                          ...s.langOption,
+                          backgroundColor: i18n.language === lang.code ? '#fff5f5' : 'transparent',
+                          color: i18n.language === lang.code ? '#8B0000' : '#333',
+                          fontWeight: i18n.language === lang.code ? '700' : '500',
+                        }}
+                        onClick={() => changeLang(lang.code)}
+                      >
+                        <span>{lang.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Bungalow Booking Button â€” desktop only */}
+            {!isMobile && (
+              <NavLink
+                to="/booking/kataragama"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: isCompactLang ? '0' : '6px',
+                  padding: isCompactLang ? '6px 8px' : '6px 14px',
+                  border: '1.5px solid #8B0000',
+                  borderRadius: '20px',
+                  background: '#8B0000',
+                  color: '#fff',
+                  textDecoration: 'none',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = '#8B0000'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#8B0000'; e.currentTarget.style.color = '#fff'; }}
               >
-                <Globe size={14} />
-                <span>{currentLang.flag}</span>
-                {!isCompactLang && <span>{currentLang.code.toUpperCase()}</span>}
-                <ChevronDown size={12} style={{ transform: langOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} />
+                <Building2 size={13} />
+                <span>{t('nav.bookingBtn', 'Bungalow Booking')}</span>
+              </NavLink>
+            )}
+
+            {/* Hamburger â€” mobile only */}
+            {isMobile && (
+              <button
+                style={s.hamburger}
+                onClick={() => setMobileOpen(!mobileOpen)}
+                aria-label="Toggle menu"
+              >
+                {mobileOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
-              {langOpen && (
-                <div style={s.langDropdown}>
-                  {LANGUAGES.map(lang => (
-                    <button
-                      key={lang.code}
-                      style={{
-                        ...s.langOption,
-                        backgroundColor: i18n.language === lang.code ? '#fff5f5' : 'transparent',
-                        color: i18n.language === lang.code ? '#8B0000' : '#333',
-                        fontWeight: i18n.language === lang.code ? '700' : '500',
-                      }}
-                      onClick={() => changeLang(lang.code)}
-                    >
-                      <span style={{ fontSize: '18px' }}>{lang.flag}</span>
-                      <span>{lang.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Bungalow Booking Button */}
-            <NavLink
-              to="/booking/kataragama"
-              className="nav-action-booking-btn"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: isCompactLang ? '0' : '6px',
-                padding: isCompactLang ? '6px 8px' : '6px 14px',
-                border: '1.5px solid #8B0000',
-                borderRadius: '20px',
-                background: '#8B0000',
-                color: '#fff',
-                textDecoration: 'none',
-                fontSize: '12px',
-                fontWeight: '700',
-                fontFamily: 'inherit',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 6px rgba(139,0,0,0.2)',
-                whiteSpace: 'nowrap',
-                title: t('nav.bookingBtn', 'Bungalow Booking'),
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#fff';
-                e.currentTarget.style.color = '#8B0000';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#8B0000';
-                e.currentTarget.style.color = '#fff';
-              }}
-            >
-              <Building2 size={13} />
-              {!isCompactLang && <span>{t('nav.bookingBtn', 'Bungalow Booking')}</span>}
-            </NavLink>
-
-            {/* Hamburger */}
-            <button
-              style={{ ...s.hamburger, display: 'flex' }}
-
-              className="hamburger-btn"
-              onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label="Toggle menu"
-            >
-              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            )}
           </div>
         </div>
       </nav>
@@ -577,17 +540,17 @@ export default function Navbar() {
       {/* Search Overlay */}
       <AnimatePresence>
         {searchOpen && (
-          <motion.div 
-            style={s.searchOverlay} 
+          <motion.div
+            style={s.searchOverlay}
             ref={searchRef}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
           >
-            <div style={{ maxWidth: '1440px', width: '100%', margin: '0 auto', padding: '0 24px' }}>
-              <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%' }}>
-                <Search size={22} color="#8B0000" />
+            <div style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 16px' }}>
+              <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
+                <Search size={22} color="#8B0000" style={{ flexShrink: 0 }} />
                 <input
                   style={s.searchInput}
                   type="text"
@@ -596,110 +559,236 @@ export default function Navbar() {
                   onChange={e => setSearchQuery(e.target.value)}
                   autoFocus
                 />
-                <motion.button 
-                  type="submit" 
-                  style={s.searchSubmitBtn}
-                  whileHover={{ backgroundColor: '#A50000', scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
+                <button type="submit" style={s.searchSubmitBtn}>
                   {t('nav.searchBtn', 'Search')}
-                </motion.button>
+                </button>
               </form>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Mobile Backdrop */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setMobileOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              top: '80px',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              zIndex: 997,
+              backdropFilter: 'blur(2px)',
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Mobile Menu */}
-      <div style={s.mobileMenu}>
-        {NAV_ITEMS.map(item => (
-          <React.Fragment key={item.key}>
-            <NavLink
-              to={item.path}
-              style={({ isActive }) => ({
-                ...s.mobileNavLink,
-                color: isActive ? '#8B0000' : '#333',
-              })}
-              onClick={() => !item.children && setMobileOpen(false)}
-              end={item.path === '/'}
-            >
-              {t(item.key, item.default)}
-            </NavLink>
-            {item.children && item.children.map(child => (
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            key="mobile-menu"
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'tween', duration: 0.28, ease: 'easeOut' }}
+            style={{
+              position: 'fixed',
+              top: '80px',
+              left: 0,
+              bottom: 0,
+              width: 'min(320px, 88vw)',
+              backgroundColor: '#fff',
+              zIndex: 998,
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '4px 0 24px rgba(0,0,0,0.15)',
+            }}
+          >
+            {/* Nav Items */}
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              {NAV_ITEMS.map(item => (
+                <React.Fragment key={item.key}>
+                  {item.children ? (
+                    <>
+                      {/* Accordion Header */}
+                      <button
+                        onClick={() => toggleMobileExpanded(item.key)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          width: '100%',
+                          padding: '14px 20px',
+                          fontSize: '15px',
+                          fontWeight: '700',
+                          color: '#1a1a1a',
+                          borderBottom: '1px solid #f0f0f0',
+                          background: 'transparent',
+                          border: 'none',
+                          borderBottom: '1px solid #f0f0f0',
+                          fontFamily: 'inherit',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                        }}
+                      >
+                        <span>{t(item.key, item.default)}</span>
+                        <ChevronDown
+                          size={18}
+                          style={{
+                            transition: 'transform 0.25s',
+                            transform: mobileExpanded === item.key ? 'rotate(180deg)' : 'rotate(0)',
+                            color: '#8B0000',
+                            flexShrink: 0,
+                          }}
+                        />
+                      </button>
+                      {/* Accordion Body */}
+                      <AnimatePresence>
+                        {mobileExpanded === item.key && (
+                          <motion.div
+                            key={item.key + '-children'}
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.22, ease: 'easeInOut' }}
+                            style={{ overflow: 'hidden', background: '#fafafa' }}
+                          >
+                            {item.children.map(child => (
+                              <NavLink
+                                key={child.key}
+                                to={child.path}
+                                style={({ isActive }) => ({
+                                  display: 'block',
+                                  padding: '11px 20px 11px 36px',
+                                  fontSize: '13.5px',
+                                  fontWeight: '500',
+                                  color: isActive ? '#8B0000' : '#555',
+                                  borderBottom: '1px solid #f0f0f0',
+                                  textDecoration: 'none',
+                                  backgroundColor: isActive ? '#fff5f5' : 'transparent',
+                                })}
+                                onClick={() => setMobileOpen(false)}
+                              >
+                                {t(child.key, child.default)}
+                              </NavLink>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </>
+                  ) : (
+                    <NavLink
+                      to={item.path}
+                      style={({ isActive }) => ({
+                        display: 'block',
+                        padding: '14px 20px',
+                        fontSize: '15px',
+                        fontWeight: '700',
+                        color: isActive ? '#8B0000' : '#1a1a1a',
+                        borderBottom: '1px solid #f0f0f0',
+                        textDecoration: 'none',
+                        backgroundColor: isActive ? '#fff5f5' : 'transparent',
+                      })}
+                      onClick={() => setMobileOpen(false)}
+                      end={item.path === '/'}
+                    >
+                      {t(item.key, item.default)}
+                    </NavLink>
+                  )}
+                </React.Fragment>
+              ))}
+
+              {/* Bungalow Booking CTA */}
               <NavLink
-                key={child.key}
-                to={child.path}
-                style={({ isActive }) => ({
-                  ...s.mobileSubLink,
-                  color: isActive ? '#8B0000' : '#666',
-                })}
+                to="/booking/kataragama"
+                onClick={() => setMobileOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  margin: '16px',
+                  padding: '14px 20px',
+                  background: '#8B0000',
+                  color: '#fff',
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  fontWeight: '700',
+                  fontSize: '14px',
+                }}
+              >
+                <Building2 size={18} />
+                {t('nav.bookingBtn', 'Kataragama Bungalow Booking')}
+              </NavLink>
+            </div>
+
+            {/* Footer: Login + Language */}
+            <div style={{ borderTop: '2px solid #f0f0f0', padding: '16px' }}>
+              <NavLink
+                to="/cma/login"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 16px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#8B0000',
+                  textDecoration: 'none',
+                  border: '1.5px solid #8B0000',
+                  borderRadius: '10px',
+                  marginBottom: '12px',
+                }}
                 onClick={() => setMobileOpen(false)}
               >
-                {t(child.key, child.default)}
+                <LogIn size={16} />
+                {t('nav.login', 'Admin Login')}
               </NavLink>
-            ))}
-          </React.Fragment>
-        ))}
-        {/* Mobile Login Button */}
-        <div style={{ padding: '16px 16px 0', borderBottom: '1px solid #f0f0f0' }}>
-          <NavLink
-            to="/admin/login"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 16px',
-              fontSize: '15px',
-              fontWeight: '600',
-              color: '#8B0000',
-              textDecoration: 'none',
-            }}
-            onClick={() => setMobileOpen(false)}
-          >
-            <LogIn size={18} />
-            {t('nav.login', 'Login')}
-          </NavLink>
-        </div>
-        <div style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          {LANGUAGES.map(lang => (
-            <button
-              key={lang.code}
-              onClick={() => { changeLang(lang.code); setMobileOpen(false); }}
-              style={{
-                padding: '8px 14px',
-                border: `2px solid ${i18n.language === lang.code ? '#8B0000' : '#ddd'}`,
-                borderRadius: '20px',
-                background: i18n.language === lang.code ? '#fff0f0' : 'transparent',
-                color: i18n.language === lang.code ? '#8B0000' : '#555',
-                fontWeight: '600',
-                cursor: 'pointer',
-                fontSize: '13px',
-                fontFamily: 'inherit',
-              }}
-            >
-              {lang.flag} {lang.label}
-            </button>
-          ))}
-        </div>
-      </div>
+
+              {/* Language Switcher */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {LANGUAGES.map(lang => (
+                  <button
+                    key={lang.code}
+                    onClick={() => { changeLang(lang.code); setMobileOpen(false); }}
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      border: `2px solid ${i18n.language === lang.code ? '#8B0000' : '#ddd'}`,
+                      borderRadius: '8px',
+                      background: i18n.language === lang.code ? '#fff0f0' : 'transparent',
+                      color: i18n.language === lang.code ? '#8B0000' : '#555',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontFamily: 'inherit',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {lang.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style>{`
-        @media (min-width: 1280px) {
-          .hamburger-btn { display: none !important; }
-        }
-        @media (max-width: 1279px) {
-          .desktop-nav { display: none !important; }
-        }
         .desktop-nav a:hover, .desktop-nav button:hover {
           background-color: #fff0f0 !important;
           color: #8B0000 !important;
-        }
-        @media (max-width: 768px) {
-          .nav-action-lang { display: none !important; }
-          .nav-action-login { display: none !important; }
-          .nav-action-booking-btn { display: none !important; }
         }
       `}</style>
     </>
   );
 }
+

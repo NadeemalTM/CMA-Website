@@ -1,23 +1,22 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShieldCheck, Eye, Search, AlertOctagon } from 'lucide-react';
-
-const PageHeroFallback = ({ title }) => (
-  <div className="page-hero" style={{ background: 'linear-gradient(135deg, #1a0000 0%, #4a0000 100%)', padding: '3.5rem 1rem', color: '#fff' }}>
-    <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-      <div className="breadcrumb" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '0.75rem' }}>
-        <a href="/" style={{ color: '#C9A227', textDecoration: 'none' }}>Home</a> <span>/</span> <span style={{ color: '#fff' }}>About Us</span> <span>/</span> <span>{title}</span>
-      </div>
-      <h1 style={{ margin: 0, fontSize: '2.25rem', fontWeight: 800, color: '#C9A227' }}>{title}</h1>
-    </div>
-  </div>
-);
+import { motion } from 'framer-motion';
+import { ShieldAlert } from 'lucide-react';
+import T from '../../components/ui/T';
+import PageHero from '../../components/ui/PageHero';
 
 const POWERS = [
-  { icon: Search, title: 'Inspect & Access Properties', desc: 'The Authority has legal powers to enter and inspect condominium common areas and buildings to evaluate structural safety, compliance, or developer neglect.' },
-  { icon: ShieldCheck, title: 'Mediate & Arbitrate Disputes', desc: 'Empowered to summon parties, hold tribunal hearings, and issue binding resolutions for structural, financial, or co-habitation grievances between dwellers.' },
-  { icon: Eye, title: 'Audit Sinking & Maintenance Funds', desc: 'Can demand and audit financial reports and account registries of Management Corporations to ensure resident funds are free of embezzlement.' },
-  { icon: AlertOctagon, title: 'Execute Repairs & Recover Costs', desc: 'Vested with powers to carry out emergency structural repairs on buildings that present public hazards and recover costs from negligent developers or Management Corporations.' }
+  { letter: 'A', text: 'Acquire by way of acquisition, vesting, grant or purchasing, or to receive by way of gift or otherwise any immovable or movable property and to hold, manage, sell, surrender, exchange, lease or otherwise dispose of such property.' },
+  { letter: 'B', text: 'Receive donations and bequests from any source whether local or foreign.' },
+  { letter: 'C', text: 'Borrow moneys required by it for the discharge of the functions.' },
+  { letter: 'D', text: 'Charge rent for any land parcel or buildings or Condominium Property let by the Authority.' },
+  { letter: 'E', text: 'Levy fees or charges, for any services rendered by the Authority under this Law or any other written law.' },
+  { letter: 'F', text: 'Recover any premia from owners in proportion to their interests in the condominium parcels.' },
+  { letter: 'G', text: 'Recover from any person including an owner, expenses incurred in making good any damage caused by him to the common amenities or common elements of the condominium parcels.' },
+  { letter: 'H', text: 'Provide to any condominium parcel, any services including its refurbishment, repair, and maintenance at the request of the management corporation or owner or occupier of the condominium parcel and levy charges therefor.' },
+  { letter: 'I', text: 'Undertake construction work.' },
+  { letter: 'J', text: 'Enter, either by itself or by its duly authorized agents, at all reasonable times, any condominium parcel for the purpose of inspecting, repairing, or renewing pipes, wires, cables and ducts which also serve other condominium parcels or the common elements of the condominium parcels or for the purpose of maintaining, renewing, refurbishing, or repairing the condominium parcel or the common amenities or the common elements, of the Condominium Property or for the purpose of removing or demolishing unauthorized constructions of the Condominium Property or Semi Condominium Property or for the purpose of ensuring that any relevant statutory requirements are being complied with, or in the exercise of any of the powers, referred to in this section.' },
+  { letter: 'K', text: 'Enter either by itself or by its duly authorized agents at all reasonable times, any land parcel of the Provisional Condominium Property for the purpose of inspecting and reviewing the progress of the construction of the building shown in the registered provisional condominium plan.' }
 ];
 
 export default function PowersOfCma() {
@@ -27,49 +26,91 @@ export default function PowersOfCma() {
     document.title = 'Powers of the Authority – Condominium Management Authority';
   }, []);
 
-  return (
-    <div style={{ background: '#fcfbf9', minHeight: '80vh' }}>
-      <PageHeroFallback title="Powers of the CMA" />
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
 
-      <section className="section" style={{ padding: '4rem 1rem' }}>
-        <div className="container" style={{ maxWidth: '900px', margin: '0 auto' }}>
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  return (
+    <div style={{ background: 'var(--off-white)', minHeight: '100vh' }}>
+      <PageHero
+        title="Powers of the CMA"
+        subtitle="For the proper carrying out of its objects the Authority shall exercise statutory powers and enforcement authorities."
+        breadcrumbs={[{ label: 'Powers of the Authority' }]}
+      />
+
+      <section className="section" style={{ padding: '5rem 1rem' }}>
+        <div className="container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
           
-          <div style={{
-            background: '#fff',
-            border: '1.5px solid var(--mid-gray)',
-            borderRadius: '16px',
-            padding: '2.5rem 2rem',
-            boxShadow: 'var(--shadow-md)',
-            marginBottom: '2rem'
-          }}>
-            <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--crimson)', margin: '0 0 1rem' }}>
-              Statutory Powers & Enforcement
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <div style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              width: 64, 
+              height: 64, 
+              borderRadius: '50%', 
+              background: 'rgba(201, 162, 39, 0.15)', 
+              color: 'var(--gold)',
+              marginBottom: '1.5rem'
+            }}>
+              <ShieldAlert size={32} />
+            </div>
+            <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--crimson)', margin: '0 0 1rem 0' }}>
+              <T>Statutory Powers & Enforcement</T>
             </h2>
-            <p style={{ color: '#334155', fontSize: '0.98rem', lineHeight: 1.6, margin: 0 }}>
-              To ensure compliance and protect the investments of condominium buyers, the legislature has vested the Condominium Management Authority with robust regulatory and administrative powers:
+            <p style={{ color: 'var(--text-body)', fontSize: '1.1rem', maxWidth: '700px', margin: '0 auto', lineHeight: 1.6 }}>
+              <T>To ensure compliance and protect the investments of condominium buyers, the legislature has vested the Condominium Management Authority with robust regulatory and administrative powers:</T>
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            {POWERS.map((pow, index) => {
-              const Icon = pow.icon;
-              return (
-                <div key={index} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', boxShadow: 'var(--shadow-sm)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                    <div style={{ width: 32, height: 32, borderRadius: '6px', background: 'rgba(139,0,0,0.06)', color: 'var(--crimson)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Icon size={16} />
-                    </div>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#1f2937', margin: 0 }}>
-                      {pow.title}
-                    </h3>
-                  </div>
-                  <p style={{ color: '#475569', fontSize: '0.85rem', lineHeight: 1.5, margin: 0 }}>
-                    {pow.desc}
-                  </p>
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+          >
+            {POWERS.map((pow) => (
+              <motion.div 
+                key={pow.letter}
+                variants={itemVariants}
+                style={{ 
+                  background: '#fff', 
+                  borderRadius: '16px', 
+                  padding: '2rem', 
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  gap: '1.5rem',
+                  alignItems: 'flex-start',
+                  border: '1px solid rgba(0,0,0,0.04)',
+                  transition: 'transform 0.3s ease, box-shadow 0.3s ease'
+                }}
+                whileHover={{ y: -4, boxShadow: '0 12px 30px rgba(0,0,0,0.08)' }}
+              >
+                <div style={{
+                  flexShrink: 0,
+                  marginTop: '4px',
+                  color: 'var(--gold)'
+                }}>
+                  <ShieldAlert size={20} />
                 </div>
-              );
-            })}
-          </div>
+                <div style={{ color: 'var(--text-body)', fontSize: '1.05rem', lineHeight: 1.7 }}>
+                  <T>{pow.text}</T>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
 
         </div>
       </section>

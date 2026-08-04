@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard, Users, Image, BriefcaseBusiness, FileText,
   Newspaper, Megaphone, FolderOpen, Building2, ClipboardList,
-  MessageSquare, LogOut, Menu, X, CheckSquare, Calendar, Home, Star, Award, Landmark, Banknote, Download
+  MessageSquare, LogOut, Menu, X, CheckSquare, Calendar, Home, Star, Award, Landmark, Banknote, Download, BookOpen, UserCog, History as HistoryIcon
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { adminLogout } from '../../services/api';
@@ -13,63 +13,90 @@ import logo from '../../assets/logo.png';
 
 // NAV_ITEMS now uses i18n keys so labels update on language change
 const NAV_ITEM_DEFS = [
-  { to: '/admin/dashboard',           tKey: 'admin.dashboard',          icon: LayoutDashboard },
-  { to: '/admin/leadership',          tKey: 'admin.leadership',         icon: Users },
-  { to: '/admin/staff',               tKey: 'admin.staff',              icon: BriefcaseBusiness },
-  { to: '/admin/hero-slides',         tKey: 'admin.hero_slides',        icon: Image },
-  { to: '/admin/vacancies',           tKey: 'admin.vacancies',          icon: BriefcaseBusiness },
-  { to: '/admin/job-applications',    tKey: 'Job Applications',         icon: FileText },
-  { to: '/admin/documents',           tKey: 'admin.documents',          icon: FileText },
-  { to: '/admin/news',                tKey: 'admin.news',               icon: Newspaper },
-  { to: '/admin/announcements',       tKey: 'admin.announcements',      icon: Megaphone },
-  { to: '/admin/projects',            tKey: 'admin.projects',           icon: FolderOpen },
-  { to: '/admin/condominiums',        tKey: 'admin.condominiums',       icon: Building2 },
-  { to: '/admin/application-tariffs', tKey: 'Application Fees',         icon: Banknote },
-  { to: '/admin/application-forms',   tKey: 'Application Forms',        icon: Download },
-  { to: '/admin/applications',        tKey: 'admin.applications',       icon: ClipboardList },
-  { to: '/admin/complaints',          tKey: 'admin.complaints',         icon: MessageSquare },
-  { to: '/admin/feedbacks',           tKey: 'admin.feedbacks',          icon: Star },
-  { to: '/admin/citizen-submissions', tKey: 'admin.citizen_services',   icon: CheckSquare },
-  { to: '/admin/bookings',            tKey: 'admin.bookings',           icon: Calendar },
-  { to: '/admin/bungalow-rooms',      tKey: 'admin.bungalow_rooms',     icon: Home },
-  { to: '/admin/certificates',        tKey: 'admin.certificates',       icon: Award },
-  { to: '/admin/mc-fees',             tKey: 'admin.mc_fees',            icon: Landmark },
+  { to: '/cma/dashboard',           tKey: 'admin.dashboard',          icon: LayoutDashboard, permission: 'dashboard' },
+  { to: '/cma/history',             tKey: 'History',                  icon: HistoryIcon, permission: 'history' },
+  { to: '/cma/leadership',          tKey: 'admin.leadership',         icon: Users, permission: 'leadership' },
+  { to: '/cma/staff',               tKey: 'admin.staff',              icon: BriefcaseBusiness, permission: 'staff' },
+  { to: '/cma/hero-slides',         tKey: 'admin.hero_slides',        icon: Image, permission: 'hero_slides' },
+  { to: '/cma/vacancies',           tKey: 'admin.vacancies',          icon: BriefcaseBusiness, permission: 'vacancies' },
+  { to: '/cma/job-applications',    tKey: 'Job Applications',         icon: FileText, permission: 'job_applications' },
+  { to: '/cma/documents',           tKey: 'admin.documents',          icon: FileText, permission: 'documents' },
+  { to: '/cma/news',                tKey: 'admin.news',               icon: Newspaper, permission: 'news' },
+  { to: '/cma/announcements',       tKey: 'admin.announcements',      icon: Megaphone, permission: 'announcements' },
+  { to: '/cma/laws',                tKey: 'Laws & Acts',              icon: BookOpen, permission: 'laws' },
+  { to: '/cma/projects',            tKey: 'admin.projects',           icon: FolderOpen, permission: 'projects' },
+  { to: '/cma/condominiums',        tKey: 'admin.condominiums',       icon: Building2, permission: 'condominiums' },
+  { to: '/cma/application-tariffs', tKey: 'Application Fees',         icon: Banknote, permission: 'application_tariffs' },
+  { to: '/cma/application-forms',   tKey: 'Application Forms',        icon: Download, permission: 'application_forms' },
+  { to: '/cma/applications',        tKey: 'admin.applications',       icon: ClipboardList, permission: 'applications' },
+  { to: '/cma/complaints',          tKey: 'admin.complaints',         icon: MessageSquare, permission: 'complaints' },
+  { to: '/cma/feedbacks',           tKey: 'admin.feedbacks',          icon: Star, permission: 'feedbacks' },
+  { to: '/cma/citizens',            tKey: 'Registered Users',         icon: Users, permission: 'citizens' },
+  { to: '/cma/citizen-submissions', tKey: 'admin.citizen_services',   icon: CheckSquare, permission: 'citizen_submissions' },
+  { to: '/cma/bookings',            tKey: 'admin.bookings',           icon: Calendar, permission: 'bookings' },
+  { to: '/cma/bungalow-rooms',      tKey: 'admin.bungalow_rooms',     icon: Home, permission: 'bungalow_rooms' },
+  { to: '/cma/certificates',        tKey: 'admin.certificates',       icon: Award, permission: 'certificates' },
+  { to: '/cma/mc-fees',             tKey: 'admin.mc_fees',            icon: Landmark, permission: 'mc_fees' },
+  { to: '/cma/admin-users',          tKey: 'admin.admin_users',        icon: UserCog, superOnly: true },
 ];
 
 // Route → i18n key map for page titles
 const PAGE_TITLE_KEYS = {
-  '/admin/dashboard':           'admin.dashboard',
-  '/admin/leadership':          'admin.leadership',
-  '/admin/staff':               'admin.staff',
-  '/admin/hero-slides':         'admin.hero_slides',
-  '/admin/vacancies':           'admin.vacancies',
-  '/admin/documents':           'admin.documents',
-  '/admin/news':                'admin.news',
-  '/admin/announcements':       'admin.announcements',
-  '/admin/projects':            'admin.projects',
-  '/admin/condominiums':        'admin.condominiums',
-  '/admin/application-tariffs': 'Application Fees',
-  '/admin/application-forms':   'Application Forms',
-  '/admin/applications':        'admin.applications',
-  '/admin/complaints':          'admin.complaints',
-  '/admin/feedbacks':           'admin.feedbacks',
-  '/admin/citizen-submissions': 'admin.citizen_services',
-  '/admin/bookings':            'admin.bookings',
-  '/admin/bungalow-rooms':      'admin.bungalow_rooms',
-  '/admin/certificates':        'admin.certificates',
-  '/admin/mc-fees':             'admin.mc_fees',
+  '/cma/dashboard':           'admin.dashboard',
+  '/cma/history':             'History',
+  '/cma/leadership':          'admin.leadership',
+  '/cma/staff':               'admin.staff',
+  '/cma/hero-slides':         'admin.hero_slides',
+  '/cma/vacancies':           'admin.vacancies',
+  '/cma/documents':           'admin.documents',
+  '/cma/news':                'admin.news',
+  '/cma/announcements':       'admin.announcements',
+  '/cma/laws':                'Laws & Acts',
+  '/cma/projects':            'admin.projects',
+  '/cma/condominiums':        'admin.condominiums',
+  '/cma/application-tariffs': 'Application Fees',
+  '/cma/application-forms':   'Application Forms',
+  '/cma/applications':        'admin.applications',
+  '/cma/complaints':          'admin.complaints',
+  '/cma/feedbacks':           'admin.feedbacks',
+  '/cma/citizens':            'Registered Users',
+  '/cma/citizen-submissions': 'admin.citizen_services',
+  '/cma/bookings':            'admin.bookings',
+  '/cma/bungalow-rooms':      'admin.bungalow_rooms',
+  '/cma/certificates':        'admin.certificates',
+  '/cma/mc-fees':             'admin.mc_fees',
+  '/cma/admin-users':          'admin.admin_users',
+  '/cma/access-denied':        'admin.access_denied',
 };
 
 
 export default function AdminLayout() {
   const { t } = useTranslation();
-  const { isLoggedIn, user, logout } = useAuth();
+  const { isLoggedIn, adminProfileReady, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
-  if (!isLoggedIn) return <Navigate to="/admin/login" replace />;
+  if (!isLoggedIn) return <Navigate to="/cma/login" replace />;
+  if (!adminProfileReady) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', color: '#8B0000', fontWeight: 700 }}>
+        Loading administrator access…
+      </div>
+    );
+  }
+
+  const isSuperAdmin = user?.is_super_admin || user?.role === 'super_admin' || user?.email?.toLowerCase() === 'admin@condominium.lk';
+  const permissions = new Set(user?.permissions || []);
+  const visibleNavItems = NAV_ITEM_DEFS.filter((item) =>
+    isSuperAdmin || (!item.superOnly && permissions.has(item.permission))
+  );
+  const requestedNavItem = NAV_ITEM_DEFS.find((item) => location.pathname.startsWith(item.to));
+
+  if (requestedNavItem && !visibleNavItems.includes(requestedNavItem)) {
+    return <Navigate to={visibleNavItems[0]?.to || '/cma/access-denied'} replace />;
+  }
 
   const currentTitleKey = Object.entries(PAGE_TITLE_KEYS).find(([path]) =>
     location.pathname.startsWith(path)
@@ -83,7 +110,7 @@ export default function AdminLayout() {
       // ignore API errors — clear locally regardless
     } finally {
       logout();
-      navigate('/admin/login');
+      navigate('/cma/login');
     }
   };
 
@@ -154,7 +181,7 @@ export default function AdminLayout() {
         {/* Nav items */}
         <nav style={{ flex: 1, padding: '0.75rem 0.75rem' }}>
           <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            {NAV_ITEM_DEFS.map(({ to, tKey, icon: Icon }) => (
+            {visibleNavItems.map(({ to, tKey, icon: Icon }) => (
               <li key={to}>
                 <NavLink
                   to={to}

@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'dashboard' => 'Dashboard',
+    'history' => 'History & Audit Log',
+    'leadership' => 'Leadership',
+    'staff' => 'Staff Members',
+    'hero_slides' => 'Hero Slides',
+    'vacancies' => 'Vacancies',
+    'job_applications' => 'Job Applications',
+    'documents' => 'Documents',
+    'news' => 'News & Events',
+    'announcements' => 'Announcements',
+    'laws' => 'Laws & Acts',
+    'projects' => 'Projects',
+    'condominiums' => 'Condominiums',
+    'application_tariffs' => 'Application Fees',
+    'application_forms' => 'Application Forms',
+    'applications' => 'Applications',
+    'complaints' => 'Complaints',
+    'feedbacks' => 'Feedbacks',
+    'citizens' => 'Registered Users',
+    'citizen_submissions' => 'Citizen Services',
+    'bookings' => 'Bookings',
+    'bungalow_rooms' => 'Bungalow Rooms',
+    'certificates' => 'Certificates',
+    'mc_fees' => 'MC Fees',
+];

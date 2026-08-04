@@ -119,7 +119,7 @@ function VacancyCard({ item, query }) {
 /* ─────────────────────────────────────────────── inline styles */
 const card = {
   background: '#fff',
-  border: '1px solid #e2e8f0',
+  border: '1px solid var(--mid-gray)',
   borderRadius: '12px',
   padding: '1.25rem 1.5rem',
   boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
@@ -236,7 +236,7 @@ export default function SearchPage() {
   const visibleVacancies = activeTab === 'all' || activeTab === 'vacancies' ? results.vacancies : [];
 
   return (
-    <div style={{ background: '#fcfbf9', minHeight: '80vh' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '80vh' }}>
       {/* Hero */}
       <div className="page-hero" style={{ background: 'linear-gradient(135deg, #1a0000 0%, #4a0000 100%)', padding: '3rem 1rem' }}>
         <div className="container" style={{ maxWidth: '1100px', margin: '0 auto' }}>
@@ -304,7 +304,7 @@ export default function SearchPage() {
                     style={{
                       display: 'flex', alignItems: 'center', gap: '0.4rem',
                       padding: '0.45rem 1rem', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer',
-                      border: `2px solid ${activeTab === key ? '#8B0000' : '#e2e8f0'}`,
+                      border: `2px solid ${activeTab === key ? '#8B0000' : 'var(--mid-gray)'}`,
                       background: activeTab === key ? '#8B0000' : '#fff',
                       color: activeTab === key ? '#fff' : '#64748b',
                       transition: 'all 0.15s',
@@ -313,7 +313,7 @@ export default function SearchPage() {
                     <Icon size={14} />
                     {label}
                     {tabCounts[key] > 0 && (
-                      <span style={{ background: activeTab === key ? 'rgba(255,255,255,0.25)' : '#f1f5f9', borderRadius: '999px', padding: '0 6px', fontSize: '0.72rem' }}>
+                      <span style={{ background: activeTab === key ? 'rgba(255,255,255,0.25)' : 'var(--light-gray)', borderRadius: '999px', padding: '0 6px', fontSize: '0.72rem' }}>
                         {tabCounts[key]}
                       </span>
                     )}
@@ -324,7 +324,7 @@ export default function SearchPage() {
               {/* Empty state */}
               {totalCount === 0 && (
                 <div style={{ textAlign: 'center', padding: '5rem 1rem' }}>
-                  <Search size={56} style={{ margin: '0 auto 1rem', display: 'block', color: '#cbd5e1' }} />
+                  <Search size={56} style={{ margin: '0 auto 1rem', display: 'block', color: 'var(--mid-gray)' }} />
                   <h2 style={{ fontSize: '1.35rem', color: '#475569', marginBottom: '0.5rem' }}>No results found</h2>
                   <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Try different keywords or check spelling.</p>
                 </div>
@@ -383,7 +383,7 @@ export default function SearchPage() {
 function ResultSection({ title, icon: Icon, color, children }) {
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '2px solid #f1f5f9' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '2px solid var(--light-gray)' }}>
         <div style={{ width: 34, height: 34, borderRadius: '8px', background: color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Icon size={18} color={color} />
         </div>

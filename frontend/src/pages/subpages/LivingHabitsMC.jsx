@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import T from '../../components/ui/T';
 import { useTranslation } from 'react-i18next';
 import { Heart, Activity, Wind, Flame, ShieldAlert, Trash2, Smile, Users, HeartHandshake, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -11,7 +12,7 @@ const PageHeroFallback = ({ title, subtitle }) => (
       <div className="breadcrumb" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1rem', display: 'flex', justifyContent: 'center', gap: '0.5rem', alignItems: 'center' }}>
         <a href="/" style={{ color: '#C9A227', textDecoration: 'none', fontWeight: 500 }}>Home</a> 
         <span style={{ color: 'rgba(255,255,255,0.4)' }}>/</span> 
-        <span style={{ color: 'rgba(255,255,255,0.6)' }}>Management Corps</span> 
+        <span style={{ color: 'rgba(255,255,255,0.6)' }}><T>Management Corps</T></span> 
         <span style={{ color: 'rgba(255,255,255,0.4)' }}>/</span> 
         <span style={{ color: '#fff' }}>{title}</span>
       </div>
@@ -92,7 +93,7 @@ export default function LivingHabitsMC() {
   ];
 
   return (
-    <div style={{ background: '#fcfbf9', minHeight: '80vh', paddingBottom: '5rem' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '80vh', paddingBottom: '5rem' }}>
       <PageHeroFallback 
         title={t('mc_living_habits.title') || 'Condominium Living Habits'} 
         subtitle={t('mc_living_habits.subtitle') || 'Code of Conduct and Best Practices Expected from Unit Owners'} 
@@ -111,7 +112,7 @@ export default function LivingHabitsMC() {
                 transition={{ duration: 0.6 }}
                 style={{
                   background: '#fff',
-                  border: '1.5px solid #edf2f7',
+                  border: '1.5px solid var(--mid-gray)',
                   borderRadius: '20px',
                   padding: '1.5rem',
                   boxShadow: '0 12px 30px rgba(0,0,0,0.02)',
@@ -144,7 +145,7 @@ export default function LivingHabitsMC() {
                 transition={{ delay: 0.3, duration: 0.5 }}
                 style={{
                   background: 'linear-gradient(135deg, rgba(139,0,0,0.02) 0%, rgba(201,162,39,0.02) 100%)',
-                  border: '1.5px dashed #cbd5e1',
+                  border: '1.5px dashed var(--mid-gray)',
                   borderRadius: '16px',
                   padding: '2rem'
                 }}
@@ -154,12 +155,12 @@ export default function LivingHabitsMC() {
                     <Eye size={24} />
                   </div>
                   <div>
-                    <h5 style={{ margin: '0 0 0.5rem 0', fontSize: '1.05rem', fontWeight: 700, color: '#1a202c' }}>
+                    <h5 style={{ margin: '0 0 0.5rem 0', fontSize: '1.05rem', fontWeight: 700, color: '#1a202c' }}><T>
                       CMA Public Directive
-                    </h5>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', lineHeight: 1.6 }}>
+                    </T></h5>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', lineHeight: 1.6 }}><T>
                       These guidelines are actively endorsed by the Condominium Management Authority to promote hygiene, fire safety, structural preservation, and mutual coexistence in vertical residential zones.
-                    </p>
+                    </T></p>
                   </div>
                 </div>
               </motion.div>
@@ -169,7 +170,7 @@ export default function LivingHabitsMC() {
             <div style={{ flex: '2 2 600px', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
               {categories.map((category, idx) => (
                 <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ borderBottom: '2px solid #edf2f7', paddingBottom: '0.5rem' }}>
+                  <div style={{ borderBottom: '2px solid var(--mid-gray)', paddingBottom: '0.5rem' }}>
                     <h3 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 800, color: category.color }}>
                       {category.title}
                     </h3>
@@ -191,7 +192,7 @@ export default function LivingHabitsMC() {
                         whileHover={{ x: 5 }}
                         style={{
                           background: '#fff',
-                          border: '1px solid #edf2f7',
+                          border: '1px solid var(--mid-gray)',
                           borderRadius: '12px',
                           padding: '1.25rem 1.5rem',
                           boxShadow: '0 4px 10px rgba(0,0,0,0.005)',

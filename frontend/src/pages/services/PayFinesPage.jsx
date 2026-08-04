@@ -80,7 +80,7 @@ export default function PayFinesPage() {
   };
 
   return (
-    <div style={{ background: '#fcfbf9', minHeight: '80vh', padding: '3rem 1rem' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '80vh', padding: '3rem 1rem' }}>
       <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
         
         {/* Breadcrumb */}
@@ -96,7 +96,7 @@ export default function PayFinesPage() {
           <div
             style={{
               background: '#fff',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--mid-gray)',
               borderRadius: '16px',
               padding: '2.5rem 2rem',
               boxShadow: 'var(--shadow-md)',
@@ -231,13 +231,13 @@ export default function PayFinesPage() {
           <div
             style={{
               background: '#fff',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--mid-gray)',
               borderRadius: '16px',
               padding: '2.5rem 2rem',
               boxShadow: 'var(--shadow-md)',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid #edf2f7', paddingBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--mid-gray)', paddingBottom: '1rem' }}>
               <div>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--crimson)', margin: 0 }}>
                   Secure Payment Gateway
@@ -254,11 +254,11 @@ export default function PayFinesPage() {
 
             <div
               style={{
-                background: '#f8fafc',
+                background: 'var(--off-white)',
                 borderRadius: '8px',
                 padding: '1rem',
                 marginBottom: '1.5rem',
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--mid-gray)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -271,8 +271,8 @@ export default function PayFinesPage() {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '0.35rem' }}>
-                <div style={{ width: 32, height: 20, background: '#e2e8f0', borderRadius: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 700, color: '#475569' }}>VISA</div>
-                <div style={{ width: 32, height: 20, background: '#e2e8f0', borderRadius: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 700, color: '#475569' }}>MC</div>
+                <div style={{ width: 32, height: 20, background: 'var(--mid-gray)', borderRadius: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 700, color: '#475569' }}>VISA</div>
+                <div style={{ width: 32, height: 20, background: 'var(--mid-gray)', borderRadius: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 700, color: '#475569' }}>MC</div>
               </div>
             </div>
 
@@ -378,7 +378,7 @@ export default function PayFinesPage() {
                   style={{
                     flex: 1,
                     padding: '0.75rem',
-                    border: '1.5px solid #cbd5e1',
+                    border: '1.5px solid var(--mid-gray)',
                     borderRadius: '8px',
                     background: '#fff',
                     color: '#64748b',
@@ -418,7 +418,7 @@ export default function PayFinesPage() {
           <div
             style={{
               background: '#fff',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--mid-gray)',
               borderRadius: '16px',
               padding: '3rem 2rem',
               textAlign: 'center',
@@ -449,7 +449,7 @@ export default function PayFinesPage() {
             
             <div
               style={{
-                background: '#f8fafc',
+                background: 'var(--off-white)',
                 border: '1.5px dashed var(--gold)',
                 borderRadius: '10px',
                 padding: '1.25rem',
@@ -463,7 +463,7 @@ export default function PayFinesPage() {
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--crimson)', marginTop: '0.25rem' }}>
                 {refNo}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.82rem', color: '#475569', borderTop: '1px solid #e2e8f0', marginTop: '0.75rem', paddingTop: '0.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.82rem', color: '#475569', borderTop: '1px solid var(--mid-gray)', marginTop: '0.75rem', paddingTop: '0.5rem' }}>
                 <div><strong>Ticket No:</strong> {ticketNo}</div>
                 <div><strong>Paid:</strong> LKR {Number(amount).toLocaleString()}</div>
               </div>

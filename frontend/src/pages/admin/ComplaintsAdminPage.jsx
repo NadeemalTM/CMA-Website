@@ -13,7 +13,7 @@ const SimpleModal = ({ isOpen, onClose, title, children }) => !isOpen ? null : (
   </div>
 );
 
-const statusColors = { new: '#d97706', reviewed: '#1e40af', resolved: '#1a7f5a' };
+const statusColors = { new: '#d97706', reviewed: '#1e40af', resolved: '#1a7f5a', removed: '#dc2626' };
 
 export default function ComplaintsAdminPage() {
   const { t } = useTranslation();
@@ -27,17 +27,25 @@ export default function ComplaintsAdminPage() {
   const load = () => { setLoading(true); api.get('/admin/complaints', { params: { status: statusFilter || undefined } }).then(r => setItems(r.data.data || [])).catch(() => {}).finally(() => setLoading(false)); };
   useEffect(load, [statusFilter]);
 
-  const handleReply = async () => {
+  const handleReply = async (status) => {
     if (!reply.trim() || !viewing) return;
     setSaving(true);
     try {
-      await api.patch(`/admin/complaints/${viewing.id}/reply`, { reply: reply });
+      await api.patch(`/admin/complaints/${viewing.id}/reply`, { reply: reply, status: status });
       setViewing(null); setReply(''); load();
     } catch (e) { alert(e.response?.data?.message || 'Error'); }
     finally { setSaving(false); }
   };
 
-  const statuses = ['', 'new', 'reviewed', 'resolved'];
+  const handleRemoveComplaint = async (id) => {
+    if (!window.confirm('Are you sure you want to mark this complaint as removed?')) return;
+    try {
+      await api.delete(`/admin/complaints/${id}`);
+      load();
+    } catch (e) { alert(e.response?.data?.message || 'Error'); }
+  };
+
+  const statuses = ['', 'new', 'reviewed', 'resolved', 'removed'];
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -58,7 +66,12 @@ export default function ComplaintsAdminPage() {
                 <td style={{ padding: '0.75rem 1rem' }}>{item.subject}</td>
                 <td style={{ padding: '0.75rem 1rem' }}><span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.75rem', borderRadius: 9999, fontSize: '0.75rem', fontWeight: 600, background: `${statusColors[item.status] || '#777'}20`, color: statusColors[item.status] || '#777' }}>{item.status}</span></td>
                 <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)' }}>{item.created_at?.substring(0, 10)}</td>
-                <td style={{ padding: '0.75rem 1rem' }}><button className="btn btn-outline btn-sm" onClick={() => { setViewing(item); setReply(''); }}><Eye size={14} /> View</button></td>
+                <td style={{ padding: '0.75rem 1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <button className="btn btn-outline btn-sm" onClick={() => { setViewing(item); setReply(item.reply || ''); }}><Eye size={14} /> View</button>
+                  {item.status !== 'removed' && (
+                    <button className="btn btn-sm" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fca5a5' }} onClick={() => handleRemoveComplaint(item.id)}>Remove</button>
+                  )}
+                </td>
               </tr>
             ))}</tbody>
           </table>
@@ -77,9 +90,10 @@ export default function ComplaintsAdminPage() {
             <p style={{ lineHeight: 1.7 }}>{viewing.message}</p>
           </div>
           <div className="form-group"><label className="form-label">Reply / Admin Notes</label><textarea className="form-control" rows={4} value={reply} onChange={e => setReply(e.target.value)} placeholder="Type your reply..." /></div>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
             <button className="btn btn-outline" onClick={() => setViewing(null)}>Close</button>
-            <button className="btn btn-primary" onClick={handleReply} disabled={saving || !reply.trim()}>{saving ? 'Saving...' : 'Submit Reply'}</button>
+            <button className="btn" style={{ background: '#dbeafe', color: '#1e40af', border: '1px solid #93c5fd', fontWeight: 600 }} onClick={() => handleReply('reviewed')} disabled={saving || !reply.trim()}>Mark as Received</button>
+            <button className="btn btn-primary" onClick={() => handleReply('resolved')} disabled={saving || !reply.trim()}>Mark as Resolved</button>
           </div>
         </>}
       </SimpleModal>

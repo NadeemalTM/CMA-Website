@@ -272,13 +272,13 @@ export default function Footer() {
           <div style={s.contactItem}>
             <MapPin size={16} style={s.contactIcon} />
             <span style={s.contactText}>
-              {t('footer.address', '1st Floor, National Housing Department Buiding, Sir Chittampalam A Gardiner Mawatha, Colombo 02.')}
+              {t('footer.address', '1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.')}
             </span>
           </div>
           <div style={s.contactItem}>
             <Phone size={16} style={s.contactIcon} />
-            <a href="tel:0112338146" style={s.contactLink}>
-              {t('footer.phone', '011 233 8146')}
+            <a href="tel:0112447432" style={s.contactLink}>
+              {t('footer.phone', '0112447432')}
             </a>
           </div>
           <div style={s.contactItem}>
@@ -314,6 +314,11 @@ export default function Footer() {
         footer .social-btn:hover { background-color: rgba(201,162,39,0.2) !important; color: #C9A227 !important; }
         @media (max-width: 600px) {
           footer > div:nth-child(3) { flex-direction: column; text-align: center; align-items: center; }
+        }
+        @media (max-width: 480px) {
+          footer > div:first-child { padding: 32px 16px 24px; gap: 24px; }
+          footer > div:last-child { padding: 14px 16px; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
+          footer > div:last-child > div { gap: 12px; justify-content: center; }
         }
       `}</style>
     </footer>

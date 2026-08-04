@@ -70,7 +70,7 @@ export default function FeedbacksAdminPage() {
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
-      <span key={i} style={{ color: i < rating ? '#f59e0b' : '#cbd5e1', fontSize: '1.2rem', marginRight: '2px' }}>
+      <span key={i} style={{ color: i < rating ? '#f59e0b' : 'var(--mid-gray)', fontSize: '1.2rem', marginRight: '2px' }}>
         ★
       </span>
     ));
@@ -94,6 +94,9 @@ export default function FeedbacksAdminPage() {
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>Filter Rating:</span>
           <select 
+            id="ratingFilter"
+            name="ratingFilter"
+            aria-label="Filter Rating"
             value={ratingFilter} 
             onChange={e => setRatingFilter(e.target.value)} 
             className="form-control"

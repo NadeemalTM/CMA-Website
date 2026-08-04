@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { adminNews, uploadFile } from '../../services/api';
+import { adminNews, uploadFile, getStorageURL } from '../../services/api';
 
 let AdminLayout;
 try { AdminLayout = require('../../components/admin/AdminLayout').default; }
@@ -107,7 +107,7 @@ export default function NewsAdminPage() {
     const file = e.target.files[0];
     if (!file) return;
     try {
-      const res = await uploadFile(file);
+      const res = await uploadFile(file, 'news');
       setForm(f => ({ ...f, image: res.data.path }));
       showToast('Image uploaded successfully');
     } catch(e) {
@@ -118,7 +118,7 @@ export default function NewsAdminPage() {
   const setLangField = (field, lang, val) => setForm(f=>({...f,[field + '_' + lang]:val}));
 
   return (
-    <AdminLayout title="News & Events">
+    <div className="admin-page-content" style={{ padding: "0.5rem" }}>
       <Toast msg={toast.msg} type={toast.type}/>
 
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1.5rem',flexWrap:'wrap',gap:'0.75rem'}}>
@@ -200,19 +200,17 @@ export default function NewsAdminPage() {
             </div>
           ))}
 
-          <label style={labelStyle}>Category</label>
-          <select style={inputStyle} value={form.category || 'news'} onChange={e=>setForm(f=>({...f,category:e.target.value}))}>
+          <label style={labelStyle} htmlFor="category" htmlFor="category">Category</label><select id="category" name="category" style={inputStyle} value={form.category || 'news'} onChange={e=>setForm(f=>({...f,category:e.target.value}))}>
             {CATEGORIES.map(c=><option key={c} value={c}>{c.charAt(0).toUpperCase()+c.slice(1)}</option>)}
           </select>
 
           <label style={labelStyle}>Image File</label>
           <input type="file" accept="image/*" onChange={handleUpload} style={{ marginBottom: '0.5rem' }} />
           <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '0.5rem' }}>Or Image Path:</div>
-          <input style={inputStyle} value={form.image || ''} onChange={e=>setForm(f=>({...f,image:e.target.value}))} placeholder="uploads/filename.png"/>
-          {form.image && <img src={form.image.startsWith('http') ? form.image : `/storage/${form.image}`} alt="" style={{width:'100%',height:120,objectFit:'cover',borderRadius:8,marginTop:'0.5rem',border:'1px solid #e5e7eb'}} onError={e=>e.target.style.display='none'}/>}
+          <input id="image" name="image" style={inputStyle} value={form.image || ''} onChange={e=>setForm(f=>({...f,image:e.target.value}))} placeholder="uploads/filename.png"/>
+          {form.image && <img src={form.image.startsWith('http') ? form.image : getStorageURL(form.image)} alt="" style={{width:'100%',height:120,objectFit:'cover',borderRadius:8,marginTop:'0.5rem',border:'1px solid #e5e7eb'}} onError={e=>e.target.style.display='none'}/>}
 
-          <label style={labelStyle}>Published At</label>
-          <input type="date" style={inputStyle} value={form.published_at || ''} onChange={e=>setForm(f=>({...f,published_at:e.target.value}))}/>
+          <label style={labelStyle} htmlFor="published_at" htmlFor="published_at">Published At</label><input id="published_at" name="published_at" type="date" style={inputStyle} value={form.published_at || ''} onChange={e=>setForm(f=>({...f,published_at:e.target.value}))}/>
 
           <div style={{display:'flex',alignItems:'center',gap:'0.5rem',marginTop:'0.75rem'}}>
             <input type="checkbox" id="np" checked={form.is_published} onChange={e=>setForm(f=>({...f,is_published:e.target.checked}))} style={{width:16,height:16}}/>
@@ -227,6 +225,9 @@ export default function NewsAdminPage() {
           </div>
         </form>
       </SimpleModal>
-    </AdminLayout>
+    </div>
   );
 }
+
+
+

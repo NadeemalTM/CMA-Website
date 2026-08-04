@@ -156,7 +156,7 @@ export default function ManagementCorporation() {
                 whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(139,0,0,0.06)' }}
                 style={{
                   background: '#fff',
-                  border: '1px solid #edf2f7',
+                  border: '1px solid var(--mid-gray)',
                   borderRadius: '24px',
                   padding: '1.5rem',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.02)',
@@ -321,7 +321,7 @@ export default function ManagementCorporation() {
                 transition={{ duration: 0.5 }}
                 style={{
                   background: '#fff',
-                  border: '1.5px solid #edf2f7',
+                  border: '1.5px solid var(--mid-gray)',
                   borderRadius: '24px',
                   padding: '2rem 2.25rem',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.01)',
@@ -368,7 +368,7 @@ export default function ManagementCorporation() {
                     whileHover={{ scale: 1.015, x: 8, boxShadow: '0 12px 25px rgba(0,0,0,0.03)' }}
                     style={{
                       background: '#fff',
-                      border: '1px solid #edf2f7',
+                      border: '1px solid var(--mid-gray)',
                       borderRadius: '20px',
                       padding: '2rem',
                       boxShadow: '0 4px 15px rgba(0,0,0,0.005)',
@@ -441,7 +441,7 @@ export default function ManagementCorporation() {
             style={{
               marginTop: '5rem',
               background: '#fff',
-              border: '1px solid #edf2f7',
+              border: '1px solid var(--mid-gray)',
               borderRadius: '24px',
               padding: '3rem 2rem',
               boxShadow: '0 15px 35px rgba(0,0,0,0.02)'
@@ -480,7 +480,7 @@ export default function ManagementCorporation() {
                 left: '60px',
                 right: '60px',
                 height: '4px',
-                background: '#edf2f7',
+                background: 'var(--mid-gray)',
                 zIndex: 1
               }}>
                 {/* Active progress color indicator */}
@@ -536,7 +536,7 @@ export default function ManagementCorporation() {
                           height: '54px',
                           borderRadius: '50%',
                           background: isActive ? s.color : isPast ? '#2e7d32' : '#fff',
-                          border: `2px solid ${isActive ? '#fff' : isPast ? '#2e7d32' : '#cbd5e1'}`,
+                          border: `2px solid ${isActive ? '#fff' : isPast ? '#2e7d32' : 'var(--mid-gray)'}`,
                           color: isActive ? '#fff' : isPast ? '#fff' : '#64748b',
                           display: 'flex',
                           alignItems: 'center',
@@ -623,7 +623,7 @@ export default function ManagementCorporation() {
                     <p style={{ margin: '0 0 1rem 0', fontSize: '0.94rem', color: '#475569', fontWeight: 500, lineHeight: 1.6 }}>
                       {setupSteps[activeStep].desc}
                     </p>
-                    <div style={{ borderTop: '1px solid #edf2f7', paddingTop: '1rem', marginTop: '1rem' }}>
+                    <div style={{ borderTop: '1px solid var(--mid-gray)', paddingTop: '1rem', marginTop: '1rem' }}>
                       <h5 style={{ margin: '0 0 0.4rem 0', fontSize: '0.82rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         {t('mc_setup.legal_requirement', 'Legal Implementation detail')}
                       </h5>
@@ -647,7 +647,7 @@ export default function ManagementCorporation() {
             style={{
               marginTop: '4rem',
               background: 'linear-gradient(135deg, #fff 0%, #fdfdfc 100%)',
-              border: '1.5px solid #edf2f7',
+              border: '1.5px solid var(--mid-gray)',
               borderRadius: '24px',
               padding: '3rem 2.25rem',
               boxShadow: '0 12px 30px rgba(0,0,0,0.015)'
@@ -679,7 +679,7 @@ export default function ManagementCorporation() {
                 </p>
 
                 {/* Dynamic Progress indicator */}
-                <div style={{ background: '#f1f5f9', borderRadius: '10px', padding: '1.25rem', border: '1px solid #e2e8f0' }}>
+                <div style={{ background: 'var(--light-gray)', borderRadius: '10px', padding: '1.25rem', border: '1px solid var(--mid-gray)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569' }}>
                       {t('mc_setup.progress', 'Readiness Progress')}
@@ -688,7 +688,7 @@ export default function ManagementCorporation() {
                       {progressPercent}%
                     </span>
                   </div>
-                  <div style={{ width: '100%', height: '8px', background: '#cbd5e1', borderRadius: '50px', overflow: 'hidden' }}>
+                  <div style={{ width: '100%', height: '8px', background: 'var(--mid-gray)', borderRadius: '50px', overflow: 'hidden' }}>
                     <motion.div 
                       animate={{ width: `${progressPercent}%` }}
                       transition={{ duration: 0.3 }}
@@ -712,7 +712,7 @@ export default function ManagementCorporation() {
                     onClick={() => toggleCheck(item.id)}
                     style={{
                       background: item.checked ? 'rgba(46,125,50,0.02)' : '#fff',
-                      border: `1.5px solid ${item.checked ? '#2e7d32' : '#edf2f7'}`,
+                      border: `1.5px solid ${item.checked ? '#2e7d32' : 'var(--mid-gray)'}`,
                       borderRadius: '14px',
                       padding: '1.1rem 1.25rem',
                       display: 'flex',
@@ -729,7 +729,7 @@ export default function ManagementCorporation() {
                       if (!item.checked) e.currentTarget.style.borderColor = '#C9A227';
                     }}
                     onMouseLeave={(e) => {
-                      if (!item.checked) e.currentTarget.style.borderColor = '#edf2f7';
+                      if (!item.checked) e.currentTarget.style.borderColor = 'var(--mid-gray)';
                     }}
                   >
                     {/* Animated checkbox circle */}
@@ -737,7 +737,7 @@ export default function ManagementCorporation() {
                       width: '22px',
                       height: '22px',
                       borderRadius: '50%',
-                      border: `2px solid ${item.checked ? '#2e7d32' : '#cbd5e1'}`,
+                      border: `2px solid ${item.checked ? '#2e7d32' : 'var(--mid-gray)'}`,
                       background: item.checked ? '#2e7d32' : '#fff',
                       display: 'flex',
                       alignItems: 'center',

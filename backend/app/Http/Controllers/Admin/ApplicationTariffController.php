@@ -10,7 +10,7 @@ class ApplicationTariffController extends Controller
 {
     public function index()
     {
-        $tariffs = ApplicationTariff::orderBy('category')->orderBy('order')->orderBy('id')->get();
+        $tariffs = ApplicationTariff::orderBy('order')->orderBy('id')->get();
         return response()->json(['data' => $tariffs]);
     }
 
@@ -19,10 +19,20 @@ class ApplicationTariffController extends Controller
         $request->validate([
             'category' => 'required|string|max:255',
             'description_en' => 'required|string|max:255',
-            'fee' => 'required|numeric|min:0',
+            'item_no' => 'nullable|string|max:255',
+            'scale' => 'nullable|string|max:255',
+            'fee' => 'nullable|numeric|min:0',
+            'fee_display' => 'nullable|string|max:255',
+            'remarks' => 'nullable|string|max:255',
+            'order' => 'nullable|integer',
         ]);
 
-        $tariff = ApplicationTariff::create($request->all());
+        $data = $request->all();
+        if (!isset($data['fee']) || $data['fee'] === '') {
+            $data['fee'] = 0.00;
+        }
+
+        $tariff = ApplicationTariff::create($data);
         return response()->json(['data' => $tariff, 'message' => 'Tariff created successfully.'], 201);
     }
 
@@ -36,10 +46,20 @@ class ApplicationTariffController extends Controller
         $request->validate([
             'category' => 'sometimes|string|max:255',
             'description_en' => 'sometimes|string|max:255',
-            'fee' => 'sometimes|numeric|min:0',
+            'item_no' => 'nullable|string|max:255',
+            'scale' => 'nullable|string|max:255',
+            'fee' => 'nullable|numeric|min:0',
+            'fee_display' => 'nullable|string|max:255',
+            'remarks' => 'nullable|string|max:255',
+            'order' => 'nullable|integer',
         ]);
 
-        $applicationTariff->update($request->all());
+        $data = $request->all();
+        if (array_key_exists('fee', $data) && ($data['fee'] === null || $data['fee'] === '')) {
+            $data['fee'] = 0.00;
+        }
+
+        $applicationTariff->update($data);
         return response()->json(['data' => $applicationTariff, 'message' => 'Tariff updated successfully.']);
     }
 

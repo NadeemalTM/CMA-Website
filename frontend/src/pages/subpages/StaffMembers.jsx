@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import T from '../../components/ui/T';
 import { useTranslation } from 'react-i18next';
 import { Users, Mail, Phone, Briefcase } from 'lucide-react';
 import { getStaff } from '../../services/api';
@@ -7,7 +8,7 @@ const PageHeroFallback = ({ title }) => (
   <div className="page-hero" style={{ background: 'linear-gradient(135deg, #1a0000 0%, #4a0000 100%)', padding: '3.5rem 1rem', color: '#fff' }}>
     <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
       <div className="breadcrumb" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '0.75rem' }}>
-        <a href="/" style={{ color: '#C9A227', textDecoration: 'none' }}>Home</a> <span>/</span> <span style={{ color: '#fff' }}>About Us</span> <span>/</span> <span>{title}</span>
+        <a href="/" style={{ color: '#C9A227', textDecoration: 'none' }}>Home</a> <span>/</span> <span style={{ color: '#fff' }}><T>About Us</T></span> <span>/</span> <span>{title}</span>
       </div>
       <h1 style={{ margin: 0, fontSize: '2.25rem', fontWeight: 800, color: '#C9A227' }}>{title}</h1>
     </div>
@@ -53,7 +54,7 @@ export default function StaffMembers() {
   }, [t]);
 
   return (
-    <div style={{ background: '#fcfbf9', minHeight: '80vh' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '80vh' }}>
       <PageHeroFallback title={t('nav.staff', 'CMA Staff Members')} />
 
       <section className="section" style={{ padding: '4rem 1rem' }}>
@@ -110,7 +111,7 @@ export default function StaffMembers() {
                         key={sIdx}
                         style={{
                           background: '#fff',
-                          border: '1px solid #e2e8f0',
+                          border: '1px solid var(--mid-gray)',
                           borderRadius: '12px',
                           padding: '1.25rem',
                           boxShadow: 'var(--shadow-sm)',
@@ -130,7 +131,7 @@ export default function StaffMembers() {
                           </div>
                         </div>
 
-                        <div style={{ fontSize: '0.8rem', color: '#475569', display: 'flex', flexDirection: 'column', gap: '0.35rem', borderTop: '1px solid #f1f5f9', paddingTop: '0.5rem' }}>
+                        <div style={{ fontSize: '0.8rem', color: '#475569', display: 'flex', flexDirection: 'column', gap: '0.35rem', borderTop: '1px solid var(--light-gray)', paddingTop: '0.5rem' }}>
                           {staff.phone && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                               <Phone size={12} color="#94a3b8" />

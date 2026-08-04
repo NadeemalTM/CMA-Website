@@ -1,18 +1,22 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Award, Plus, Edit, Trash2, X, FileText, Upload, DollarSign, List, Shield, Download, FileCheck, CheckCircle } from 'lucide-react';
+import { Award, Plus, Edit, Trash2, X, FileText, Upload, DollarSign, List, CheckCircle, Save, Image } from 'lucide-react';
 import { 
   adminCertificateTypes, 
   adminCertificateDocuments, 
   adminGetCertificatePayments,
-  uploadFile
+  adminUpdateCertificatePaymentStatus,
+  adminGetCertificateSettings,
+  adminUpdateCertificateSettings,
+  uploadFile,
+  getStorageURL
 } from '../../services/api';
 
 const SimpleModal = ({ isOpen, onClose, title, children }) => !isOpen ? null : (
   <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
     <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)' }} onClick={onClose} />
     <div style={{ position: 'relative', background: 'white', borderRadius: 16, padding: '2rem', maxWidth: 700, width: '90%', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid var(--light-gray)', paddingBottom: '1rem' }}>
         <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#1f2937' }}>{title}</h2>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={20} /></button>
       </div>
@@ -22,8 +26,6 @@ const SimpleModal = ({ isOpen, onClose, title, children }) => !isOpen ? null : (
 );
 
 export default function CertificatesAdminPage() {
-  const { t } = useTranslation();
-  
   // Tabs: 'types' | 'documents' | 'payments'
   const [activeTab, setActiveTab] = useState('types');
   const [langTab, setLangTab] = useState('en');
@@ -37,6 +39,62 @@ export default function CertificatesAdminPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Settings State
+  const [settings, setSettings] = useState({ reference_banner: '', reference_banner_alt: '', payment_guideline_pdf: '', payment_guideline_title: '' });
+  const [settingsSaving, setSettingsSaving] = useState(false);
+  const [bannerUploading, setBannerUploading] = useState(false);
+  const [pdfUploading, setPdfUploading] = useState(false);
+
+  const loadSettings = async () => {
+    try {
+      const res = await adminGetCertificateSettings();
+      if (res.data?.data) setSettings(res.data.data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    setSettingsSaving(true);
+    try {
+      const res = await adminUpdateCertificateSettings(settings);
+      setSettings(res.data.data);
+      alert(res.data.message || 'Settings saved successfully.');
+    } catch (e) {
+      alert(e?.response?.data?.message || 'Failed to save settings.');
+    } finally {
+      setSettingsSaving(false);
+    }
+  };
+
+  const handleBannerUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setBannerUploading(true);
+    try {
+      const res = await uploadFile(file, 'certificates');
+      setSettings((prev) => ({ ...prev, reference_banner: res.data.path }));
+    } catch (e) {
+      alert('Banner upload failed.');
+    } finally {
+      setBannerUploading(false);
+    }
+  };
+
+  const handlePdfUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setPdfUploading(true);
+    try {
+      const res = await uploadFile(file, 'certificates');
+      setSettings((prev) => ({ ...prev, payment_guideline_pdf: res.data.path }));
+    } catch (e) {
+      alert('PDF upload failed.');
+    } finally {
+      setPdfUploading(false);
+    }
+  };
 
   // Selected Type filter for Documents Tab
   const [selectedTypeId, setSelectedTypeId] = useState('');
@@ -107,10 +165,25 @@ export default function CertificatesAdminPage() {
     }
   };
 
+  const reviewPayment = async (payment, status) => {
+    const promptText = status === 'paid'
+      ? `Mark ${payment.reference_no} as paid and release its documents?`
+      : `Reject payment request ${payment.reference_no}?`;
+    if (!window.confirm(promptText)) return;
+
+    try {
+      await adminUpdateCertificatePaymentStatus(payment.id, status);
+      await loadPayments();
+    } catch (error) {
+      alert(error?.response?.data?.message || 'Unable to update the payment review.');
+    }
+  };
+
   // Main Loader
   const loadAll = async () => {
     setLoading(true);
     await loadTypes();
+    await loadSettings();
     if (activeTab === 'documents') {
       await loadDocs();
     } else if (activeTab === 'payments') {
@@ -188,7 +261,7 @@ export default function CertificatesAdminPage() {
     try {
       await adminCertificateTypes.remove(id);
       loadTypes();
-    } catch (e) {
+    } catch {
       alert('Error deleting certificate type.');
     }
   };
@@ -233,14 +306,14 @@ export default function CertificatesAdminPage() {
     if (!file) return;
     setUploading(true);
     try {
-      const res = await uploadFile(file);
+      const res = await uploadFile(file, 'certificates');
       setDocForm(prev => ({
         ...prev,
         file_path: res.data.path,
         file_name: file.name,
         file_type: file.name.split('.').pop().toUpperCase()
       }));
-    } catch (err) {
+    } catch {
       alert('Upload failed. Please try again.');
     } finally {
       setUploading(false);
@@ -273,7 +346,7 @@ export default function CertificatesAdminPage() {
     try {
       await adminCertificateDocuments.remove(id);
       loadDocs(selectedTypeId);
-    } catch (e) {
+    } catch {
       alert('Error deleting document.');
     }
   };
@@ -300,8 +373,69 @@ export default function CertificatesAdminPage() {
         </div>
       </div>
 
+      {/* Certificate Settings Box */}
+      <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '20px', marginBottom: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap', marginBottom: '16px' }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Image size={18} color="var(--crimson)" /> Public Certificate Settings
+            </h3>
+            <p style={{ margin: '5px 0 0', fontSize: '12.5px', color: '#64748b' }}>
+              Control the upper section banner and payment guidelines PDF displayed to citizens on Certificate Applications.
+            </p>
+          </div>
+          <button className="btn btn-primary btn-sm" type="button" disabled={settingsSaving} onClick={handleSaveSettings} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Save size={14} /> {settingsSaving ? 'Saving...' : 'Save Certificate Settings'}
+          </button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 1fr) minmax(260px, 1.2fr)', gap: '16px', alignItems: 'end' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>Banner Description</label>
+            <input type="text" className="form-control" value={settings.reference_banner_alt || ''} onChange={event => setSettings({ ...settings, reference_banner_alt: event.target.value })} placeholder="Accessible image description" />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>Reference Banner Image (Upper Section)</label>
+            <label htmlFor="cert_banner_upload" className="btn btn-outline btn-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', minHeight: '38px' }}>
+              <Upload size={14} /> {bannerUploading ? 'Uploading...' : 'Choose Banner Image'}
+            </label>
+            <input id="cert_banner_upload" type="file" accept="image/*" onChange={handleBannerUpload} disabled={bannerUploading} style={{ display: 'none' }} />
+          </div>
+        </div>
+
+        {settings.reference_banner && (
+          <div style={{ marginTop: '16px', position: 'relative' }}>
+            <img src={getStorageURL(settings.reference_banner)} alt={settings.reference_banner_alt || 'Certificate banner'} style={{ width: '100%', maxHeight: '180px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #eee' }} />
+            <button type="button" onClick={() => setSettings({ ...settings, reference_banner: '' })} style={{ position: 'absolute', right: '10px', top: '10px', border: 0, borderRadius: '6px', padding: '6px 9px', background: '#fff', color: '#b91c1c', cursor: 'pointer', fontWeight: 700 }}>Remove Banner</button>
+          </div>
+        )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(220px, 1fr) minmax(260px, 1.2fr)', gap: '16px', alignItems: 'end', marginTop: '20px', borderTop: '1px dashed #e2e8f0', paddingTop: '16px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>Payment Guideline Title</label>
+            <input type="text" className="form-control" value={settings.payment_guideline_title || ''} onChange={event => setSettings({ ...settings, payment_guideline_title: event.target.value })} placeholder="e.g. Certificate Payment Guidelines & Instructions" />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>Payment Guideline PDF</label>
+            <label htmlFor="cert_pdf_upload" className="btn btn-outline btn-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', minHeight: '38px' }}>
+              <FileText size={14} /> {pdfUploading ? 'Uploading...' : 'Choose PDF Document'}
+            </label>
+            <input id="cert_pdf_upload" type="file" accept=".pdf,application/pdf" onChange={handlePdfUpload} disabled={pdfUploading} style={{ display: 'none' }} />
+          </div>
+        </div>
+
+        {settings.payment_guideline_pdf && (
+          <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <a href={getStorageURL(settings.payment_guideline_pdf)} target="_blank" rel="noreferrer" style={{ color: 'var(--crimson)', fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'underline' }}>
+              <FileText size={16} /> View Current Guideline PDF
+            </a>
+            <button type="button" onClick={() => setSettings({ ...settings, payment_guideline_pdf: '' })} style={{ border: 0, borderRadius: '4px', padding: '4px 8px', background: '#fee2e2', color: '#991b1b', cursor: 'pointer', fontWeight: 700, fontSize: '12px' }}>Remove PDF</button>
+          </div>
+        )}
+      </div>
+
       {/* Tabs Selector */}
-      <div style={{ display: 'flex', gap: '1rem', borderBottom: '2px solid #e2e8f0', marginBottom: '2rem', paddingBottom: '0.5rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', borderBottom: '2px solid var(--mid-gray)', marginBottom: '2rem', paddingBottom: '0.5rem' }}>
         <button 
           onClick={() => setActiveTab('types')}
           style={{
@@ -364,7 +498,7 @@ export default function CertificatesAdminPage() {
               <div className="card" style={{ overflow: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                   <thead>
-                    <tr style={{ background: '#f8fafc', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>
+                    <tr style={{ background: 'var(--off-white)', textAlign: 'left', borderBottom: '2px solid var(--mid-gray)' }}>
                       <th style={{ padding: '0.85rem 1rem' }}>Order</th>
                       <th style={{ padding: '0.85rem 1rem' }}>Code</th>
                       <th style={{ padding: '0.85rem 1rem' }}>Title (English)</th>
@@ -375,9 +509,9 @@ export default function CertificatesAdminPage() {
                   </thead>
                   <tbody>
                     {types.map(t => (
-                      <tr key={t.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <tr key={t.id} style={{ borderBottom: '1px solid var(--mid-gray)' }}>
                         <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{t.order}</td>
-                        <td style={{ padding: '0.75rem 1rem' }}><code style={{ background: '#f1f5f9', padding: '0.2rem 0.4rem', borderRadius: '4px', color: 'var(--crimson)' }}>{t.code}</code></td>
+                        <td style={{ padding: '0.75rem 1rem' }}><code style={{ background: 'var(--light-gray)', padding: '0.2rem 0.4rem', borderRadius: '4px', color: 'var(--crimson)' }}>{t.code}</code></td>
                         <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{t.title_en}</td>
                         <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--gold)' }}>
                           LKR {Number(t.document_fee).toLocaleString()}
@@ -410,7 +544,7 @@ export default function CertificatesAdminPage() {
                   <select 
                     value={selectedTypeId} 
                     onChange={e => setSelectedTypeId(e.target.value)}
-                    style={{ padding: '0.4rem 1rem', borderRadius: '8px', border: '1.5px solid #cbd5e1', outline: 'none' }}
+                    style={{ padding: '0.4rem 1rem', borderRadius: '8px', border: '1.5px solid var(--mid-gray)', outline: 'none' }}
                   >
                     {types.map(t => (
                       <option key={t.id} value={t.id}>{t.title_en}</option>
@@ -430,7 +564,7 @@ export default function CertificatesAdminPage() {
                 ) : (
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                     <thead>
-                      <tr style={{ background: '#f8fafc', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>
+                      <tr style={{ background: 'var(--off-white)', textAlign: 'left', borderBottom: '2px solid var(--mid-gray)' }}>
                         <th style={{ padding: '0.85rem 1rem' }}>Order</th>
                         <th style={{ padding: '0.85rem 1rem' }}>Document Title (English)</th>
                         <th style={{ padding: '0.85rem 1rem' }}>File Details</th>
@@ -440,16 +574,16 @@ export default function CertificatesAdminPage() {
                     </thead>
                     <tbody>
                       {docs.map(d => (
-                        <tr key={d.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                        <tr key={d.id} style={{ borderBottom: '1px solid var(--mid-gray)' }}>
                           <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{d.order}</td>
                           <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{d.title_en}</td>
                           <td style={{ padding: '0.75rem 1rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                               <FileText size={16} color="var(--crimson)" />
-                              <a href={`/storage/${d.file_path}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline', color: '#1d4ed8', fontWeight: 500 }}>
+                              <a href={getStorageURL(d.file_path)} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline', color: '#1d4ed8', fontWeight: 500 }}>
                                 {d.file_name}
                               </a>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', background: '#f1f5f9', padding: '0.1rem 0.3rem', borderRadius: '4px', textTransform: 'uppercase' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', background: 'var(--light-gray)', padding: '0.1rem 0.3rem', borderRadius: '4px', textTransform: 'uppercase' }}>
                                 {d.file_type}
                               </span>
                             </div>
@@ -477,7 +611,7 @@ export default function CertificatesAdminPage() {
           {/* TAB 3: Certificate Payments */}
           {activeTab === 'payments' && (
             <div>
-              <h3 style={{ margin: '0 0 1rem', fontSize: '1.1rem', color: '#1f2937' }}>Citizen Purchase Log</h3>
+              <h3 style={{ margin: '0 0 1rem', fontSize: '1.1rem', color: '#1f2937' }}>Certificate Payment Review Queue</h3>
               
               <div className="card" style={{ overflow: 'auto' }}>
                 {payments.length === 0 ? (
@@ -487,34 +621,44 @@ export default function CertificatesAdminPage() {
                 ) : (
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                     <thead>
-                      <tr style={{ background: '#f8fafc', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>
+                      <tr style={{ background: 'var(--off-white)', textAlign: 'left', borderBottom: '2px solid var(--mid-gray)' }}>
                         <th style={{ padding: '0.85rem 1rem' }}>Reference No</th>
                         <th style={{ padding: '0.85rem 1rem' }}>Certificate Type</th>
-                        <th style={{ padding: '0.85rem 1rem' }}>Citizen Name &amp; Email</th>
+                        <th style={{ padding: '0.85rem 1rem' }}>Applicant Details</th>
                         <th style={{ padding: '0.85rem 1rem' }}>Amount</th>
                         <th style={{ padding: '0.85rem 1rem' }}>Status</th>
                         <th style={{ padding: '0.85rem 1rem' }}>Paid At</th>
+                        <th style={{ padding: '0.85rem 1rem' }}>Review Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {payments.map(p => (
-                        <tr key={p.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                        <tr key={p.id} style={{ borderBottom: '1px solid var(--mid-gray)' }}>
                           <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--crimson)' }}>{p.reference_no}</td>
                           <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{p.certificate}</td>
                           <td style={{ padding: '0.75rem 1rem' }}>
-                            <div style={{ fontWeight: 600, color: '#1f2937' }}>{p.citizen_name}</div>
-                            <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{p.citizen_email}</div>
+                            <div style={{ fontWeight: 600, color: '#1f2937' }}>{p.application_data?.applicant_name || p.citizen_name}</div>
+                            <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{p.application_data?.email || p.citizen_email}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>NIC/Passport: {p.application_data?.nic_or_passport || '—'}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Phone: {p.application_data?.phone || '—'}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Address: {p.application_data?.address || '—'}</div>
                           </td>
                           <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#15803d' }}>
                             LKR {Number(p.amount).toLocaleString()}
                           </td>
                           <td style={{ padding: '0.75rem 1rem' }}>
-                            <span className="badge badge-success" style={{ textTransform: 'uppercase' }}>
-                              {p.status}
+                            <span className={`badge ${p.status === 'completed' ? 'badge-success' : p.status === 'failed' ? 'badge-danger' : 'badge-warning'}`} style={{ textTransform: 'uppercase' }}>
+                              {p.status === 'completed' ? 'PAID' : p.status === 'failed' ? 'REJECTED' : 'PENDING'}
                             </span>
                           </td>
                           <td style={{ padding: '0.75rem 1rem', color: '#64748b' }}>
                             {p.paid_at ? new Date(p.paid_at).toLocaleString() : '—'}
+                          </td>
+                          <td style={{ padding: '0.75rem 1rem' }}>
+                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                              <button className="btn btn-primary btn-xs" disabled={p.status === 'completed'} onClick={() => reviewPayment(p, 'paid')}>Mark Paid</button>
+                              <button className="btn btn-outline btn-xs" disabled={p.status === 'failed'} onClick={() => reviewPayment(p, 'rejected')} style={{ color: '#b91c1c', borderColor: '#b91c1c' }}>Reject</button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -544,8 +688,9 @@ export default function CertificatesAdminPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div className="form-group">
-            <label className="form-label">Unique Code (PPC, provisional, semi, final)</label>
-            <input 
+            <label htmlFor="type_code" className="form-label" htmlFor="type_code" htmlFor="type_code">Unique Code (PPC, provisional, semi, final)</label><input 
+              id="type_code"
+              name="type_code"
               className="form-control" 
               value={typeForm.code} 
               onChange={e => setTypeForm({ ...typeForm, code: e.target.value.toLowerCase().replace(/\s+/g, '') })}
@@ -554,8 +699,9 @@ export default function CertificatesAdminPage() {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Sort Order</label>
-            <input 
+            <label htmlFor="type_order" className="form-label" htmlFor="type_order" htmlFor="type_order">Sort Order</label><input 
+              id="type_order"
+              name="type_order"
               type="number" 
               className="form-control" 
               value={typeForm.order} 
@@ -565,8 +711,10 @@ export default function CertificatesAdminPage() {
         </div>
 
         <div className="form-group">
-          <label className="form-label">Title ({langTab.toUpperCase()})</label>
+          <label htmlFor={`type_title_${langTab}`} className="form-label">Title ({langTab.toUpperCase()})</label>
           <input 
+            id={`type_title_${langTab}`}
+            name={`type_title_${langTab}`}
             className="form-control" 
             value={typeForm[`title_${langTab}`] || ''} 
             onChange={e => setTypeForm({ ...typeForm, [`title_${langTab}`]: e.target.value })} 
@@ -575,8 +723,10 @@ export default function CertificatesAdminPage() {
         </div>
 
         <div className="form-group">
-          <label className="form-label">Instructions ({langTab.toUpperCase()})</label>
+          <label htmlFor={`type_instructions_${langTab}`} className="form-label">Instructions ({langTab.toUpperCase()})</label>
           <textarea 
+            id={`type_instructions_${langTab}`}
+            name={`type_instructions_${langTab}`}
             className="form-control" 
             rows={8}
             value={typeForm[`instructions_${langTab}`] || ''} 
@@ -594,8 +744,9 @@ Double press 'Enter' to separate paragraphs with a blank line.`}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'end' }}>
           <div className="form-group">
-            <label className="form-label">Document Access Fee (LKR)</label>
-            <input 
+            <label htmlFor="type_document_fee" className="form-label" htmlFor="type_document_fee" htmlFor="type_document_fee">Document Access Fee (LKR)</label><input 
+              id="type_document_fee"
+              name="type_document_fee"
               type="number" 
               className="form-control" 
               value={typeForm.document_fee} 
@@ -603,8 +754,10 @@ Double press 'Enter' to separate paragraphs with a blank line.`}
             />
           </div>
           <div className="form-group" style={{ paddingBottom: '0.8rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 600 }}>
+            <label htmlFor="type_is_active" style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 600 }}>
               <input 
+                id="type_is_active"
+                name="type_is_active"
                 type="checkbox" 
                 checked={typeForm.is_active} 
                 onChange={e => setTypeForm({ ...typeForm, is_active: e.target.checked })} 
@@ -614,7 +767,7 @@ Double press 'Enter' to separate paragraphs with a blank line.`}
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem', borderTop: '1px solid #f1f5f9', paddingTop: '1rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem', borderTop: '1px solid var(--light-gray)', paddingTop: '1rem' }}>
           <button className="btn btn-outline" onClick={() => setTypeModal(false)}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSaveType} disabled={saving}>
             {saving ? 'Saving...' : 'Save Category'}
@@ -637,11 +790,12 @@ Double press 'Enter' to separate paragraphs with a blank line.`}
         </div>
 
         <div className="form-group">
-          <label className="form-label">Associated Certificate Category</label>
-          <select 
+          <label htmlFor="certificate_type_id" className="form-label" htmlFor="certificate_type_id" htmlFor="certificate_type_id">Associated Certificate Category</label><select 
+            id="certificate_type_id"
+            name="certificate_type_id"
             value={docForm.certificate_type_id} 
             onChange={e => setDocForm({ ...docForm, certificate_type_id: e.target.value })}
-            style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', border: '1.5px solid #cbd5e1' }}
+            style={{ width: '100%', padding: '0.5rem', borderRadius: '8px', border: '1.5px solid var(--mid-gray)' }}
           >
             {types.map(t => (
               <option key={t.id} value={t.id}>{t.title_en}</option>
@@ -650,8 +804,10 @@ Double press 'Enter' to separate paragraphs with a blank line.`}
         </div>
 
         <div className="form-group">
-          <label className="form-label">Document Title ({langTab.toUpperCase()})</label>
+          <label htmlFor={`doc_title_${langTab}`} className="form-label">Document Title ({langTab.toUpperCase()})</label>
           <input 
+            id={`doc_title_${langTab}`}
+            name={`doc_title_${langTab}`}
             className="form-control" 
             value={docForm[`title_${langTab}`] || ''} 
             onChange={e => setDocForm({ ...docForm, [`title_${langTab}`]: e.target.value })} 
@@ -660,12 +816,14 @@ Double press 'Enter' to separate paragraphs with a blank line.`}
         </div>
 
         {/* File Upload Selector */}
-        <div className="form-group" style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1.5px dashed #cbd5e1', marginBottom: '1.5rem' }}>
-          <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#475569', cursor: 'pointer' }}>
+        <div className="form-group" style={{ background: 'var(--off-white)', padding: '1.5rem', borderRadius: '12px', border: '1.5px dashed var(--mid-gray)', marginBottom: '1.5rem' }}>
+          <label htmlFor="upload_cert_doc" className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#475569', cursor: 'pointer' }}>
             <Upload size={18} color="var(--crimson)" />
             <span>Upload Document File (PDF, DOCX, etc.)</span>
           </label>
           <input 
+            id="upload_cert_doc"
+            name="upload_cert_doc"
             type="file" 
             onChange={handleFileUpload} 
             disabled={uploading} 
@@ -674,13 +832,13 @@ Double press 'Enter' to separate paragraphs with a blank line.`}
           {uploading && <div style={{ fontSize: '0.8rem', color: 'var(--crimson)', marginTop: '0.5rem', fontWeight: 600 }}>Uploading file...</div>}
           
           {docForm.file_path && (
-            <div style={{ marginTop: '1rem', background: '#fff', padding: '0.75rem', borderRadius: '8px', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ marginTop: '1rem', background: '#fff', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--mid-gray)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <CheckCircle size={16} color="#22c55e" />
                 <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {docForm.file_name}
                 </span>
-                <span style={{ fontSize: '0.7rem', background: '#f1f5f9', padding: '0.1rem 0.3rem', borderRadius: '4px' }}>
+                <span style={{ fontSize: '0.7rem', background: 'var(--light-gray)', padding: '0.1rem 0.3rem', borderRadius: '4px' }}>
                   {docForm.file_type}
                 </span>
               </div>
@@ -691,8 +849,9 @@ Double press 'Enter' to separate paragraphs with a blank line.`}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'end' }}>
           <div className="form-group">
-            <label className="form-label">Sort Order</label>
-            <input 
+            <label htmlFor="doc_order" className="form-label" htmlFor="doc_order" htmlFor="doc_order">Sort Order</label><input 
+              id="doc_order"
+              name="doc_order"
               type="number" 
               className="form-control" 
               value={docForm.order} 
@@ -700,8 +859,10 @@ Double press 'Enter' to separate paragraphs with a blank line.`}
             />
           </div>
           <div className="form-group" style={{ paddingBottom: '0.8rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 600 }}>
+            <label htmlFor="doc_is_active" style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 600 }}>
               <input 
+                id="doc_is_active"
+                name="doc_is_active"
                 type="checkbox" 
                 checked={docForm.is_active} 
                 onChange={e => setDocForm({ ...docForm, is_active: e.target.checked })} 
@@ -711,7 +872,7 @@ Double press 'Enter' to separate paragraphs with a blank line.`}
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem', borderTop: '1px solid #f1f5f9', paddingTop: '1rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem', borderTop: '1px solid var(--light-gray)', paddingTop: '1rem' }}>
           <button className="btn btn-outline" onClick={() => setDocModal(false)}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSaveDoc} disabled={saving || uploading}>
             {saving ? 'Saving...' : 'Save Document'}
@@ -722,3 +883,5 @@ Double press 'Enter' to separate paragraphs with a blank line.`}
     </div>
   );
 }
+
+

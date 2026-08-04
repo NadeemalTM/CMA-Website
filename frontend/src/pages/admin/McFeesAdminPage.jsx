@@ -228,6 +228,9 @@ export default function McFeesAdminPage() {
         <div style={{ position: 'relative', flex: '1', minWidth: '250px' }}>
           <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
+            id="mc-fees-search"
+            name="mc_fees_search"
+            aria-label="Search"
             className="form-control"
             style={{ paddingLeft: '2.25rem' }}
             placeholder="Search fees..."
@@ -238,6 +241,9 @@ export default function McFeesAdminPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Filter size={16} style={{ color: 'var(--text-muted)' }} />
           <select
+            id="categoryFilter"
+            name="categoryFilter"
+            aria-label="Filter by Category"
             className="form-control"
             style={{ width: '200px' }}
             value={categoryFilter}
@@ -362,8 +368,10 @@ export default function McFeesAdminPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             {/* Category selection */}
             <div className="form-group">
-              <label className="form-label">Category *</label>
-              <select
+              <label className="form-label" htmlFor="category" htmlFor="category">Category *</label><select
+                id="category"
+                name="category"
+                aria-label="Category"
                 className="form-control"
                 value={form.category}
                 onChange={e => setForm({ ...form, category: e.target.value })}
@@ -541,3 +549,5 @@ export default function McFeesAdminPage() {
     </div>
   );
 }
+
+

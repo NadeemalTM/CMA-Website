@@ -22,7 +22,7 @@ export default function AdministrationFundsMC() {
   }, []);
 
   return (
-    <div style={{ background: '#fcfbf9', minHeight: '80vh' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '80vh' }}>
       <PageHeroFallback title={<T>Administration & Funds</T>} />
 
       <section className="section" style={{ padding: '4rem 1rem' }}>
@@ -48,7 +48,7 @@ export default function AdministrationFundsMC() {
           {/* Core Funds Section */}
           <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1f2937', marginBottom: '1rem' }}><T>Mandatory Funds to be Established</T></h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2.5rem' }}>
-            <div style={{ background: '#fff', border: '1px solid #edf2f7', borderRadius: '12px', padding: '1.5rem', boxShadow: 'var(--shadow-sm)' }}>
+            <div style={{ background: '#fff', border: '1px solid var(--mid-gray)', borderRadius: '12px', padding: '1.5rem', boxShadow: 'var(--shadow-sm)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: 'var(--crimson)' }}>
                 <Wallet size={20} />
                 <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}><T>Management Fund (Maintenance Fund)</T></h4>
@@ -64,7 +64,7 @@ export default function AdministrationFundsMC() {
               </ul>
             </div>
 
-            <div style={{ background: '#fff', border: '1px solid #edf2f7', borderRadius: '12px', padding: '1.5rem', boxShadow: 'var(--shadow-sm)' }}>
+            <div style={{ background: '#fff', border: '1px solid var(--mid-gray)', borderRadius: '12px', padding: '1.5rem', boxShadow: 'var(--shadow-sm)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#C9A227' }}>
                 <ShieldAlert size={20} />
                 <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700 }}><T>Sinking Fund</T></h4>
@@ -82,7 +82,7 @@ export default function AdministrationFundsMC() {
           </div>
 
           {/* Bookkeeping & Auditing */}
-          <div style={{ background: '#fff', border: '1px solid #edf2f7', borderRadius: '12px', padding: '1.5rem', boxShadow: 'var(--shadow-sm)', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+          <div style={{ background: '#fff', border: '1px solid var(--mid-gray)', borderRadius: '12px', padding: '1.5rem', boxShadow: 'var(--shadow-sm)', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
             <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(139,0,0,0.06)', color: 'var(--crimson)', display: 'flex', alignItems: 'center', justifycontent: 'center', flexShrink: 0, paddingLeft: '9px', paddingTop: '9px' }}>
               <FileSpreadsheet size={22} />
             </div>

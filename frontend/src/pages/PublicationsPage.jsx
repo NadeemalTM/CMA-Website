@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FileText, Download, Calendar } from 'lucide-react';
 import { getDocuments } from '../services/api';
+import PageHero from '../components/ui/PageHero';
 
 export default function PublicationsPage() {
   const { t } = useTranslation();
@@ -29,13 +30,13 @@ export default function PublicationsPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <div className="container">
-          <div className="breadcrumb"><Link to="/">Home</Link> <span>/</span> <span>{t('publications.title')}</span></div>
-          <h1>{t('publications.title')}</h1>
-          <p>{t('publications.label')}</p>
-        </div>
-      </div>
+      <PageHero
+        title={t('publications.title')}
+        subtitle={t('publications.label')}
+        breadcrumbs={[
+          { label: t('publications.title') }
+        ]}
+      />
       <section className="section">
         <div className="container">
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>

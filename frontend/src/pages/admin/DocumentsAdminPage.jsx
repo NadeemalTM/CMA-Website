@@ -37,7 +37,7 @@ export default function DocumentsAdminPage() {
     if (!file) return;
     setUploading(true);
     try {
-      const res = await uploadFile(file);
+      const res = await uploadFile(file, 'documents');
       setForm(f => ({ ...f, file_path: res.data.path }));
     } catch (e) {
       alert(e.response?.data?.message || 'File upload failed');
@@ -75,17 +75,17 @@ export default function DocumentsAdminPage() {
         </div>
       )}
       <SimpleModal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Document' : 'Add Document'}>
-        <div className="form-group"><label className="form-label">Title (English) *</label><input className="form-control" value={form.title_en || ''} onChange={e => setForm({...form, title_en: e.target.value})} /></div>
-        <div className="form-group"><label className="form-label">Title (Sinhala)</label><input className="form-control" value={form.title_si || ''} onChange={e => setForm({...form, title_si: e.target.value})} /></div>
-        <div className="form-group"><label className="form-label">Title (Tamil)</label><input className="form-control" value={form.title_ta || ''} onChange={e => setForm({...form, title_ta: e.target.value})} /></div>
+        <div className="form-group"><label htmlFor="title_en" className="form-label" htmlFor="title_en" htmlFor="title_en">Title (English) *</label><input id="title_en" name="title_en" className="form-control" value={form.title_en || ''} onChange={e => setForm({...form, title_en: e.target.value})} /></div>
+        <div className="form-group"><label htmlFor="title_si" className="form-label" htmlFor="title_si" htmlFor="title_si">Title (Sinhala)</label><input id="title_si" name="title_si" className="form-control" value={form.title_si || ''} onChange={e => setForm({...form, title_si: e.target.value})} /></div>
+        <div className="form-group"><label htmlFor="title_ta" className="form-label" htmlFor="title_ta" htmlFor="title_ta">Title (Tamil)</label><input id="title_ta" name="title_ta" className="form-control" value={form.title_ta || ''} onChange={e => setForm({...form, title_ta: e.target.value})} /></div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div className="form-group"><label className="form-label">Type</label><select className="form-control" value={form.type || 'law'} onChange={e => setForm({...form, type: e.target.value})}><option value="law">Law</option><option value="publication">Publication</option><option value="form">Form</option><option value="gazette">Gazette</option><option value="annual_report">Annual Report</option></select></div>
-          <div className="form-group"><label className="form-label">Category</label><input className="form-control" value={form.category || ''} onChange={e => setForm({...form, category: e.target.value})} /></div>
+          <div className="form-group"><label htmlFor="type" className="form-label" htmlFor="type" htmlFor="type">Type</label><select id="type" name="type" className="form-control" value={form.type || 'law'} onChange={e => setForm({...form, type: e.target.value})}><option value="law">Law</option><option value="publication">Publication</option><option value="form">Form</option><option value="gazette">Gazette</option><option value="annual_report">Annual Report</option></select></div>
+          <div className="form-group"><label htmlFor="category" className="form-label" htmlFor="category" htmlFor="category">Category</label><input id="category" name="category" className="form-control" value={form.category || ''} onChange={e => setForm({...form, category: e.target.value})} /></div>
         </div>
         <div className="form-group">
           <label className="form-label" style={{ fontWeight: 600, color: 'var(--dark-gray)', display: 'block', marginBottom: '0.5rem' }}>Upload Document *</label>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <label style={{
+            <label htmlFor="upload_doc" style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
@@ -101,6 +101,8 @@ export default function DocumentsAdminPage() {
             }}>
               <Upload size={16} />
               <input 
+                id="upload_doc"
+                name="upload_doc"
                 type="file" 
                 accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" 
                 onChange={handleUpload} 
@@ -120,9 +122,9 @@ export default function DocumentsAdminPage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-          <div className="form-group"><label className="form-label">Language</label><select className="form-control" value={form.language || 'en'} onChange={e => setForm({...form, language: e.target.value})}><option value="en">English</option><option value="si">Sinhala</option><option value="ta">Tamil</option><option value="all">All</option></select></div>
-          <div className="form-group"><label className="form-label">Year</label><input className="form-control" type="number" value={form.year ?? 2025} onChange={e => setForm({...form, year: parseInt(e.target.value) || 2025})} /></div>
-          <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}><label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="checkbox" checked={form.is_active ?? true} onChange={e => setForm({...form, is_active: e.target.checked})} /> Active</label></div>
+          <div className="form-group"><label htmlFor="language" className="form-label" htmlFor="language" htmlFor="language">Language</label><select id="language" name="language" className="form-control" value={form.language || 'en'} onChange={e => setForm({...form, language: e.target.value})}><option value="en">English</option><option value="si">Sinhala</option><option value="ta">Tamil</option><option value="all">All</option></select></div>
+          <div className="form-group"><label htmlFor="year" className="form-label" htmlFor="year" htmlFor="year">Year</label><input id="year" name="year" className="form-control" type="number" value={form.year ?? 2025} onChange={e => setForm({...form, year: parseInt(e.target.value) || 2025})} /></div>
+          <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}><label htmlFor="is_active" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input id="is_active" name="is_active" type="checkbox" checked={form.is_active ?? true} onChange={e => setForm({...form, is_active: e.target.checked})} /> Active</label></div>
         </div>
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
           <button className="btn btn-outline" onClick={() => setModal(false)}>{t('admin.cancel')}</button>
@@ -132,3 +134,5 @@ export default function DocumentsAdminPage() {
     </div>
   );
 }
+
+

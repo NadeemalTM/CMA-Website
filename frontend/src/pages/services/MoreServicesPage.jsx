@@ -17,6 +17,7 @@ export default function MoreServicesPage() {
   const navigate = useNavigate();
   const { citizen, isCitizenLoggedIn } = useAuth();
 
+  const [showComingSoon, setShowComingSoon] = useState(true);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -42,8 +43,9 @@ export default function MoreServicesPage() {
   };
 
   useEffect(() => {
+    if (showComingSoon) return;
     if (isCitizenLoggedIn) fetchSubmissions();
-  }, [isCitizenLoggedIn]);
+  }, [isCitizenLoggedIn, showComingSoon]);
 
   // Don't render content while redirecting
   if (!isCitizenLoggedIn) return null;
@@ -85,7 +87,82 @@ export default function MoreServicesPage() {
   };
 
   return (
-    <div style={{ background: '#fcfbf9', minHeight: '80vh', padding: '3rem 1rem' }}>
+    <>
+      {showComingSoon && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: '16px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            width: '100%',
+            maxWidth: '440px',
+            padding: '2.5rem 2rem',
+            textAlign: 'center',
+            border: '2px solid var(--gold)'
+          }}>
+            <div style={{
+              background: 'rgba(201, 162, 39, 0.1)',
+              color: 'var(--gold)',
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1.5rem',
+              fontSize: '2rem'
+            }}>
+              ⚠️
+            </div>
+            <h2 style={{
+              fontSize: '1.5rem',
+              fontWeight: 800,
+              color: 'var(--crimson)',
+              margin: '0 0 0.75rem'
+            }}>
+              Feature Coming Soon
+            </h2>
+            <p style={{
+              color: '#475569',
+              lineHeight: '1.6',
+              margin: '0 0 1.75rem',
+              fontSize: '0.95rem'
+            }}>
+              This feature is coming soon.
+            </p>
+            <button
+              onClick={() => navigate('/')}
+              style={{
+                background: 'var(--crimson)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '0.75rem 2rem',
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: 'var(--shadow-crimson)',
+                width: '100%'
+              }}
+              onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
+              onMouseLeave={e => e.currentTarget.style.filter = 'brightness(1)'}
+            >
+              Go to Homepage
+            </button>
+          </div>
+        </div>
+      )}
+    <div style={{ background: 'var(--off-white)', minHeight: '80vh', padding: '3rem 1rem' }}>
       <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
         
         {/* Header Title */}
@@ -122,70 +199,9 @@ export default function MoreServicesPage() {
           </button>
         </div>
 
-        {/* Dashboard Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: '2rem', alignItems: 'start' }}>
+        {/* Dashboard Layout */}
+        <div style={{ display: 'block' }}>
           
-          {/* Profile Sidebar */}
-          <div
-            style={{
-              background: '#fff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '16px',
-              padding: '1.5rem',
-              boxShadow: 'var(--shadow-sm)',
-            }}
-          >
-            <div style={{ textAlign: 'center', paddingBottom: '1.5rem', borderBottom: '1px solid #f1f5f9', marginBottom: '1.5rem' }}>
-              <div
-                style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: '50%',
-                  background: 'var(--crimson)',
-                  color: '#fff',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1.5rem',
-                  fontWeight: 700,
-                  marginBottom: '0.75rem',
-                }}
-              >
-                {citizen.name[0].toUpperCase()}
-              </div>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#1f2937' }}>
-                {citizen.name}
-              </h3>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--gold)', textTransform: 'uppercase', tracking: '0.05em' }}>
-                Verified Citizen
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.85rem' }}>
-              <div>
-                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: '0.15rem' }}>Email Address</div>
-                <div style={{ fontWeight: 500, color: '#1f2937', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <Mail size={14} color="#94a3b8" />
-                  <span>{citizen.email}</span>
-                </div>
-              </div>
-              <div>
-                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: '0.15rem' }}>National ID (NIC)</div>
-                <div style={{ fontWeight: 500, color: '#1f2937', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <CreditCard size={14} color="#94a3b8" />
-                  <span>{citizen.nic}</span>
-                </div>
-              </div>
-              <div>
-                <div style={{ color: '#64748b', fontWeight: 600, marginBottom: '0.15rem' }}>Phone Number</div>
-                <div style={{ fontWeight: 500, color: '#1f2937', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <Phone size={14} color="#94a3b8" />
-                  <span>{citizen.phone}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Main Submissions Area */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             
@@ -193,7 +209,7 @@ export default function MoreServicesPage() {
             <div
               style={{
                 background: '#fff',
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--mid-gray)',
                 borderRadius: '16px',
                 padding: '1.75rem',
                 boxShadow: 'var(--shadow-sm)',
@@ -214,7 +230,7 @@ export default function MoreServicesPage() {
                   <span>{error}</span>
                 </div>
               ) : submissions.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '3rem 1.5rem', background: '#f8fafc', borderRadius: '12px', border: '1.5px dashed #e2e8f0' }}>
+                <div style={{ textAlign: 'center', padding: '3rem 1.5rem', background: 'var(--off-white)', borderRadius: '12px', border: '1.5px dashed var(--mid-gray)' }}>
                   <p style={{ color: '#64748b', fontSize: '0.9rem', margin: '0 0 1rem' }}>
                     No service clearance or fine payment history found under your account yet.
                   </p>
@@ -226,7 +242,7 @@ export default function MoreServicesPage() {
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #e2e8f0', color: '#475569', fontWeight: 700, textAlign: 'left' }}>
+                      <tr style={{ borderBottom: '2px solid var(--mid-gray)', color: '#475569', fontWeight: 700, textAlign: 'left' }}>
                         <th style={{ padding: '0.75rem 0.5rem' }}>Reference No</th>
                         <th style={{ padding: '0.75rem 0.5rem' }}>Service Clearance Type</th>
                         <th style={{ padding: '0.75rem 0.5rem' }}>Amount Paid</th>
@@ -237,7 +253,7 @@ export default function MoreServicesPage() {
                     </thead>
                     <tbody>
                       {submissions.map((sub) => (
-                        <tr key={sub.id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.15s' }}>
+                        <tr key={sub.id} style={{ borderBottom: '1px solid var(--light-gray)', transition: 'background 0.15s' }}>
                           <td style={{ padding: '0.75rem 0.5rem', fontWeight: 700, color: 'var(--crimson)' }}>
                             {sub.reference_no}
                           </td>
@@ -278,7 +294,7 @@ export default function MoreServicesPage() {
                       to={s.path}
                       style={{
                         background: '#fff',
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid var(--mid-gray)',
                         borderRadius: '12px',
                         padding: '1.25rem',
                         textDecoration: 'none',
@@ -295,7 +311,7 @@ export default function MoreServicesPage() {
                         e.currentTarget.style.boxShadow = 'var(--shadow-md)';
                       }}
                       onMouseLeave={e => {
-                        e.currentTarget.style.borderColor = '#e2e8f0';
+                        e.currentTarget.style.borderColor = 'var(--mid-gray)';
                         e.currentTarget.style.transform = 'translateY(0)';
                         e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
                       }}
@@ -338,5 +354,6 @@ export default function MoreServicesPage() {
 
       </div>
     </div>
+    </>
   );
 }

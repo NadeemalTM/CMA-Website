@@ -1,17 +1,15 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { 
-  Award, FileText, Download, CheckCircle, AlertTriangle, 
-  ArrowLeft, Calendar, ShieldCheck, DollarSign, ExternalLink
+  FileText, Download, CheckCircle, AlertTriangle, ArrowLeft
 } from 'lucide-react';
-import { getCertificate, getMyCertificatePayments } from '../../services/api';
+import { downloadCertificateDocument, getCertificate, getCertificatePaymentStatus, getMyCertificatePayments } from '../../services/api';
 
 export default function CertificateDownloadPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const { isCitizenLoggedIn } = useAuth();
 
   const [cert, setCert] = useState(null);
@@ -50,9 +48,15 @@ export default function CertificateDownloadPage() {
 
       setPayment(matchingPayment);
 
-      // 2. Fetch the certificate documents
-      const certRes = await getCertificate(id);
-      setCert(certRes.data.data);
+      // 2. Fetch paid document metadata through the citizen-owned payment.
+      const [certRes, paymentStatusRes] = await Promise.all([
+        getCertificate(id),
+        getCertificatePaymentStatus(matchingPayment.reference_no),
+      ]);
+      setCert({
+        ...certRes.data.data,
+        documents: paymentStatusRes.data.data.documents || [],
+      });
       setVerified(true);
     } catch (err) {
       console.error(err);
@@ -66,10 +70,27 @@ export default function CertificateDownloadPage() {
     verifyAndLoadData();
   }, [id, isCitizenLoggedIn]);
 
+  const handleDocumentDownload = async (document) => {
+    try {
+      const response = await downloadCertificateDocument(payment.reference_no, document.id);
+      const objectUrl = URL.createObjectURL(response.data);
+      const link = window.document.createElement('a');
+      link.href = objectUrl;
+      link.download = document.file_name || 'certificate-document';
+      window.document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (downloadError) {
+      console.error(downloadError);
+      setError('The document could not be downloaded. Your payment access may have changed.');
+    }
+  };
+
   if (!isCitizenLoggedIn) return null;
 
   return (
-    <div style={{ background: '#fcfbf9', minHeight: '80vh', padding: '3.5rem 1rem' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '80vh', padding: '3.5rem 1rem' }}>
       <div className="container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
         
         {/* Back Link */}
@@ -147,7 +168,7 @@ export default function CertificateDownloadPage() {
             {/* Header Success Section */}
             <div style={{
               background: '#fff',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--mid-gray)',
               borderRadius: '24px',
               padding: '2.5rem',
               boxShadow: 'var(--shadow-md)',
@@ -178,14 +199,14 @@ export default function CertificateDownloadPage() {
 
                 {/* Receipt Details Box */}
                 <div style={{
-                  background: '#f8fafc',
-                  border: '1.5px solid #e2e8f0',
+                  background: 'var(--off-white)',
+                  border: '1.5px solid var(--mid-gray)',
                   borderRadius: '16px',
                   padding: '1rem 1.5rem',
                   minWidth: '220px',
                   fontSize: '0.82rem'
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.4rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', borderBottom: '1px solid var(--mid-gray)', paddingBottom: '0.4rem' }}>
                     <span style={{ color: '#64748b', fontWeight: 500 }}>Reference Code</span>
                     <strong style={{ color: 'var(--crimson)' }}>{payment.reference_no}</strong>
                   </div>
@@ -204,7 +225,7 @@ export default function CertificateDownloadPage() {
             {/* Instruction quick view */}
             <div style={{
               background: '#fff',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--mid-gray)',
               borderRadius: '24px',
               padding: '2rem',
               boxShadow: 'var(--shadow-sm)',
@@ -228,7 +249,7 @@ export default function CertificateDownloadPage() {
             {!cert.documents || cert.documents.length === 0 ? (
               <div style={{ 
                 padding: '4rem 2rem', background: '#fff', borderRadius: '24px', 
-                border: '1.5px dashed #cbd5e1', textAlign: 'center', boxShadow: 'var(--shadow-sm)'
+                border: '1.5px dashed var(--mid-gray)', textAlign: 'center', boxShadow: 'var(--shadow-sm)'
               }}>
                 <FileText size={42} color="#94a3b8" style={{ marginBottom: '1rem' }} />
                 <p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem', fontWeight: 500 }}>
@@ -245,7 +266,7 @@ export default function CertificateDownloadPage() {
                     key={doc.id}
                     style={{
                       background: '#fff',
-                      border: '1.5px solid #e2e8f0',
+                      border: '1.5px solid var(--mid-gray)',
                       borderRadius: '20px',
                       padding: '1.5rem',
                       display: 'flex',
@@ -260,7 +281,7 @@ export default function CertificateDownloadPage() {
                       e.currentTarget.style.boxShadow = 'var(--shadow-md)';
                     }}
                     onMouseLeave={e => {
-                      e.currentTarget.style.borderColor = '#e2e8f0';
+                      e.currentTarget.style.borderColor = 'var(--mid-gray)';
                       e.currentTarget.style.transform = 'translateY(0)';
                       e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
                     }}
@@ -276,7 +297,7 @@ export default function CertificateDownloadPage() {
                         </div>
                         <span style={{ 
                           fontSize: '0.7rem', fontWeight: 700, color: '#475569', 
-                          background: '#f1f5f9', padding: '0.15rem 0.4rem', borderRadius: '4px', 
+                          background: 'var(--light-gray)', padding: '0.15rem 0.4rem', borderRadius: '4px', 
                           textTransform: 'uppercase' 
                         }}>
                           {doc.file_type || 'PDF'}
@@ -291,11 +312,9 @@ export default function CertificateDownloadPage() {
                       </p>
                     </div>
 
-                    <a
-                      href={doc.url}
-                      download={doc.file_name}
-                      target="_blank"
-                      rel="noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => handleDocumentDownload(doc)}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -309,6 +328,7 @@ export default function CertificateDownloadPage() {
                         fontSize: '0.85rem',
                         fontWeight: 800,
                         textDecoration: 'none',
+                        cursor: 'pointer',
                         transition: 'all 0.2s',
                         textAlign: 'center',
                         marginTop: '1.5rem',
@@ -324,7 +344,7 @@ export default function CertificateDownloadPage() {
                     >
                       <Download size={15} />
                       <span>Download File</span>
-                    </a>
+                    </button>
                   </div>
                 ))}
               </div>

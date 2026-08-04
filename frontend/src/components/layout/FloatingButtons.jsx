@@ -96,14 +96,14 @@ export default function FloatingButtons() {
         animate="visible"
       >
         <motion.a
-          href="tel:0112338146"
+          href="tel:0112447432"
           style={s.phoneBtn}
           variants={hoverVariants}
           initial="rest"
           whileHover="hover"
           whileTap="tap"
           aria-label="Call us"
-          title="Call: 011 233 8146"
+          title="Call: 0112447432"
         >
           <Phone size={22} />
         </motion.a>

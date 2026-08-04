@@ -1,43 +1,44 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useState, useEffect, useRef } from 'react';
+import T from '../components/ui/T';
 import {
   Calendar as CalendarIcon,
   Building2,
   User,
-  Mail,
   Phone,
-  CreditCard,
   Lock,
-  CheckCircle,
   Info,
   ShieldCheck,
-  FileText,
-  Printer,
-  ChevronLeft,
-  ChevronRight,
   Snowflake,
   Bed,
   Users,
   Eye,
-  AlertCircle,
   Loader2,
   CheckCircle2,
   MapPin,
   Map,
+  FileText,
+  Download,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getBookingAvailability, submitBooking, getBungalowRooms, citizenUploadFile } from '../services/api';
+import { checkBookingStatus, getBookingAvailability, getBookingSettings, submitBooking, getBungalowRooms, getBungalowHeroImages, uploadBookingSupportingDocument, getStorageURL } from '../services/api';
 
 // Room list loaded dynamically from backend API
 
+const DEFAULT_HERO_IMAGES = {
+  background: { image: 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=1400&auto=format&fit=crop&q=70', alt_text: 'Kataragama natural landscape' },
+  gallery_1: { image: 'https://media-cdn.tripadvisor.com/media/photo-s/02/e0/70/a5/gem-river-edge-eco-home.jpg', alt_text: 'Kataragama bungalow surroundings' },
+  gallery_2: { image: 'https://images.unsplash.com/photo-1560185008-b033106af5c3?w=900&auto=format&fit=crop&q=75', alt_text: 'Bungalow living room' },
+  gallery_3: { image: 'https://st5.depositphotos.com/19085394/64942/i/450/depositphotos_649426038-stock-photo-kirivehara-kiri-vehera-shrine-kataragama.jpg', alt_text: 'Kataragama Kiri Vehera Temple' },
+};
+
 export default function KataragamaBookingPage() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { citizen, isCitizenLoggedIn } = useAuth();
+  const { citizen } = useAuth();
 
   // Booking details state
   const [rooms, setRooms] = useState([]);
+  const [roomAvailability, setRoomAvailability] = useState({});
+  const [bookingSettings, setBookingSettings] = useState({ tax_rate: 18, reference_banner: null, reference_banner_alt: 'Kataragama booking information' });
+  const [heroImages, setHeroImages] = useState(DEFAULT_HERO_IMAGES);
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [currentRole, setCurrentRole] = useState('guest'); // guest or employee
   const [checkinDate, setCheckinDate] = useState(null);
@@ -47,6 +48,10 @@ export default function KataragamaBookingPage() {
   const [selectedRooms, setSelectedRooms] = useState([]);
 
   const toggleRoomSelection = (room) => {
+    if (selectedRangeIncludesBookedDate(room.id)) {
+      window.alert(`${room.name} is already booked during the selected stay. Please choose another room or date.`);
+      return;
+    }
     if (selectedRooms.some(r => r.id === room.id)) {
       setSelectedRooms(selectedRooms.filter(r => r.id !== room.id));
     } else {
@@ -59,7 +64,7 @@ export default function KataragamaBookingPage() {
   // Calendar states
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [availability, setAvailability] = useState({});
-  const [loadingAvailability, setLoadingAvailability] = useState(false);
+  const [, setLoadingAvailability] = useState(false);
 
   // Modal Wizard states
   const [modalOpen, setModalOpen] = useState(false);
@@ -83,18 +88,20 @@ export default function KataragamaBookingPage() {
   const [familyCount, setFamilyCount] = useState(0);
   const [familyMembers, setFamilyMembers] = useState([]);
   const [uploadingLetter, setUploadingLetter] = useState(false);
-
-  // Payment states
-  const [payMethod, setPayMethod] = useState('card'); // card, bank, wallet
+  const [trackingReference, setTrackingReference] = useState(() => localStorage.getItem('ktgb_reference') || '');
+  const [trackingPhone, setTrackingPhone] = useState(() => localStorage.getItem('ktgb_phone') || '');
+  const [trackedBooking, setTrackedBooking] = useState(null);
+  const [trackingLoading, setTrackingLoading] = useState(false);
+  const [trackingError, setTrackingError] = useState('');
+  // Legacy payment-screen state remains isolated from the new request flow;
+  // Step 1 now submits directly for administrator review.
+  const [payMethod, setPayMethod] = useState('card');
   const [cardName, setCardName] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCVV, setCardCVV] = useState('');
-
-  // OTP states
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
   const [otpTimer, setOtpTimer] = useState(60);
-  const otpIntervalRef = useRef(null);
   const otpInputsRef = useRef([]);
 
   // Fetch Availability from API
@@ -104,6 +111,7 @@ export default function KataragamaBookingPage() {
       const res = await getBookingAvailability();
       if (res.data && res.data.status === 'success') {
         setAvailability(res.data.data);
+        setRoomAvailability(res.data.rooms || {});
       }
     } catch (err) {
       console.error('Failed to fetch booking availability:', err);
@@ -124,9 +132,30 @@ export default function KataragamaBookingPage() {
     }
   };
 
+  const fetchHeroImages = async () => {
+    try {
+      const res = await getBungalowHeroImages();
+      const images = res.data?.data || [];
+      setHeroImages(images.reduce((slots, image) => ({ ...slots, [image.slot]: image }), {}));
+    } catch (err) {
+      console.error('Failed to fetch bungalow hero images:', err);
+    }
+  };
+
+  const fetchBookingSettings = async () => {
+    try {
+      const res = await getBookingSettings();
+      setBookingSettings(res.data?.data || bookingSettings);
+    } catch (err) {
+      console.error('Failed to fetch booking settings:', err);
+    }
+  };
+
   useEffect(() => {
     fetchAvailability();
     fetchRooms();
+    fetchHeroImages();
+    fetchBookingSettings();
   }, []);
 
   // Set default form values when citizen logs in
@@ -140,24 +169,6 @@ export default function KataragamaBookingPage() {
       setGuestNIC(citizen.nic || '');
     }
   }, [citizen]);
-
-  // OTP Timer countdown
-  useEffect(() => {
-    if (currentStep === 4) {
-      setOtpTimer(60);
-      clearInterval(otpIntervalRef.current);
-      otpIntervalRef.current = setInterval(() => {
-        setOtpTimer((prev) => {
-          if (prev <= 1) {
-            clearInterval(otpIntervalRef.current);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(otpIntervalRef.current);
-  }, [currentStep]);
 
   // Calculate nights (handles hourly stay cycle where <= 24H = 1 day, > 24H = 2 days, and ceil fractional days)
   const getNights = () => {
@@ -179,6 +190,57 @@ export default function KataragamaBookingPage() {
   const getSubtotal = () => {
     if (selectedRooms.length === 0 || nights === 0) return 0;
     return selectedRooms.reduce((sum, r) => sum + getRoomPrice(r), 0) * nights;
+  };
+
+  const getSstTotal = () => {
+    if (selectedRooms.length === 0 || nights === 0) return 0;
+    return selectedRooms.reduce((sum, r) => {
+      const sstRate = Number(r.sst_rate !== undefined ? r.sst_rate : 2.25);
+      return sum + Math.round(getRoomPrice(r) * nights * sstRate) / 100;
+    }, 0);
+  };
+
+  const getVatTotal = () => {
+    if (selectedRooms.length === 0 || nights === 0) return 0;
+    return selectedRooms.reduce((sum, r) => {
+      const priceTotal = getRoomPrice(r) * nights;
+      const sstRate = Number(r.sst_rate !== undefined ? r.sst_rate : 2.25);
+      const vatRate = Number(r.vat_rate !== undefined ? r.vat_rate : 18.00);
+      const sstAmount = Math.round(priceTotal * sstRate) / 100;
+      return sum + Math.round((priceTotal + sstAmount) * vatRate) / 100;
+    }, 0);
+  };
+
+  const getTaxAmount = () => getSstTotal() + getVatTotal();
+
+  const getAdditionalChargesTotal = () => {
+    if (selectedRooms.length === 0 || nights === 0) return 0;
+    return selectedRooms.reduce((sum, r) => sum + Number(r.additional_charge || 0), 0);
+  };
+
+  const getFinalTotal = () => getSubtotal() + getTaxAmount() + getAdditionalChargesTotal();
+
+  const getConfirmedSst = () => {
+    if (confirmedBooking?.room_details && Array.isArray(confirmedBooking.room_details)) {
+      const sst = confirmedBooking.room_details.reduce((sum, r) => sum + Number(r.sst_amount || 0), 0);
+      if (sst > 0) return sst;
+    }
+    return getSstTotal();
+  };
+
+  const getConfirmedVat = () => {
+    if (confirmedBooking?.room_details && Array.isArray(confirmedBooking.room_details)) {
+      const vat = confirmedBooking.room_details.reduce((sum, r) => sum + Number(r.vat_amount || 0), 0);
+      if (vat > 0) return vat;
+    }
+    return getVatTotal();
+  };
+
+  const getConfirmedAdditionalCharges = () => {
+    if (confirmedBooking?.room_details && Array.isArray(confirmedBooking.room_details)) {
+      return confirmedBooking.room_details.reduce((sum, r) => sum + Number(r.additional_charge_total || r.additional_charge || 0), 0);
+    }
+    return getAdditionalChargesTotal();
   };
 
   // Date manipulation helpers
@@ -216,39 +278,34 @@ export default function KataragamaBookingPage() {
     });
   };
 
-  // Handle calendar day click
-  const handleDateClick = (day) => {
-    const clickedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    const dateKey = formatDateKey(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    const status = availability[dateKey] || 'available';
-
-    if (status === 'booked') return; // Enforce disabled click for booked dates
-
-    if (!checkinDate || (checkinDate && checkoutDate)) {
-      setCheckinDate(clickedDate);
-      setCheckoutDate(null);
-    } else {
-      if (clickedDate < checkinDate) {
-        setCheckinDate(clickedDate);
-        setCheckoutDate(null);
-      } else {
-        setCheckoutDate(clickedDate);
-      }
+  const selectedRangeIncludesBookedDate = (roomId) => {
+    if (!checkinDate || !checkoutDate) return false;
+    const cursor = new Date(checkinDate.getFullYear(), checkinDate.getMonth(), checkinDate.getDate());
+    const finalOccupiedDate = new Date(checkoutDate.getFullYear(), checkoutDate.getMonth(), checkoutDate.getDate());
+    if (cursor.toDateString() !== finalOccupiedDate.toDateString()) {
+      finalOccupiedDate.setDate(finalOccupiedDate.getDate() - 1);
     }
+
+    while (cursor <= finalOccupiedDate) {
+      const key = formatDateKey(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
+      const status = roomId ? roomAvailability[roomId]?.[key] : availability[key];
+      if (status === 'booked') return true;
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return false;
   };
 
   // Proceed button click
   const handleProceed = () => {
-    if (!isCitizenLoggedIn) {
-      // Direct them to the Login page with redirect param
-      navigate('/login?redirect=/booking/kataragama');
-    } else {
-      // Logged in — open booking modal wizard
-      setConfirmedBooking(null);
-      setErrorMsg('');
-      setCurrentStep(1);
-      setModalOpen(true);
+    const unavailableRoom = selectedRooms.find(room => selectedRangeIncludesBookedDate(room.id));
+    if (unavailableRoom) {
+      window.alert(`${unavailableRoom.name} is already booked during the selected stay. Please review the room calendars.`);
+      return;
     }
+    setConfirmedBooking(null);
+    setErrorMsg('');
+    setCurrentStep(1);
+    setModalOpen(true);
   };
 
   // Guesthouse specific form handlers
@@ -257,7 +314,7 @@ export default function KataragamaBookingPage() {
     if (!file) return;
     setUploadingLetter(true);
     try {
-      const res = await citizenUploadFile(file);
+      const res = await uploadBookingSupportingDocument(file);
       setGovLetter(res.data.path);
       alert('Official letter uploaded successfully!');
     } catch (err) {
@@ -286,51 +343,36 @@ export default function KataragamaBookingPage() {
     setFamilyMembers(newList);
   };
 
-  // OTP inputs handling
-  const handleOtpChange = (e, index) => {
-    const val = e.target.value;
-    if (isNaN(Number(val))) return;
+  const handleOtpChange = (event, index) => {
+    const value = event.target.value.replace(/\D/g, '').slice(-1);
+    const nextOtp = [...otpCode];
+    nextOtp[index] = value;
+    setOtpCode(nextOtp);
+    if (value && index < 5) otpInputsRef.current[index + 1]?.focus();
+  };
 
-    const newOtp = [...otpCode];
-    newOtp[index] = val.substring(val.length - 1);
-    setOtpCode(newOtp);
-
-    // Auto-focus next input
-    if (val && index < 5) {
-      otpInputsRef.current[index + 1].focus();
+  const handleOtpKeyDown = (event, index) => {
+    if (event.key === 'Backspace' && !otpCode[index] && index > 0) {
+      otpInputsRef.current[index - 1]?.focus();
     }
   };
 
-  const handleOtpKeyDown = (e, index) => {
-    if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
-      otpInputsRef.current[index - 1].focus();
-    }
-  };
-
-  // Submit Booking transaction
-  const handleVerifyOtpSubmit = async () => {
-    const otp = otpCode.join('');
-    if (otp !== '123456') {
-      alert('Invalid OTP code. Please enter 123456 to simulate verification.');
-      return;
-    }
-
+  // Submit booking directly without payment/OTP screens
+  const handleDirectSubmit = async () => {
     setLoadingSubmit(true);
     setErrorMsg('');
     try {
-      const bookingPromises = selectedRooms.map(room => {
-        const payload = {
+      const payload = {
           guest_name: `${guestFirst} ${guestLast}`.trim(),
           email: guestEmail,
           phone: guestMobile,
           nic: guestNIC,
-          employee_id: currentRole === 'employee' ? employeeId : null,
-          unit_number: room.name,
+          employee_id: isCmaEmployee ? employeeId : null,
+          room_ids: selectedRooms.map(room => room.id),
           check_in: checkinDateTime.replace('T', ' '),
           check_out: checkoutDateTime.replace('T', ' '),
           adults: Number(adults),
           children: Number(children),
-          amount: getRoomPrice(room) * nights,
           notes: specialRequests,
           permanent_address: permanentAddress,
           occupation: occupation,
@@ -339,22 +381,25 @@ export default function KataragamaBookingPage() {
           family_count: Number(familyCount),
           family_members: familyMembers,
         };
-        return submitBooking(payload);
-      });
-
-      const responses = await Promise.all(bookingPromises);
-      const firstRes = responses[0];
-      if (firstRes.data && firstRes.data.status === 'success') {
-        const allBookings = responses.map(r => r.data.data);
+      const response = await submitBooking(payload);
+      if (response.data && response.data.status === 'success') {
+        const booking = response.data.data;
         setConfirmedBooking({
-          ...firstRes.data.data,
-          unit_number: selectedRooms.map(r => r.name).join(', '),
-          amount: getSubtotal(),
-          allReferences: allBookings.map(b => `KTG-2026-${String(b.id).padStart(4, '0')}`).join(', '),
-          allBookings: allBookings
+          ...booking,
+          booking_status: booking.status || 'Pending',
+        });
+        localStorage.setItem('ktgb_reference', booking.reference_no);
+        localStorage.setItem('ktgb_phone', guestMobile);
+        setTrackingReference(booking.reference_no);
+        setTrackingPhone(guestMobile);
+        setTrackedBooking({
+          reference_no: booking.reference_no,
+          booking_status: 'Pending',
+          payment_status: 'Pending',
+          message: 'Payment and administrator approval are pending.',
         });
         setCurrentStep(5);
-        fetchAvailability(); // Refresh calendar availability
+        fetchAvailability();
       }
     } catch (err) {
       setErrorMsg(
@@ -362,37 +407,48 @@ export default function KataragamaBookingPage() {
         err?.response?.data?.error ||
         'An error occurred during booking. Please try again.'
       );
-      setCurrentStep(1); // Return to step 1 on error to let them review
+      setCurrentStep(1);
     } finally {
       setLoadingSubmit(false);
     }
   };
 
-  // Card Format helper
-  const handleCardNumberChange = (e) => {
-    const v = e.target.value.replace(/\D/g, '').substring(0, 16);
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || '';
-    const parts = [];
-
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
+  const handleStatusCheck = async () => {
+    if (!trackingReference || !trackingPhone) {
+      setTrackingError('Enter your booking reference number and phone number.');
+      return;
     }
 
-    if (parts.length > 0) {
-      setCardNumber(parts.join(' '));
-    } else {
-      setCardNumber(v);
+    setTrackingLoading(true);
+    setTrackingError('');
+    try {
+      const response = await checkBookingStatus(trackingReference.trim().toUpperCase(), trackingPhone.trim());
+      setTrackedBooking(response.data.data);
+      setConfirmedBooking((current) => current ? { ...current, ...response.data.data } : current);
+      localStorage.setItem('ktgb_reference', trackingReference.trim().toUpperCase());
+      localStorage.setItem('ktgb_phone', trackingPhone.trim());
+      if (response.data.data?.booking_status === 'Confirmed') {
+        fetchAvailability();
+      }
+    } catch (error) {
+      setTrackedBooking(null);
+      setTrackingError(error?.response?.data?.message || 'Unable to check this booking right now.');
+    } finally {
+      setTrackingLoading(false);
     }
   };
 
-  const handleCardExpiryChange = (e) => {
-    let v = e.target.value.replace(/\D/g, '').substring(0, 4);
-    if (v.length >= 2) {
-      v = v.substring(0, 2) + '/' + v.substring(2, 4);
-    }
-    setCardExpiry(v);
+  const handleCardNumberChange = (event) => {
+    const digits = event.target.value.replace(/\D/g, '').slice(0, 16);
+    setCardNumber(digits.replace(/(.{4})/g, '$1 ').trim());
   };
+
+  const handleCardExpiryChange = (event) => {
+    const digits = event.target.value.replace(/\D/g, '').slice(0, 4);
+    setCardExpiry(digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits);
+  };
+
+  const handleVerifyOtpSubmit = () => handleDirectSubmit();
 
   // Calendar rendering math
   const daysInMonth = getDaysInMonth(currentMonth);
@@ -416,14 +472,14 @@ export default function KataragamaBookingPage() {
     const isToday = new Date().toDateString() === thisDate.toDateString();
 
     if (checkinDate && checkoutDate) {
-      const checkinTime = checkinDate.getTime();
-      const checkoutTime = checkoutDate.getTime();
+      const checkinTime = new Date(checkinDate.getFullYear(), checkinDate.getMonth(), checkinDate.getDate()).getTime();
+      const checkoutTime = new Date(checkoutDate.getFullYear(), checkoutDate.getMonth(), checkoutDate.getDate()).getTime();
       const thisTime = thisDate.getTime();
 
       if (thisTime === checkinTime) isSelected = true;
       else if (thisTime === checkoutTime) isCheckoutDay = true;
       else if (thisTime > checkinTime && thisTime < checkoutTime) isInRange = true;
-    } else if (checkinDate && checkinDate.getTime() === thisDate.getTime()) {
+    } else if (checkinDate && checkinDate.toDateString() === thisDate.toDateString()) {
       isSelected = true;
     }
 
@@ -440,11 +496,11 @@ export default function KataragamaBookingPage() {
   }
 
   return (
-    <div style={{ background: '#fcfbf9', minHeight: '100vh', paddingBottom: '4rem' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '100vh', paddingBottom: '4rem' }}>
       
       {/* ── Hero Section ── */}
       <section className="bk-hero">
-        <div className="bk-hero-bg" />
+        <div className="bk-hero-bg" style={heroImages.background?.image ? { backgroundImage: `url("${heroImages.background.image}")` } : undefined} />
         <div className="bk-hero-overlay" />
         <div className="bk-hero-inner">
           <div className="bk-hero-left">
@@ -456,20 +512,16 @@ export default function KataragamaBookingPage() {
               Serene Retreat in<br />
               <em>Sacred Kataragama</em>
             </h1>
-            <p className="bk-hero-desc">
+            <p className="bk-hero-desc"><T>
               Reserve your stay at the Condominium Management Authority's exclusive circuit bungalow — nestled in the heart of Kataragama, offering tranquil accommodation for staff and visiting guests.
-            </p>
+            </T></p>
           </div>
           <div className="bk-hero-gallery">
-            <div className="bk-gallery-img">
-              <img src="https://media-cdn.tripadvisor.com/media/photo-s/02/e0/70/a5/gem-river-edge-eco-home.jpg" alt="Kataragama Bungalow Exterior" />
-            </div>
-            <div className="bk-gallery-img">
-              <img src="https://scontent.fcmb1-2.fna.fbcdn.net/v/t1.6435-9/126420775_3373655879526837_7821034308813852164_n.jpg?stp=dst-jpg_s720x720_tt6&_nc_cat=105&ccb=1-7&_nc_sid=536f4a&_nc_ohc=6Em481u_fMsQ7kNvwF96b4W&_nc_oc=Adrl-T0oCfLcKv8qUlTmK__jLBVhnbJ7bJuKHTUigBn7ErJQYtWS8QPsSE9X7BVru8g&_nc_zt=23&_nc_ht=scontent.fcmb1-2.fna&_nc_gid=6NzPiXPSvoMCYsyqE1bduA&_nc_ss=78289&oh=00_Af8jNNXtdz07lJe2kKCi7bPMCQlzcf_mazyI1FuCJfdVHw&oe=6A4870E0" alt="Bungalow Living Room" />
-            </div>
-            <div className="bk-gallery-img">
-              <img src="https://st5.depositphotos.com/19085394/64942/i/450/depositphotos_649426038-stock-photo-kirivehara-kiri-vehera-shrine-kataragama.jpg" alt="Kataragama Kiri Vehera Temple" />
-            </div>
+            {['gallery_1', 'gallery_2', 'gallery_3'].map((slot) => heroImages[slot]?.image && (
+              <div className="bk-gallery-img" key={slot}>
+                <img src={heroImages[slot].image} alt={heroImages[slot].alt_text || 'Kataragama bungalow'} />
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -478,17 +530,18 @@ export default function KataragamaBookingPage() {
       <div className="role-selector-sec">
         <div className="role-selector-inner">
           <div className="role-row">
-            <span className="role-label">I am a:</span>
+            <span className="role-label"><T>I am a:</T></span>
             <button
               className={`role-btn${currentRole === 'guest' ? ' active' : ''}`}
               onClick={() => {
                 setCurrentRole('guest');
+                setIsCmaEmployee(false);
                 setSelectedRooms([]);
               }}
             >
               <User size={14} />
               Visiting Guest
-              <span className="role-badge">Public</span>
+              <span className="role-badge"><T>Public</T></span>
             </button>
             <span style={{ marginLeft: 'auto', fontSize: '12.5px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <ShieldCheck size={14} style={{ color: 'var(--success)' }} />
@@ -512,7 +565,7 @@ export default function KataragamaBookingPage() {
                 Select Stay Period & Check Availability
               </h3>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '30px' }}>
+              <div className="bk-availability-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '30px' }}>
                 
                 {/* Left Column: Form Selectors & Policy */}
                 <div>
@@ -529,17 +582,19 @@ export default function KataragamaBookingPage() {
                   }}>
                     <Info size={16} style={{ color: 'var(--crimson)', marginTop: '2px', flexShrink: 0 }} />
                     <div style={{ fontSize: '13px', color: '#555', lineHeight: '1.4' }}>
-                      <strong>Bungalow Stay Policy:</strong> Check-in is fixed at <strong>1:00 PM</strong> on the arrival date, and check-out is fixed at <strong>10:00 AM</strong> on the departure date. This stay period is automatically calculated as one day.
+                      <strong><T>Bungalow Stay Policy:</T></strong> Check-in is fixed at <strong><T>1:00 PM</T></strong> on the arrival date, and check-out is fixed at <strong><T>10:00 AM</T></strong> on the departure date. This stay period is automatically calculated as one day.
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                  <div className="bk-dates-input-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: 'var(--text-dark)', marginBottom: '8px' }}>
+                      <label htmlFor="checkin-date" style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: 'var(--text-dark)', marginBottom: '8px' }}>
                         Check-in Date *
                       </label>
                       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                         <input
+                          id="checkin-date"
+                          name="checkin-date"
                           type="date"
                           className="bk-form-input"
                           style={{ 
@@ -553,10 +608,10 @@ export default function KataragamaBookingPage() {
                             color: 'var(--text-dark)'
                           }}
                           value={checkinDateTime.split('T')[0] || ''}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val) {
-                              const dt = `${val}T13:00`;
+                           onChange={(e) => {
+                             const val = e.target.value;
+                             if (val) {
+                               const dt = `${val}T13:00`;
                               setCheckinDateTime(dt);
                               setCheckinDate(new Date(dt));
                             } else {
@@ -573,18 +628,20 @@ export default function KataragamaBookingPage() {
                           color: 'var(--crimson)', 
                           fontWeight: '700',
                           pointerEvents: 'none'
-                        }}>
+                        }}><T>
                           1:00 PM
-                        </span>
+                        </T></span>
                       </div>
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: 'var(--text-dark)', marginBottom: '8px' }}>
+                      <label htmlFor="checkout-date" style={{ display: 'block', fontWeight: 600, fontSize: '13px', color: 'var(--text-dark)', marginBottom: '8px' }}>
                         Check-out Date *
                       </label>
                       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                         <input
+                          id="checkout-date"
+                          name="checkout-date"
                           type="date"
                           className="bk-form-input"
                           style={{ 
@@ -598,10 +655,10 @@ export default function KataragamaBookingPage() {
                             color: 'var(--text-dark)'
                           }}
                           value={checkoutDateTime.split('T')[0] || ''}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val) {
-                              const dt = `${val}T10:00`;
+                           onChange={(e) => {
+                             const val = e.target.value;
+                             if (val) {
+                               const dt = `${val}T10:00`;
                               setCheckoutDateTime(dt);
                               setCheckoutDate(new Date(dt));
                             } else {
@@ -618,9 +675,9 @@ export default function KataragamaBookingPage() {
                           color: 'var(--crimson)', 
                           fontWeight: '700',
                           pointerEvents: 'none'
-                        }}>
+                        }}><T>
                           10:00 AM
-                        </span>
+                        </T></span>
                       </div>
                     </div>
                   </div>
@@ -637,12 +694,12 @@ export default function KataragamaBookingPage() {
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: 'var(--text-dark)' }}>
                         <Info size={16} style={{ color: '#C9A227' }} />
-                        <span>Staying Duration:</span>
+                        <span><T>Staying Duration:</T></span>
                         <strong>{nights} Day(s)</strong>
                       </div>
-                      <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}><T>
                         (Calculated automatically)
-                      </span>
+                      </T></span>
                     </div>
                   )}
                 </div>
@@ -650,9 +707,9 @@ export default function KataragamaBookingPage() {
                 {/* Right Column: Compact Availability Calendar */}
                 <div style={{ borderLeft: '1px solid #eee', paddingLeft: '30px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <span style={{ fontWeight: 700, fontSize: '13.5px', color: 'var(--text-dark)' }}>
+                    <span style={{ fontWeight: 700, fontSize: '13.5px', color: 'var(--text-dark)' }}><T>
                       Availability Calendar
-                    </span>
+                    </T></span>
                     <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                       <button 
                         type="button" 
@@ -678,7 +735,7 @@ export default function KataragamaBookingPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     {/* DOW headers */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>
-                      <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                      <span><T>S</T></span><span><T>M</T></span><span><T>T</T></span><span><T>W</T></span><span><T>T</T></span><span><T>F</T></span><span><T>S</T></span>
                     </div>
                     {/* Days grid */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
@@ -749,7 +806,10 @@ export default function KataragamaBookingPage() {
             {/* Select Room */}
             <div className="rooms-sec">
               <div className="rooms-sec-head">
-                <h3 style={{ margin: 0 }}>Select Your Room</h3>
+                <div>
+                  <h3 style={{ margin: 0 }}><T>Select One or More Rooms</T></h3>
+                  <p style={{ margin: '5px 0 0', color: 'var(--text-muted)', fontSize: '12.5px' }}>Each calendar shows that room's own confirmed reservations.</p>
+                </div>
               </div>
               <div className="rooms-grid">
                 {loadingRooms ? (
@@ -764,16 +824,23 @@ export default function KataragamaBookingPage() {
                   rooms.map((room) => {
                     const isSelected = selectedRooms.some(r => r.id === room.id);
                     const price = getRoomPrice(room);
+                    const sstRate = Number(room.sst_rate !== undefined ? room.sst_rate : 2.25);
+                    const vatRate = Number(room.vat_rate !== undefined ? room.vat_rate : 18.00);
+                    const roomSst = Math.round(price * sstRate) / 100;
+                    const roomVat = Math.round((price + roomSst) * vatRate) / 100;
+                    const roomTax = roomSst + roomVat;
+                    const roomFinal = price + roomTax;
+                    const isUnavailable = selectedRangeIncludesBookedDate(room.id);
 
                     return (
                       <div
                         key={room.id}
-                        className={`room-card${isSelected ? ' selected-room' : ''}`}
-                        onClick={() => toggleRoomSelection(room)}
+                        className={`room-card${isSelected ? ' selected-room' : ''}${isUnavailable ? ' room-unavailable' : ''}`}
+                        onClick={() => !isUnavailable && toggleRoomSelection(room)}
                       >
                         {room.image ? (
                           <img
-                            src={`/storage/${room.image}`}
+                            src={room.image.startsWith('http') ? room.image : getStorageURL(room.image)}
                             alt={room.name}
                             className="room-img"
                             onError={(e) => {
@@ -799,23 +866,48 @@ export default function KataragamaBookingPage() {
                             {room.ac && <div className="room-meta-item"><Snowflake size={13} /> A/C</div>}
                             <div className="room-meta-item"><Eye size={13} /> {room.view}</div>
                           </div>
-                          <div className="room-price-row" style={{ marginTop: '16px' }}>
-                            <div className="room-price">
-                              Rs. {Number(price).toLocaleString()}
-                              <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 400 }}>
-                                {' '}/ night {currentRole === 'employee' && '(Staff)'}
-                              </span>
+                          <div className="room-mini-calendar" onClick={e => e.stopPropagation()}>
+                            <div className="room-mini-calendar-title">Availability — {monthName}</div>
+                            <div className="room-mini-calendar-grid room-mini-calendar-weekdays">
+                              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => <span key={`${day}-${index}`}>{day}</span>)}
                             </div>
+                            <div className="room-mini-calendar-grid">
+                              {calendarDays.map((calendarDay, index) => {
+                                if (calendarDay.empty) return <span key={`empty-${index}`} className="room-mini-day empty" />;
+                                const dateKey = formatDateKey(currentMonth.getFullYear(), currentMonth.getMonth(), calendarDay.day);
+                                const status = roomAvailability[room.id]?.[dateKey] || 'available';
+                                return (
+                                  <span
+                                    key={dateKey}
+                                    className={`room-mini-day ${status}`}
+                                    title={`${room.name}: ${status === 'booked' ? 'Booked' : 'Available'} on ${dateKey}`}
+                                  >
+                                    {calendarDay.day}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                            <div className="room-mini-legend"><span><i className="available" /> Available</span><span><i className="booked" /> Booked</span></div>
+                          </div>
+                          <div className="room-price-breakdown">
+                            <div><span>Booking Price</span><strong>Rs. {Number(price).toLocaleString()}</strong></div>
+                            <div><span>SST ({sstRate}%)</span><strong>Rs. {roomSst.toLocaleString()}</strong></div>
+                            <div><span>VAT ({vatRate}%)</span><strong>Rs. {roomVat.toLocaleString()}</strong></div>
+                            {Number(room.additional_charge || 0) > 0 && (
+                              <div><span>{room.additional_charge_label || 'Additional Charge'} (One-time)</span><strong>Rs. {Number(room.additional_charge).toLocaleString()}</strong></div>
+                            )}
+                            <div className="room-final-price"><span>Rate (Inc. Tax)</span><strong>Rs. {roomFinal.toLocaleString()} / night</strong></div>
                           </div>
                           <button
                             className="room-select-btn"
                             type="button"
+                            disabled={isUnavailable}
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleRoomSelection(room);
                             }}
                           >
-                            {isSelected ? '✓ Selected' : 'Select Room'}
+                            {isUnavailable ? 'Unavailable for selected dates' : isSelected ? '✓ Selected' : 'Add Room'}
                           </button>
                         </div>
                       </div>
@@ -832,32 +924,32 @@ export default function KataragamaBookingPage() {
             
             <div className="bk-summary-card">
               <div className="bk-sum-head">
-                <h4 style={{ margin: 0 }}>Booking Summary</h4>
-                <p style={{ margin: '4px 0 0', fontSize: '11.5px', opacity: 0.85 }}>Review your reservation</p>
+                <h4 style={{ margin: 0 }}><T>Booking Summary</T></h4>
+                <p style={{ margin: '4px 0 0', fontSize: '11.5px', opacity: 0.85 }}><T>Review your reservation</T></p>
               </div>
               <div className="bk-sum-body">
                 <div className="bk-sum-row">
-                  <span className="bk-sum-label">Property</span>
-                  <span className="bk-sum-value">Kataragama Bungalow</span>
+                  <span className="bk-sum-label"><T>Property</T></span>
+                  <span className="bk-sum-value"><T>Kataragama Bungalow</T></span>
                 </div>
                 <div className="bk-sum-row">
-                  <span className="bk-sum-label">Room(s)</span>
+                  <span className="bk-sum-label"><T>Room(s)</T></span>
                   <span className="bk-sum-value">{selectedRooms.length > 0 ? selectedRooms.map(r => r.name).join(', ') : 'Not selected'}</span>
                 </div>
                 <div className="bk-sum-row">
-                  <span className="bk-sum-label">Check-In</span>
+                  <span className="bk-sum-label"><T>Check-In</T></span>
                   <span className="bk-sum-value">{formatDateLabel(checkinDate)}</span>
                 </div>
                 <div className="bk-sum-row">
-                  <span className="bk-sum-label">Check-Out</span>
+                  <span className="bk-sum-label"><T>Check-Out</T></span>
                   <span className="bk-sum-value">{formatDateLabel(checkoutDate)}</span>
                 </div>
                 <div className="bk-sum-row">
-                  <span className="bk-sum-label">Nights</span>
+                  <span className="bk-sum-label"><T>Nights</T></span>
                   <span className="bk-sum-value">{nights > 0 ? `${nights} night${nights > 1 ? 's' : ''}` : '—'}</span>
                 </div>
                 <div className="bk-sum-row">
-                  <span className="bk-sum-label">Guests</span>
+                  <span className="bk-sum-label"><T>Guests</T></span>
                   <span className="bk-sum-value">{adults} Adult(s), {children} Child(ren)</span>
                 </div>
                 {selectedRooms.length > 0 && (
@@ -874,9 +966,27 @@ export default function KataragamaBookingPage() {
                   </div>
                 )}
                 
+                <div className="bk-sum-row">
+                  <span className="bk-sum-label"><T>Booking Price</T></span>
+                  <span className="bk-sum-value">Rs. {getSubtotal().toLocaleString()}</span>
+                </div>
+                <div className="bk-sum-row">
+                  <span className="bk-sum-label">SST Tax</span>
+                  <span className="bk-sum-value">Rs. {getSstTotal().toLocaleString()}</span>
+                </div>
+                <div className="bk-sum-row">
+                  <span className="bk-sum-label">VAT Tax</span>
+                  <span className="bk-sum-value">Rs. {getVatTotal().toLocaleString()}</span>
+                </div>
+                {getAdditionalChargesTotal() > 0 && (
+                  <div className="bk-sum-row">
+                    <span className="bk-sum-label">Additional Charges (One-time)</span>
+                    <span className="bk-sum-value">Rs. {getAdditionalChargesTotal().toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="bk-sum-total">
-                  <span className="bk-sum-total-label">Total Amount</span>
-                  <span className="bk-sum-total-val">Rs. {getSubtotal().toLocaleString()}</span>
+                  <span className="bk-sum-total-label"><T>Final Price</T></span>
+                  <span className="bk-sum-total-val">Rs. {getFinalTotal().toLocaleString()}</span>
                 </div>
 
                 <button
@@ -890,11 +1000,68 @@ export default function KataragamaBookingPage() {
                 </button>
 
                 <div className="bk-trust-items" style={{ marginTop: '16px' }}>
+                  <div className="bk-trust-item"><User size={14} style={{ color: 'var(--success)' }} /> No account or sign-in required</div>
                   <div className="bk-trust-item"><ShieldCheck size={14} style={{ color: 'var(--success)' }} /> Secure SSL Booking</div>
                   <div className="bk-trust-item"><ShieldCheck size={14} style={{ color: 'var(--success)' }} /> Free Cancellation 48hrs prior</div>
-                  <div className="bk-trust-item"><ShieldCheck size={14} style={{ color: 'var(--success)' }} /> OTP Verified payment simulation</div>
+                  <div className="bk-trust-item"><ShieldCheck size={14} style={{ color: 'var(--success)' }} /> Admin-reviewed reservation</div>
                 </div>
               </div>
+            </div>
+
+            {/* Public booking status tracker */}
+            <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #eee', padding: '20px', boxShadow: 'var(--shadow-sm)', marginBottom: '20px' }}>
+              <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-dark)', marginBottom: '6px' }}>
+                <CheckCircle2 size={16} style={{ color: 'var(--crimson)' }} />
+                Check Booking Status
+              </div>
+              <p style={{ margin: '0 0 12px', color: 'var(--text-muted)', fontSize: '12px', lineHeight: 1.5 }}>
+                Enter the reference and phone number used for your request.
+              </p>
+              <input
+                className="bk-form-input"
+                placeholder="KTGB008723"
+                value={trackingReference}
+                onChange={(event) => setTrackingReference(event.target.value.toUpperCase())}
+                style={{ marginBottom: '8px' }}
+              />
+              <input
+                className="bk-form-input"
+                placeholder="Phone number"
+                value={trackingPhone}
+                onChange={(event) => setTrackingPhone(event.target.value)}
+                style={{ marginBottom: '8px' }}
+              />
+              <button type="button" className="bk-proceed-btn" onClick={handleStatusCheck} disabled={trackingLoading}>
+                {trackingLoading ? <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> : <Eye size={15} />}
+                Check Status
+              </button>
+              {trackingError && <div style={{ marginTop: '10px', color: '#b91c1c', fontSize: '12px' }}>{trackingError}</div>}
+              {trackedBooking && (
+                <div style={{ marginTop: '12px', padding: '12px', borderRadius: '8px', background: trackedBooking.booking_status === 'Confirmed' ? '#ecfdf5' : trackedBooking.booking_status === 'Cancelled' ? '#fef2f2' : '#fffbeb', border: '1px solid #e5e7eb', fontSize: '12px', lineHeight: 1.6 }}>
+                  <strong style={{ display: 'block', color: trackedBooking.booking_status === 'Confirmed' ? '#15803d' : trackedBooking.booking_status === 'Cancelled' ? '#b91c1c' : '#b45309' }}>
+                    {trackedBooking.booking_status === 'Confirmed' ? 'Booking Successful' : trackedBooking.booking_status === 'Cancelled' ? 'Booking Not Approved' : 'Pending Approval'}
+                  </strong>
+                  <div>Reference: <b>{trackedBooking.reference_no}</b></div>
+                  {trackedBooking.unit_number && <div>Room(s): <b>{trackedBooking.unit_number}</b></div>}
+                  {trackedBooking.check_in && <div>Stay: <b>{trackedBooking.check_in}</b> to <b>{trackedBooking.check_out}</b></div>}
+                  {trackedBooking.amount !== undefined && <div>Final Price: <b>Rs. {Number(trackedBooking.amount).toLocaleString()}</b> (includes Rs. {Number(trackedBooking.tax_amount || 0).toLocaleString()} tax)</div>}
+                  <div>Payment: <b>{trackedBooking.payment_status}</b></div>
+                  <div>{trackedBooking.message}</div>
+
+                  {bookingSettings.payment_guideline_pdf && (
+                    <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #cbd5e1', textAlign: 'center' }}>
+                      <a
+                        href={getStorageURL(bookingSettings.payment_guideline_pdf)}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '11.5px', fontWeight: 600, textDecoration: 'none' }}
+                      >
+                        <Download size={13} /> {bookingSettings.payment_guideline_title || 'Download Payment Guidelines (PDF)'}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Need Help card */}
@@ -904,7 +1071,7 @@ export default function KataragamaBookingPage() {
                 Need Booking Assistance?
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                <div>📞 011 233 8146</div>
+                <div>📞 0112447432</div>
                 <div>✉ bungalow@condominium.lk</div>
                 <div>🕒 Mon–Fri, 8:30am–4:30pm</div>
               </div>
@@ -916,9 +1083,9 @@ export default function KataragamaBookingPage() {
                 <MapPin size={14} style={{ color: 'var(--crimson)' }} />
                 Bungalow Location
               </div>
-              <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+              <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.4' }}><T>
                 Detour Road, Kataragama, Sri Lanka. Conveniently situated close to the sacred temples.
-              </p>
+              </T></p>
               <a 
                 href="https://maps.app.goo.gl/PkPj7oFnBFLMbA9n7" 
                 target="_blank" 
@@ -956,32 +1123,32 @@ export default function KataragamaBookingPage() {
       <section className="section facilities-sec">
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <span className="section-label">Amenities</span>
-            <h2 className="section-title">Bungalow Facilities</h2>
-            <p className="section-subtitle" style={{ margin: '0 auto' }}>
+            <span className="section-label"><T>Amenities</T></span>
+            <h2 className="section-title"><T>Bungalow Facilities</T></h2>
+            <p className="section-subtitle" style={{ margin: '0 auto' }}><T>
               Enjoy standard facilities at the CMA Circuit Bungalow — designed for a comfortable retreat.
-            </p>
+            </T></p>
           </div>
           <div className="facilities-grid">
             <div className="facility-card">
               <span className="facility-icon">🛏️</span>
-              <h4 className="facility-name">Comfortable Rooms</h4>
-              <p className="facility-desc">Quality beds, linen, hot water showers, and optional AC setups.</p>
+              <h4 className="facility-name"><T>Comfortable Rooms</T></h4>
+              <p className="facility-desc"><T>Quality beds, linen, hot water showers, and optional AC setups.</T></p>
             </div>
             <div className="facility-card">
               <span className="facility-icon">🍽️</span>
-              <h4 className="facility-name">Dining Hall</h4>
-              <p className="facility-desc">Spacious seating with kitchen setups available for visiting guests.</p>
+              <h4 className="facility-name"><T>Dining Hall</T></h4>
+              <p className="facility-desc"><T>Spacious seating with kitchen setups available for visiting guests.</T></p>
             </div>
             <div className="facility-card">
               <span className="facility-icon">🌿</span>
-              <h4 className="facility-name">Surrounding Gardens</h4>
-              <p className="facility-desc">Beautiful lush courtyard garden surrounding the premises.</p>
+              <h4 className="facility-name"><T>Surrounding Gardens</T></h4>
+              <p className="facility-desc"><T>Beautiful lush courtyard garden surrounding the premises.</T></p>
             </div>
             <div className="facility-card">
               <span className="facility-icon">🅿️</span>
-              <h4 className="facility-name">Free Vehicle Parking</h4>
-              <p className="facility-desc">On-site secure parking space inside the gated boundaries.</p>
+              <h4 className="facility-name"><T>Free Vehicle Parking</T></h4>
+              <p className="facility-desc"><T>On-site secure parking space inside the gated boundaries.</T></p>
             </div>
           </div>
         </div>
@@ -992,45 +1159,39 @@ export default function KataragamaBookingPage() {
         <div className="bk-modal-overlay open">
           <div className="bk-modal">
             <div className="bk-modal-head">
-              <span className="bk-modal-title">Complete Reservation</span>
+              <span className="bk-modal-title"><T>Complete Reservation</T></span>
               <button className="bk-modal-close" onClick={() => setModalOpen(false)}>✕</button>
             </div>
             <div className="bk-modal-body">
               
               {/* Stepper Header */}
-              <div className="bk-steps">
+              <div className="bk-steps" style={{ justifyContent: 'center', gap: '40px' }}>
                 <div className={`bk-step${currentStep >= 1 ? ' active' : ''}${currentStep > 1 ? ' done' : ''}`}>
                   <div className="bk-step-circle">1</div>
                   <div className="bk-step-label">Guest Info</div>
                 </div>
-                <div className={`bk-step${currentStep >= 2 ? ' active' : ''}${currentStep > 2 ? ' done' : ''}`}>
-                  <div className="bk-step-circle">2</div>
-                  <div className="bk-step-label">Review</div>
-                </div>
-                <div className={`bk-step${currentStep >= 3 ? ' active' : ''}${currentStep > 3 ? ' done' : ''}`}>
-                  <div className="bk-step-circle">3</div>
-                  <div className="bk-step-label">Payment</div>
-                </div>
-                <div className={`bk-step${currentStep >= 4 ? ' active' : ''}${currentStep > 4 ? ' done' : ''}`}>
-                  <div className="bk-step-circle">4</div>
-                  <div className="bk-step-label">OTP Verify</div>
-                </div>
-                <div className={`bk-step${currentStep >= 5 ? ' active' : ''}`}>
+                <div className={`bk-step${currentStep === 5 ? ' active' : ''}`}>
                   <div className="bk-step-circle">✓</div>
                   <div className="bk-step-label">Done</div>
                 </div>
               </div>
 
+              {errorMsg && (
+                <div style={{ margin: '0 0 16px', padding: '10px 12px', borderRadius: '8px', background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', fontSize: '12.5px', fontWeight: 600 }}>
+                  {errorMsg}
+                </div>
+              )}
+
               {/* Step 1: Guest Info */}
               {currentStep === 1 && (
                 <div className="bk-form-section active">
-                  <h4 style={{ margin: '0 0 16px', fontWeight: 700 }}>Guest Information</h4>
+                  <h4 style={{ margin: '0 0 16px', fontWeight: 700 }}><T>Guest Information</T></h4>
                   
                   {/* Period of stay times notice (timings 2.00pm / 10.00am) */}
                   <div style={{ background: '#fef3c7', border: '1px solid #fde68a', color: '#92400e', borderRadius: '8px', padding: '10px 14px', fontSize: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '14px' }}>⏰</span>
                     <span>
-                      <strong> stay period limits:</strong> check-in starts at <strong>2:00 p.m.</strong>, check-out is strictly before <strong>10:00 a.m.</strong>
+                      <strong><T> stay period limits:</T></strong> check-in starts at <strong><T>2:00 p.m.</T></strong>, check-out is strictly before <strong><T>10:00 a.m.</T></strong>
                     </span>
                   </div>
 
@@ -1068,18 +1229,30 @@ export default function KataragamaBookingPage() {
                       <input type="text" className="bk-form-input" value={occupation} onChange={e => setOccupation(e.target.value)} required placeholder="e.g. Government Executive" />
                     </div>
                     <div className="bk-form-group" style={{ display: 'flex', alignItems: 'center', marginTop: '1.25rem' }}>
-                      <input type="checkbox" id="isCmaEmpCheckbox" checked={isCmaEmployee} onChange={e => setIsCmaEmployee(e.target.checked)} style={{ width: '18px', height: '18px', marginRight: '8px', cursor: 'pointer' }} />
+                      <input
+                        type="checkbox"
+                        id="isCmaEmpCheckbox"
+                        checked={isCmaEmployee}
+                        onChange={e => {
+                          const checked = e.target.checked;
+                          setIsCmaEmployee(checked);
+                          setCurrentRole(checked ? 'employee' : 'guest');
+                          setSelectedRooms([]);
+                        }}
+                        style={{ width: '18px', height: '18px', marginRight: '8px', cursor: 'pointer' }}
+                      />
                       <label htmlFor="isCmaEmpCheckbox" style={{ fontSize: '13px', fontWeight: 600, color: '#374151', cursor: 'pointer' }}>Employed at Ministry / CMA?</label>
                     </div>
                   </div>
 
                   {/* Gov Institution official letter upload */}
-                  <div style={{ background: '#fafafa', border: '1px dashed #cbd5e1', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
+                  <div style={{ background: '#fafafa', border: '1px dashed var(--mid-gray)', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
                     <label className="bk-form-label" style={{ margin: 0, fontWeight: 700, fontSize: '13px' }}>Government Institution Employee? (Optional)</label>
-                    <span style={{ fontSize: '11px', color: '#64748b', display: 'block', marginBottom: '8px', lineHeight: 1.4 }}>
+                    <span style={{ fontSize: '11px', color: '#64748b', display: 'block', marginBottom: '8px', lineHeight: 1.4 }}><T>
                       If employed in a government institution, please attach an official letter confirming employment.
-                    </span>
+                    </T></span>
                     <input type="file" accept=".pdf,image/*" onChange={handleGovLetterUpload} style={{ display: 'block', fontSize: '12px', width: '100%' }} />
+                    <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '5px' }}>No account or sign-in is required. PDF and image files up to 10 MB are accepted.</div>
                     {uploadingLetter && <div style={{ fontSize: '11px', color: 'var(--crimson)', marginTop: '4px', fontWeight: 600 }}>Uploading official letter...</div>}
                     {govLetter && <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '4px', fontWeight: 600 }}>✓ Official letter uploaded successfully.</div>}
                   </div>
@@ -1114,14 +1287,14 @@ export default function KataragamaBookingPage() {
                   </div>
 
                   {/* Accompanying Family Members dynamic table */}
-                  <div style={{ border: '1.5px solid #cbd5e1', borderRadius: '10px', padding: '16px', marginBottom: '16px', background: '#fff' }}>
+                  <div style={{ border: '1.5px solid var(--mid-gray)', borderRadius: '10px', padding: '16px', marginBottom: '16px', background: '#fff' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
                       <label className="bk-form-label" style={{ margin: 0, fontWeight: 700, fontSize: '13px' }}>Accompanying Family Members ({familyCount})</label>
-                      <button type="button" onClick={addFamilyMember} style={{ padding: '4px 8px', fontSize: '11px', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>+ Add Accompanying Member</button>
+                      <button type="button" onClick={addFamilyMember} style={{ padding: '4px 8px', fontSize: '11px', background: 'var(--light-gray)', border: '1px solid var(--mid-gray)', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>+ Add Accompanying Member</button>
                     </div>
                     
                     {familyMembers.length === 0 ? (
-                      <div style={{ fontSize: '12px', color: '#64748b', padding: '10px', textAlign: 'center', background: '#f8fafc', borderRadius: '6px' }}>
+                      <div style={{ fontSize: '12px', color: '#64748b', padding: '10px', textAlign: 'center', background: 'var(--off-white)', borderRadius: '6px' }}>
                         No family members registered. Accompanying members can be added above.
                       </div>
                     ) : (
@@ -1167,10 +1340,11 @@ export default function KataragamaBookingPage() {
                     <button
                       className="bk-btn-next"
                       type="button"
-                      disabled={!guestFirst || !guestLast || !guestNIC || !guestMobile || !guestEmail || !permanentAddress || !occupation || (currentRole === 'employee' && !employeeId)}
-                      onClick={() => setCurrentStep(2)}
+                      disabled={!guestFirst || !guestLast || !guestNIC || !guestMobile || !guestEmail || !permanentAddress || !occupation || (currentRole === 'employee' && !employeeId) || loadingSubmit}
+                      onClick={handleDirectSubmit}
                     >
-                      Continue to Review →
+                      {loadingSubmit ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite', marginRight: '6px' }} /> : null}
+                      Proceed to Book
                     </button>
                   </div>
                 </div>
@@ -1179,44 +1353,44 @@ export default function KataragamaBookingPage() {
               {/* Step 2: Review */}
               {currentStep === 2 && (
                 <div className="bk-form-section active">
-                  <h4 style={{ margin: '0 0 16px', fontWeight: 700 }}>Review Details</h4>
+                  <h4 style={{ margin: '0 0 16px', fontWeight: 700 }}><T>Review Details</T></h4>
                   <div style={{ background: '#f9f9f9', borderRadius: '12px', border: '1px solid #eee', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '18px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Guest Name</span>
+                      <span style={{ color: 'var(--text-muted)' }}><T>Guest Name</T></span>
                       <strong style={{ color: 'var(--text-dark)' }}>{guestFirst} {guestLast}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>NIC Number</span>
+                      <span style={{ color: 'var(--text-muted)' }}><T>NIC Number</T></span>
                       <strong>{guestNIC}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Contact Details</span>
+                      <span style={{ color: 'var(--text-muted)' }}><T>Contact Details</T></span>
                       <strong>{guestMobile} | {guestEmail}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Permanent Address</span>
+                      <span style={{ color: 'var(--text-muted)' }}><T>Permanent Address</T></span>
                       <strong style={{ maxWidth: '240px', textAlign: 'right', whiteSpace: 'pre-wrap' }}>{permanentAddress}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Occupation</span>
+                      <span style={{ color: 'var(--text-muted)' }}><T>Occupation</T></span>
                       <strong>{occupation}</strong>
                     </div>
                     {isCmaEmployee && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
-                        <span style={{ color: 'var(--text-muted)' }}>Ministry / CMA Staff</span>
-                        <strong style={{ color: '#16a34a' }}>Yes</strong>
+                        <span style={{ color: 'var(--text-muted)' }}><T>Ministry / CMA Staff</T></span>
+                        <strong style={{ color: '#16a34a' }}><T>Yes</T></strong>
                       </div>
                     )}
                     {govLetter && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
-                        <span style={{ color: 'var(--text-muted)' }}>Official Gov Letter</span>
-                        <strong style={{ color: '#16a34a' }}>Attached</strong>
+                        <span style={{ color: 'var(--text-muted)' }}><T>Official Gov Letter</T></span>
+                        <strong style={{ color: '#16a34a' }}><T>Attached</T></strong>
                       </div>
                     )}
                     {familyMembers.length > 0 && (
                       <div style={{ borderTop: '1px solid #eee', paddingTop: '8px', fontSize: '12.5px' }}>
                         <div style={{ fontWeight: 600, color: 'var(--text-muted)', marginBottom: '4px' }}>Accompanying Members ({familyCount}):</div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: '#f8fafc', padding: '8px', borderRadius: '6px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: 'var(--off-white)', padding: '8px', borderRadius: '6px' }}>
                           {familyMembers.map((m, idx) => (
                             <div key={idx} style={{ display: 'flex', justifyContent: 'space-between' }}>
                               <span>• {m.name}</span>
@@ -1227,24 +1401,42 @@ export default function KataragamaBookingPage() {
                       </div>
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px', borderTop: '1px solid #eee', paddingTop: '8px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Room(s) Selection</span>
+                      <span style={{ color: 'var(--text-muted)' }}><T>Room(s) Selection</T></span>
                       <strong style={{ color: 'var(--crimson)' }}>{selectedRooms.map(r => r.name).join(', ')}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Check-In</span>
+                      <span style={{ color: 'var(--text-muted)' }}><T>Check-In</T></span>
                       <strong>{formatDateLabel(checkinDate)}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Check-Out</span>
+                      <span style={{ color: 'var(--text-muted)' }}><T>Check-Out</T></span>
                       <strong>{formatDateLabel(checkoutDate)}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Nights</span>
+                      <span style={{ color: 'var(--text-muted)' }}><T>Nights</T></span>
                       <strong>{nights} night{nights > 1 ? 's' : ''}</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px', borderTop: '1px solid #eee', paddingTop: '8px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Total Amount</span>
-                      <strong style={{ fontSize: '16px', color: 'var(--crimson)' }}>Rs. {getSubtotal().toLocaleString()}</strong>
+                      <span style={{ color: 'var(--text-muted)' }}><T>Booking Price</T></span>
+                      <strong>Rs. {getSubtotal().toLocaleString()}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
+                      <span style={{ color: 'var(--text-muted)' }}>SST Tax</span>
+                      <strong>Rs. {getSstTotal().toLocaleString()}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
+                      <span style={{ color: 'var(--text-muted)' }}>VAT Tax</span>
+                      <strong>Rs. {getVatTotal().toLocaleString()}</strong>
+                    </div>
+                    {getAdditionalChargesTotal() > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px' }}>
+                        <span style={{ color: 'var(--text-muted)' }}>Additional Charges (One-time)</span>
+                        <strong>Rs. {getAdditionalChargesTotal().toLocaleString()}</strong>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13.5px', borderTop: '1px solid #eee', paddingTop: '8px' }}>
+                      <span style={{ color: 'var(--text-muted)' }}><T>Final Price</T></span>
+                      <strong style={{ fontSize: '16px', color: 'var(--crimson)' }}>Rs. {getFinalTotal().toLocaleString()}</strong>
                     </div>
                   </div>
                   <div className="bk-btn-row">
@@ -1257,7 +1449,7 @@ export default function KataragamaBookingPage() {
               {/* Step 3: Payment */}
               {currentStep === 3 && (
                 <div className="bk-form-section active">
-                  <h4 style={{ margin: '0 0 16px', fontWeight: 700 }}>Secure Payment Simulation</h4>
+                  <h4 style={{ margin: '0 0 16px', fontWeight: 700 }}><T>Secure Payment Simulation</T></h4>
                   <div className="pay-methods">
                     <div className={`pay-method${payMethod === 'card' ? ' active' : ''}`} onClick={() => setPayMethod('card')}>
                       <span className="pay-method-icon">💳</span>
@@ -1341,7 +1533,7 @@ export default function KataragamaBookingPage() {
                 <div className="bk-form-section active">
                   <div className="otp-container">
                     <div className="otp-icon">📲</div>
-                    <h3 className="otp-heading" style={{ margin: 0 }}>OTP Verification</h3>
+                    <h3 className="otp-heading" style={{ margin: 0 }}><T>OTP Verification</T></h3>
                     <p className="otp-sub" style={{ marginTop: '8px' }}>
                       A 6-digit One-Time Password has been sent to your simulated mobile number <strong>{guestMobile || '+94 77 *** ****'}</strong>. Please enter it below to confirm your payment.
                     </p>
@@ -1375,7 +1567,7 @@ export default function KataragamaBookingPage() {
                     </div>
 
                     <div style={{ background: 'rgba(139,26,26,.06)', borderRadius: '10px', padding: '12px 16px', fontSize: '12.5px', color: 'var(--text-body)', margin: '20px 0 0', textAlign: 'left', border: '1px dashed var(--crimson)' }}>
-                      <strong>Demo Simulation:</strong> Enter <strong style={{ color: 'var(--crimson)' }}>1 2 3 4 5 6</strong> to verify transaction successfully.
+                      <strong><T>Demo Simulation:</T></strong> Enter <strong style={{ color: 'var(--crimson)' }}><T>1 2 3 4 5 6</T></strong> to verify transaction successfully.
                     </div>
                   </div>
 
@@ -1398,47 +1590,106 @@ export default function KataragamaBookingPage() {
               {currentStep === 5 && confirmedBooking && (
                 <div className="bk-form-section active">
                   <div className="bk-success">
-                    <div className="bk-success-icon" style={{ fontSize: '3.5rem' }}>🎉</div>
-                    <h3 className="bk-success-title" style={{ margin: '10px 0 0' }}>Booking Confirmed!</h3>
-                    <p className="bk-success-sub" style={{ marginTop: '8px' }}>
-                      Your stay at the Condominium Management Authority's circuit bungalow in Kataragama is confirmed. Details have been recorded under your citizen account.
+                    <div className="bk-success-icon" style={{ fontSize: '3.5rem' }}>{confirmedBooking.booking_status === 'Confirmed' ? '✅' : '⏳'}</div>
+                    <h3 className="bk-success-title" style={{ margin: '10px 0 0' }}>
+                      {confirmedBooking.booking_status === 'Confirmed' ? 'Booking Successful!' : 'Booking Request Submitted'}
+                    </h3>
+                    <p className="bk-success-sub" style={{ marginTop: '8px', fontWeight: '600', color: confirmedBooking.booking_status === 'Confirmed' ? '#15803d' : '#b45309' }}>
+                      {confirmedBooking.booking_status === 'Confirmed'
+                        ? 'Your reservation has been approved. The selected dates are now secured.'
+                        : 'Payment is pending and your request is awaiting administrator approval. No payment has been collected online.'}
                     </p>
                     
+                    {bookingSettings.reference_banner && (
+                      <div style={{ margin: '15px 0 10px' }}>
+                        <img
+                          src={getStorageURL(bookingSettings.reference_banner)}
+                          alt={bookingSettings.reference_banner_alt || 'Kataragama booking information'}
+                          style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #eee' }}
+                        />
+                      </div>
+                    )}
+
                     <div className="bk-ref-box">
-                      <div className="bk-ref-label">Booking Reference Number(s)</div>
+                      <div className="bk-ref-label">Booking Reference Number</div>
                       <div className="bk-ref-num">
                         {confirmedBooking.allReferences 
                           ? confirmedBooking.allReferences 
-                          : `KTG-2026-${String(confirmedBooking.id).padStart(4, '0')}`}
+                          : confirmedBooking.reference_no}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', margin: '14px 0' }}>
+                      <div style={{ padding: '10px', borderRadius: '8px', background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', fontSize: '12px' }}>
+                        Payment: <strong>{confirmedBooking.payment_status || 'Pending'}</strong>
+                      </div>
+                      <div style={{ padding: '10px', borderRadius: '8px', background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', fontSize: '12px' }}>
+                        Approval: <strong>{confirmedBooking.booking_status || 'Pending'}</strong>
                       </div>
                     </div>
 
                     <div className="bk-success-details">
                       <div>
-                        <strong>Room Type:</strong>
+                        <strong><T>Room Type:</T></strong>
                         <span>{confirmedBooking.unit_number}</span>
                       </div>
                       <div>
-                        <strong>Check-In Date:</strong>
-                        <span>{confirmedBooking.check_in}</span>
+                        <strong><T>Check-In Date:</T></strong>
+                        <span>{confirmedBooking.check_in ? String(confirmedBooking.check_in).substring(0, 10) : ''}</span>
                       </div>
                       <div>
-                        <strong>Check-Out Date:</strong>
-                        <span>{confirmedBooking.check_out}</span>
+                        <strong><T>Check-Out Date:</T></strong>
+                        <span>{confirmedBooking.check_out ? String(confirmedBooking.check_out).substring(0, 10) : ''}</span>
                       </div>
                       <div>
-                        <strong>Total Amount Paid:</strong>
+                        <strong><T>Booking Price:</T></strong>
+                        <span>Rs. {Number(confirmedBooking.subtotal ?? getSubtotal()).toLocaleString()}</span>
+                      </div>
+                      <div>
+                        <strong>SST Tax:</strong>
+                        <span>Rs. {getConfirmedSst().toLocaleString()}</span>
+                      </div>
+                      <div>
+                        <strong>VAT Tax:</strong>
+                        <span>Rs. {getConfirmedVat().toLocaleString()}</span>
+                      </div>
+                      {getConfirmedAdditionalCharges() > 0 && (
+                        <div>
+                          <strong>Additional Charges (One-time):</strong>
+                          <span>Rs. {getConfirmedAdditionalCharges().toLocaleString()}</span>
+                        </div>
+                      )}
+                      <div>
+                        <strong><T>Final Amount:</T></strong>
                         <span style={{ color: 'var(--success)', fontWeight: 700 }}>Rs. {Number(confirmedBooking.amount).toLocaleString()}</span>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '24px', justifyContent: 'center' }}>
+                    {bookingSettings.payment_guideline_pdf && (
+                      <div style={{ marginTop: '18px', padding: '14px', borderRadius: '10px', background: '#f0f9ff', border: '1px solid #bae6fd', textAlign: 'center' }}>
+                        <div style={{ fontWeight: 700, color: '#0369a1', fontSize: '13px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                          <FileText size={16} />
+                          {bookingSettings.payment_guideline_title || 'Payment Guidelines & Bank Instructions'}
+                        </div>
+                        <a
+                          href={getStorageURL(bookingSettings.payment_guideline_pdf)}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: '#0284c7', color: '#fff', border: 'none', borderRadius: '6px', padding: '8px 16px', fontSize: '12.5px', fontWeight: 600, textDecoration: 'none' }}
+                        >
+                          <Download size={14} /> Download Payment Guidelines (PDF)
+                        </a>
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', marginTop: '24px', justifyContent: 'center' }}>
                       <button
                         className="btn btn-outline"
-                        style={{ borderRadius: '8px', padding: '10px 20px', fontSize: '13px' }}
-                        onClick={() => window.print()}
+                        style={{ borderRadius: '8px', padding: '10px 20px', fontSize: '13px', marginRight: '8px' }}
+                        onClick={handleStatusCheck}
+                        disabled={trackingLoading}
                       >
-                        <Printer size={14} /> Print / Save PDF
+                        Refresh Status
                       </button>
                       <button
                         className="btn btn-primary"
@@ -1450,7 +1701,7 @@ export default function KataragamaBookingPage() {
                           setCheckoutDate(null);
                         }}
                       >
-                        Finish
+                        Close
                       </button>
                     </div>
                   </div>
@@ -1475,7 +1726,7 @@ export default function KataragamaBookingPage() {
         .bk-hero-bg {
           position: absolute;
           inset: 0;
-          background-image: url('https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=1400&auto=format&fit=crop&q=70');
+          background-color: #26140f;
           background-size: cover;
           background-position: center;
           opacity: 0.55;
@@ -1866,6 +2117,14 @@ export default function KataragamaBookingPage() {
           border-color: var(--crimson);
           box-shadow: 0 0 0 3px rgba(139,0,0,.12);
         }
+        .room-card.room-unavailable {
+          border-color: #fecaca;
+          cursor: not-allowed;
+        }
+        .room-card.room-unavailable:hover {
+          transform: none;
+          box-shadow: var(--shadow-sm);
+        }
         .room-img {
           width: 100%;
           height: 140px;
@@ -1906,17 +2165,22 @@ export default function KataragamaBookingPage() {
           padding: 3px 8px;
           border-radius: 4px;
         }
-        .room-price-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-top: auto;
-        }
-        .room-price {
-          font-size: 18px;
-          font-weight: 800;
-          color: var(--crimson);
-        }
+        .room-mini-calendar { margin-top: 10px; border: 1px solid #eee; border-radius: 8px; padding: 9px; background: #fafafa; }
+        .room-mini-calendar-title { font-size: 11.5px; font-weight: 700; color: var(--text-dark); margin-bottom: 7px; }
+        .room-mini-calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+        .room-mini-calendar-weekdays { margin-bottom: 3px; text-align: center; font-size: 9px; font-weight: 700; color: #64748b; }
+        .room-mini-day { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; border-radius: 3px; font-size: 9px; background: #dcfce7; color: #166534; }
+        .room-mini-day.booked { background: #dc2626; color: #fff; font-weight: 700; }
+        .room-mini-day.empty { background: transparent; }
+        .room-mini-legend { display: flex; gap: 12px; margin-top: 7px; font-size: 9.5px; color: #64748b; }
+        .room-mini-legend span { display: flex; align-items: center; gap: 4px; }
+        .room-mini-legend i { width: 7px; height: 7px; border-radius: 2px; background: #dcfce7; }
+        .room-mini-legend i.booked { background: #dc2626; }
+        .room-price-breakdown { margin-top: auto; padding-top: 13px; display: grid; gap: 5px; font-size: 11.5px; }
+        .room-price-breakdown > div { display: flex; justify-content: space-between; gap: 8px; }
+        .room-price-breakdown span { color: var(--text-muted); }
+        .room-final-price { border-top: 1px solid #eee; padding-top: 7px; color: var(--crimson); }
+        .room-final-price strong { font-size: 13px; }
         .room-select-btn {
           width: 100%;
           margin-top: 12px;
@@ -1932,6 +2196,12 @@ export default function KataragamaBookingPage() {
         .room-select-btn:hover, .room-card.selected-room .room-select-btn {
           background: var(--crimson);
           color: #fff;
+        }
+        .room-select-btn:disabled, .room-select-btn:disabled:hover {
+          border-color: #ef4444;
+          background: #fef2f2;
+          color: #b91c1c;
+          cursor: not-allowed;
         }
 
         /* BOOKING SIDEBAR */
@@ -2379,8 +2649,38 @@ export default function KataragamaBookingPage() {
           .bk-hero-gallery { display: none; }
           .facilities-grid { grid-template-columns: 1fr 1fr; }
         }
+        @media(max-width: 900px) {
+          .bk-availability-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+        }
         @media(max-width: 768px) {
           .rooms-grid { grid-template-columns: 1fr; }
+          .facilities-grid { grid-template-columns: 1fr 1fr; }
+          .booking-layout { gap: 20px; }
+        }
+        @media(max-width: 600px) {
+          .bk-form-row { grid-template-columns: 1fr !important; gap: 12px !important; }
+          .pay-methods { grid-template-columns: 1fr !important; }
+        }
+        @media(max-width: 640px) {
+          .facilities-grid { grid-template-columns: 1fr; }
+          .bk-date-row { flex-direction: column !important; gap: 12px !important; }
+          .bk-guest-row { flex-direction: column !important; gap: 12px !important; }
+          .bk-step-row { flex-direction: column !important; gap: 12px !important; }
+          .bk-pay-row { flex-direction: column !important; gap: 10px !important; }
+          .bk-confirm-actions { flex-direction: column !important; gap: 12px !important; }
+          .bk-confirm-actions a, .bk-confirm-actions button { width: 100% !important; text-align: center !important; justify-content: center !important; }
+          .bk-summary-grid { grid-template-columns: 1fr !important; }
+          .bk-otp-row { gap: 8px !important; }
+          .bk-modal-inner { padding: 24px 16px !important; border-radius: 16px !important; margin: 12px !important; }
+        }
+        @media(max-width: 480px) {
+          .bk-hero { padding: 48px 16px 40px !important; }
+          .bk-hero h1 { font-size: clamp(1.5rem, 6vw, 2.5rem) !important; }
+          .bk-section-inner { padding: 20px 16px !important; }
+          .bk-room-card { padding: 16px !important; }
+          .bk-calendar-header { flex-direction: column !important; gap: 8px !important; align-items: flex-start !important; }
+          .bk-amenity-tag { font-size: 11px !important; padding: 4px 8px !important; }
+          .bk-dates-input-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
         }
       `}</style>
     </div>

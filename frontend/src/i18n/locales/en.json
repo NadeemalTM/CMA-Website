@@ -39,11 +39,12 @@
     "ministry": "Ministry of Transport, Highways and Urban Development — Sri Lanka",
     "bookingBtn": "Bungalow Booking",
     "searchPlaceholder": "Search CMA Sri Lanka...",
-    "history": "History"
+    "history": "History",
+    "leadership": "Leadership"
   },
   "topbar": {
-    "address": "1st Floor, National Housing Department Buiding, Sir Chittampalam A Gardiner Mawatha, Colombo 02.",
-    "phone": "011 233 8146",
+    "address": "1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.",
+    "phone": "0112447432",
     "email": "info@condominium.lk"
   },
   "notice": "NOTICE",
@@ -204,8 +205,8 @@
     "label": "Get In Touch",
     "title": "Contact Us",
     "address_title": "Our Office",
-    "address": "1st Floor, National Housing Department Buiding, Sir Chittampalam A Gardiner Mawatha, Colombo 02.",
-    "phone": "011 233 8146",
+    "address": "1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.",
+    "phone": "0112447432",
     "fax": "011 233 8147",
     "email": "info@condominium.lk",
     "hours": "Office Hours",
@@ -224,7 +225,7 @@
     "quick_links": "Quick Links",
     "legal": "Legal",
     "contact": "Contact",
-    "address": "1st Floor, National Housing Department Buiding, Sir Chittampalam A Gardiner Mawatha, Colombo 02.",
+    "address": "1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.",
     "rights": "© 2025 Condominium Management Authority. All Rights Reserved.",
     "ministry": "Ministry of Transport, Highways and Urban Development"
   },
@@ -267,7 +268,9 @@
     "bungalow_bookings": "Bungalow Bookings",
     "bungalow_rooms": "Bungalow Rooms",
     "certificates": "Certificates",
-    "mc_fees": "MC Registration Fees"
+    "mc_fees": "MC Registration Fees",
+    "admin_users": "Admin Users & Access",
+    "access_denied": "Access Restricted"
   },
   "citizen": {
     "nav": {

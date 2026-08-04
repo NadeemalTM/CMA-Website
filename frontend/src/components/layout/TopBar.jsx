@@ -164,7 +164,7 @@ function MapModal({ onClose }) {
             <div>
               <div style={{ fontWeight: 700, fontSize: '14px' }}>CMA Headquarters</div>
               <div style={{ fontSize: '11.5px', color: 'rgba(255,255,255,0.65)' }}>
-                {t('topbar.address', '1st Floor, National Housing Department Buiding, Sir Chittampalam A Gardiner Mawatha, Colombo 02.')}
+                {t('topbar.address', '1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.')}
               </div>
             </div>
           </div>
@@ -270,12 +270,6 @@ export default function TopBar() {
       <div style={styles.topbar}>
         <div style={styles.container}>
           <div style={styles.leftGroup}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '4px' }}>
-              <img src={logo} alt="CMA Emblem" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-              <span style={{ fontWeight: 800, fontSize: '10.5px', color: '#C9A227', letterSpacing: '0.5px', lineHeight: 1 }}>CMA</span>
-            </div>
-            <div style={styles.divider} />
-
             {/* Address – hide on mobile */}
             {!isMobile && (
               <>
@@ -287,16 +281,16 @@ export default function TopBar() {
                 >
                   <MapPin size={13} style={styles.icon} />
                   <span style={{ borderBottom: '1px dashed rgba(255,255,255,0.4)', paddingBottom: '1px' }}>
-                    {t('topbar.address', '1st Floor, National Housing Department Buiding, Sir Chittampalam A Gardiner Mawatha, Colombo 02.')}
+                    {t('topbar.address', '1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.')}
                   </span>
                 </button>
                 <div style={styles.divider} />
               </>
             )}
 
-            <a href="tel:0112338146" style={styles.item}>
+            <a href="tel:0112447432" style={styles.item}>
               <Phone size={13} style={styles.icon} />
-              <span>{t('topbar.phone', '011 233 8146')}</span>
+              <span>{t('topbar.phone', '0112447432')}</span>
             </a>
 
             {/* Email – hide on mobile */}

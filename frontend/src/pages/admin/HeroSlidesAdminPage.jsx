@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { adminHeroSlides, uploadFile } from '../../services/api';
+import { adminHeroSlides, uploadFile, getStorageURL } from '../../services/api';
 
 let AdminLayout;
 try { AdminLayout = require('../../components/admin/AdminLayout').default; }
@@ -108,7 +108,7 @@ export default function HeroSlidesAdminPage() {
     const file = e.target.files[0];
     if (!file) return;
     try {
-      const res = await uploadFile(file);
+      const res = await uploadFile(file, 'hero_slides');
       setForm(f => ({ ...f, image: res.data.path }));
       showToast('Image uploaded successfully');
     } catch(e) {
@@ -119,7 +119,7 @@ export default function HeroSlidesAdminPage() {
   const setLangField = (field, lang, val) => setForm(f=>({...f,[field + '_' + lang]:val}));
 
   return (
-    <AdminLayout title="Hero Slides">
+    <div className="admin-page-content" style={{ padding: "0.5rem" }}>
       <Toast msg={toast.msg} type={toast.type}/>
 
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'1.5rem',flexWrap:'wrap',gap:'0.75rem'}}>
@@ -150,7 +150,7 @@ export default function HeroSlidesAdminPage() {
               <tr key={item.id} style={{borderBottom:'1px solid #f3f4f6',background:i%2===0?'#fff':'#fafafa'}}>
                 <td style={{padding:'0.75rem 1rem'}}>
                   {item.image
-                    ? <img src={item.image.startsWith('http') ? item.image : `/storage/${item.image}`} alt="" style={{width:80,height:48,objectFit:'cover',borderRadius:6,border:'1px solid #e5e7eb'}}/>
+                    ? <img src={item.image.startsWith('http') ? item.image : getStorageURL(item.image)} alt="" style={{width:80,height:48,objectFit:'cover',borderRadius:6,border:'1px solid #e5e7eb'}}/>
                     : <div style={{width:80,height:48,background:'#f3f4f6',borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.7rem',color:'#9ca3af'}}>No image</div>
                   }
                 </td>
@@ -197,17 +197,15 @@ export default function HeroSlidesAdminPage() {
             </div>
           ))}
 
-          <label style={labelStyle}>Button Link</label>
-          <input style={inputStyle} value={form.button_link || ''} onChange={e=>setForm(f=>({...f,button_link:e.target.value}))} placeholder="/page or https://…"/>
+          <label style={labelStyle} htmlFor="button_link" htmlFor="button_link">Button Link</label><input id="button_link" name="button_link" style={inputStyle} value={form.button_link || ''} onChange={e=>setForm(f=>({...f,button_link:e.target.value}))} placeholder="/page or https://…"/>
           
           <label style={labelStyle}>Image File</label>
           <input type="file" accept="image/*" onChange={handleUpload} style={{ marginBottom: '0.5rem' }} />
           <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '0.5rem' }}>Or Image Path:</div>
-          <input style={inputStyle} value={form.image || ''} onChange={e=>setForm(f=>({...f,image:e.target.value}))} placeholder="uploads/filename.png"/>
-          {form.image && <img src={form.image.startsWith('http') ? form.image : `/storage/${form.image}`} alt="" style={{width:'100%',height:120,objectFit:'cover',borderRadius:8,marginTop:'0.5rem',border:'1px solid #e5e7eb'}} onError={e=>e.target.style.display='none'}/>}
+          <input id="image" name="image" style={inputStyle} value={form.image || ''} onChange={e=>setForm(f=>({...f,image:e.target.value}))} placeholder="uploads/filename.png"/>
+          {form.image && <img src={form.image.startsWith('http') ? form.image : getStorageURL(form.image)} alt="" style={{width:'100%',height:120,objectFit:'cover',borderRadius:8,marginTop:'0.5rem',border:'1px solid #e5e7eb'}} onError={e=>e.target.style.display='none'}/>}
 
-          <label style={labelStyle}>Display Order</label>
-          <input type="number" style={inputStyle} value={form.order ?? 0} onChange={e=>setForm(f=>({...f,order:parseInt(e.target.value)||0}))}/>
+          <label style={labelStyle} htmlFor="order" htmlFor="order">Display Order</label><input id="order" name="order" type="number" style={inputStyle} value={form.order ?? 0} onChange={e=>setForm(f=>({...f,order:parseInt(e.target.value)||0}))}/>
 
           <div style={{display:'flex',alignItems:'center',gap:'0.5rem',marginTop:'0.75rem'}}>
             <input type="checkbox" id="ha" checked={form.is_active} onChange={e=>setForm(f=>({...f,is_active:e.target.checked}))} style={{width:16,height:16}}/>
@@ -222,6 +220,9 @@ export default function HeroSlidesAdminPage() {
           </div>
         </form>
       </SimpleModal>
-    </AdminLayout>
+    </div>
   );
 }
+
+
+

@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import T from './T';
 
 /**
  * PageHero - Reusable page hero banner
@@ -150,10 +151,10 @@ export default function PageHero({ title, subtitle, breadcrumbs = [], bgImage, a
               <React.Fragment key={idx}>
                 <ChevronRight size={14} style={s.breadcrumbSep} />
                 {isLast || !crumb.path ? (
-                  <span style={s.breadcrumbCurrent}>{crumb.label}</span>
+                  <span style={s.breadcrumbCurrent}><T>{crumb.label}</T></span>
                 ) : (
                   <NavLink to={crumb.path} style={s.breadcrumbLink}>
-                    {crumb.label}
+                    <T>{crumb.label}</T>
                   </NavLink>
                 )}
               </React.Fragment>
@@ -168,7 +169,7 @@ export default function PageHero({ title, subtitle, breadcrumbs = [], bgImage, a
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
-          {title}
+          <T>{title}</T>
         </motion.h1>
 
         <span style={s.underline} />
@@ -181,7 +182,7 @@ export default function PageHero({ title, subtitle, breadcrumbs = [], bgImage, a
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15, ease: 'easeOut' }}
           >
-            {subtitle}
+            <T>{subtitle}</T>
           </motion.p>
         )}
       </div>

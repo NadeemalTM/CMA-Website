@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import T from '../components/ui/T';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -14,17 +15,7 @@ import {
 import api, { submitApplication } from '../services/api';
 import './ApplicationsPage.css';
 
-const PageHeroFallback = ({ title, subtitle }) => (
-  <div className="page-hero">
-    <div className="container">
-      <div className="breadcrumb">
-        <a href="/">Home</a> <span>/</span> <span>{title}</span>
-      </div>
-      <h1>{title}</h1>
-      {subtitle && <p>{subtitle}</p>}
-    </div>
-  </div>
-);
+import PageHero from '../components/ui/PageHero';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -108,13 +99,22 @@ export default function ApplicationsPage() {
     setSubmitting(true);
     setServerError(null);
     try {
-      const res = await submitApplication(form);
-      const ref = res.data?.reference || res.data?.id || 'REF-' + Date.now();
+      const payload = {
+        applicant_name: form.full_name,
+        email: form.email,
+        phone: form.phone,
+        type: form.application_type === 'plan_registration' ? 'condo_plan' : form.application_type,
+        form_data: { notes: form.notes }
+      };
+      const res = await submitApplication(payload);
+      const ref = res.data?.data?.reference_no || res.data?.reference || res.data?.id || 'REF-' + Date.now();
       setSuccess(ref);
       setForm(INITIAL_FORM);
     } catch (err) {
       setServerError(
-        err.response?.data?.message || 'Submission failed. Please try again later.'
+        err.response?.data?.message || 
+        (err.response?.data?.errors ? Object.values(err.response.data.errors).flat().join(', ') : null) || 
+        'Submission failed. Please try again later.'
       );
     } finally {
       setSubmitting(false);
@@ -123,9 +123,10 @@ export default function ApplicationsPage() {
 
   return (
     <div className="applications-page">
-      <PageHeroFallback
-        title={t('applications.title', 'Applications')}
-        subtitle={t('applications.desc', 'Submit your applications online or visit our office')}
+      <PageHero
+        title={t('applications.title', 'Online Applications')}
+        subtitle={t('applications.desc', 'Submit and track your applications directly through our online portal.')}
+        breadcrumbs={[{ label: t('applications.title', 'Online Applications') }]}
       />
 
       <section className="section">
@@ -133,14 +134,14 @@ export default function ApplicationsPage() {
           <div className="applications-layout">
             {/* Left: Info Cards */}
             <div className="applications-info">
-              <span className="section-label">Application Types</span>
-              <h2 className="section-title" style={{ fontSize: '1.8rem' }}>
+              <span className="section-label"><T>Application Types</T></span>
+              <h2 className="section-title" style={{ fontSize: '1.8rem' }}><T>
                 What Can You Apply For?
-              </h2>
-              <p className="section-subtitle" style={{ marginBottom: '2rem' }}>
+              </T></h2>
+              <p className="section-subtitle" style={{ marginBottom: '2rem' }}><T>
                 CMA handles a range of applications related to condominium registration,
                 management, and compliance.
-              </p>
+              </T></p>
 
               <div className="app-types-list">
                 {APP_TYPES.map((type, i) => {
@@ -170,7 +171,7 @@ export default function ApplicationsPage() {
                         ))}
                       </ul>
                       <div className="app-type-fee">
-                        <span>Fee:</span> {type.fee}
+                        <span><T>Fee:</T></span> {type.fee}
                       </div>
                     </motion.div>
                   );
@@ -188,20 +189,20 @@ export default function ApplicationsPage() {
             >
               <div className="applications-form-card">
                 <div className="form-card-header">
-                  <h3>Submit an Application</h3>
-                  <p>Fill in the details below and our team will contact you shortly.</p>
+                  <h3><T>Submit an Application</T></h3>
+                  <p><T>Fill in the details below and our team will contact you shortly.</T></p>
                 </div>
 
                 {success ? (
                   <div className="app-success">
                     <CheckCircle size={48} />
-                    <h3>Application Submitted!</h3>
-                    <p>Your application has been received. Reference number:</p>
+                    <h3><T>Application Submitted!</T></h3>
+                    <p><T>Your application has been received. Reference number:</T></p>
                     <div className="app-ref">{success}</div>
-                    <p className="app-success-note">
+                    <p className="app-success-note"><T>
                       Please keep this reference number for future correspondence. Our team will
                       contact you within 3–5 working days.
-                    </p>
+                    </T></p>
                     <button
                       className="btn btn-primary"
                       onClick={() => setSuccess(null)}
@@ -218,9 +219,11 @@ export default function ApplicationsPage() {
                     )}
 
                     <div className="form-group">
-                      <label className="form-label">Full Name *</label>
+                      <label htmlFor="full_name" className="form-label">Full Name *</label>
                       <input
+                        id="full_name"
                         name="full_name"
+                        autoComplete="name"
                         type="text"
                         className={`form-control ${errors.full_name ? 'is-invalid' : ''}`}
                         placeholder="Your full name"
@@ -234,9 +237,11 @@ export default function ApplicationsPage() {
 
                     <div className="form-row">
                       <div className="form-group">
-                        <label className="form-label">Email Address *</label>
+                        <label htmlFor="email" className="form-label">Email Address *</label>
                         <input
+                          id="email"
                           name="email"
+                          autoComplete="email"
                           type="email"
                           className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                           placeholder="you@example.com"
@@ -247,9 +252,11 @@ export default function ApplicationsPage() {
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">Phone Number *</label>
+                        <label htmlFor="phone" className="form-label">Phone Number *</label>
                         <input
+                          id="phone"
                           name="phone"
+                          autoComplete="tel"
                           type="tel"
                           className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
                           placeholder="+94 11 000 0000"
@@ -261,8 +268,9 @@ export default function ApplicationsPage() {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Application Type *</label>
+                      <label htmlFor="application_type" className="form-label">Application Type *</label>
                       <select
+                        id="application_type"
                         name="application_type"
                         className={`form-control ${errors.application_type ? 'is-invalid' : ''}`}
                         value={form.application_type}
@@ -281,8 +289,9 @@ export default function ApplicationsPage() {
                     </div>
 
                     <div className="form-group">
-                      <label className="form-label">Additional Notes</label>
+                      <label htmlFor="notes" className="form-label">Additional Notes</label>
                       <textarea
+                        id="notes"
                         name="notes"
                         className="form-control"
                         placeholder="Any additional information or special requirements..."

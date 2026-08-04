@@ -2,20 +2,31 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 
 import { useEffect, useState } from 'react';
-import { Mail, Phone, User, Loader } from 'lucide-react';
-import api, { getLeaders } from '../services/api';
+import { Mail, Phone, User } from 'lucide-react';
+import { getLeaders } from '../services/api';
 import './LeadershipPage.css';
 
+import T from '../components/ui/T';
+
 const PageHeroFallback = ({ title, subtitle }) => (
-  <div className="page-hero">
-    <div className="container">
-      <div className="breadcrumb">
-        <a href="/">Home</a> <span>/</span> <a href="/about">About</a> <span>/</span>{' '}
-        <span>{title}</span>
+  <div className="page-hero" style={{ background: 'linear-gradient(135deg, #1a0000 0%, #4a0000 100%)', padding: '4rem 1rem', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="container" 
+      style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}
+    >
+      <div className="breadcrumb" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1rem' }}>
+        <a href="/" style={{ color: '#C9A227', textDecoration: 'none' }}>Home</a> <span>/</span> <span style={{ color: '#fff' }}><T>About Us</T></span> <span>/</span> <span><T>{title}</T></span>
       </div>
-      <h1>{title}</h1>
-      {subtitle && <p>{subtitle}</p>}
-    </div>
+      <h1 style={{ margin: 0, fontSize: '3rem', fontWeight: 800, color: '#C9A227', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}><T>{title}</T></h1>
+      {subtitle && <p style={{ margin: '1rem 0 0', fontSize: '1.15rem', color: 'var(--mid-gray)', maxWidth: '700px', lineHeight: 1.6 }}><T>{subtitle}</T></p>}
+    </motion.div>
+    
+    {/* Decorative background circles */}
+    <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,162,39,0.15) 0%, rgba(201,162,39,0) 70%)' }} />
+    <div style={{ position: 'absolute', bottom: '-100px', left: '10%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 70%)' }} />
   </div>
 );
 
@@ -32,6 +43,7 @@ function LeaderCard({ leader, index }) {
   const initials = leader.name
     ? leader.name
         .split(' ')
+        .filter(w => w.length > 0)
         .map((w) => w[0])
         .join('')
         .substring(0, 2)
@@ -66,17 +78,20 @@ function LeaderCard({ leader, index }) {
       <div className="leader-card-body">
         <h3 className="leader-name">{leader.name}</h3>
         <p className="leader-position">{leader.position}</p>
-        {leader.email && (
-          <a href={`mailto:${leader.email}`} className="leader-contact">
-            <Mail size={14} /> {leader.email}
-          </a>
+        {(leader.email || leader.phone) && (
+          <div className="leader-contacts-wrapper">
+            {leader.email && (
+              <a href={`mailto:${leader.email}`} className="leader-contact">
+                <Mail size={13} /> {leader.email}
+              </a>
+            )}
+            {leader.phone && (
+              <a href={`tel:${leader.phone}`} className="leader-contact">
+                <Phone size={13} /> {leader.phone}
+              </a>
+            )}
+          </div>
         )}
-        {leader.phone && (
-          <a href={`tel:${leader.phone}`} className="leader-contact">
-            <Phone size={14} /> {leader.phone}
-          </a>
-        )}
-
       </div>
     </motion.div>
   );
@@ -100,10 +115,13 @@ export default function LeadershipPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const leadershipTeam = leaders.filter((leader) => leader.section_type !== 'board');
+  const boardMembers = leaders.filter((leader) => leader.section_type === 'board');
+
   return (
-    <div className="leadership-page">
+    <div className="leadership-page" style={{ background: 'var(--off-white)', minHeight: '100vh', overflow: 'hidden' }}>
       <PageHeroFallback
-        title={t('leadership.title', 'Our Leadership')}
+        title={t('leadership.title', 'Leadership')}
         subtitle={t('leadership.desc', 'Meet the dedicated team guiding the Condominium Management Authority')}
       />
 
@@ -133,19 +151,33 @@ export default function LeadershipPage() {
 
           {!loading && !error && leaders.length > 0 && (
             <>
-              <div className="text-center" style={{ marginBottom: '3rem' }}>
-                <span className="section-label">Leadership</span>
-                <h2 className="section-title">Board of Directors &amp; Officers</h2>
-                <p className="section-subtitle" style={{ margin: '0 auto' }}>
-                  Our experienced leadership team is committed to advancing condominium governance
-                  across Sri Lanka.
-                </p>
-              </div>
-              <div className="leadership-grid">
-                {leaders.map((leader, i) => (
-                  <LeaderCard key={leader.id || i} leader={leader} index={i} />
-                ))}
-              </div>
+              {leadershipTeam.length > 0 && (
+                <div className="leadership-group">
+                  <div className="leadership-section-heading">
+                    <span><T>Our Leadership</T></span>
+                    <h2><T>Leadership Team</T></h2>
+                  </div>
+                  <div className="leadership-grid">
+                    {leadershipTeam.map((leader, i) => (
+                      <LeaderCard key={leader.id || i} leader={leader} index={i} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {boardMembers.length > 0 && (
+                <div className="leadership-group board-members-section">
+                  <div className="leadership-section-heading">
+                    <span><T>Governance</T></span>
+                    <h2><T>Board Members</T></h2>
+                  </div>
+                  <div className="leadership-grid">
+                    {boardMembers.map((leader, i) => (
+                      <LeaderCard key={leader.id || i} leader={leader} index={i} />
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>

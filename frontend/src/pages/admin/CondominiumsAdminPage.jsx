@@ -39,7 +39,7 @@ export default function CondominiumsAdminPage() {
       </div>
       <div style={{ position: 'relative', maxWidth: 400, marginBottom: '1.5rem' }}>
         <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-        <input className="form-control" style={{ paddingLeft: 42 }} placeholder="Search condominiums..." value={search} onChange={e => setSearch(e.target.value)} />
+        <input id="condominiums-search" name="condominiums_search" aria-label="Search" className="form-control" style={{ paddingLeft: 42 }} placeholder="Search condominiums..." value={search} onChange={e => setSearch(e.target.value)} />
       </div>
       {loading ? <div className="flex-center" style={{ padding: '4rem' }}><div className="spinner" /></div> : (
         <div className="card" style={{ overflow: 'auto' }}>
@@ -60,23 +60,23 @@ export default function CondominiumsAdminPage() {
       )}
       <SimpleModal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Condominium' : 'Add Condominium'}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div className="form-group"><label className="form-label">Registration No *</label><input className="form-control" value={form.registration_no || ''} onChange={e => setForm({...form, registration_no: e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Name *</label><input className="form-control" value={form.name || ''} onChange={e => setForm({...form, name: e.target.value})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="registration_no" htmlFor="registration_no">Registration No *</label><input id="registration_no" name="registration_no" className="form-control" value={form.registration_no || ''} onChange={e => setForm({...form, registration_no: e.target.value})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="name" htmlFor="name">Name *</label><input id="name" name="name" className="form-control" value={form.name || ''} onChange={e => setForm({...form, name: e.target.value})} /></div>
         </div>
-        <div className="form-group"><label className="form-label">Address</label><textarea className="form-control" rows={2} value={form.address || ''} onChange={e => setForm({...form, address: e.target.value})} /></div>
+        <div className="form-group"><label className="form-label" htmlFor="address" htmlFor="address">Address</label><textarea id="address" name="address" className="form-control" rows={2} value={form.address || ''} onChange={e => setForm({...form, address: e.target.value})} /></div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-          <div className="form-group"><label className="form-label">District</label><input className="form-control" value={form.district || ''} onChange={e => setForm({...form, district: e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">City</label><input className="form-control" value={form.city || ''} onChange={e => setForm({...form, city: e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Unit Count</label><input className="form-control" type="number" value={form.unit_count ?? 0} onChange={e => setForm({...form, unit_count: parseInt(e.target.value)||0})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="district" htmlFor="district">District</label><input id="district" name="district" className="form-control" value={form.district || ''} onChange={e => setForm({...form, district: e.target.value})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="city" htmlFor="city">City</label><input id="city" name="city" className="form-control" value={form.city || ''} onChange={e => setForm({...form, city: e.target.value})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="unit_count" htmlFor="unit_count">Unit Count</label><input id="unit_count" name="unit_count" className="form-control" type="number" value={form.unit_count ?? 0} onChange={e => setForm({...form, unit_count: parseInt(e.target.value)||0})} /></div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div className="form-group"><label className="form-label">Developer Name</label><input className="form-control" value={form.developer_name || ''} onChange={e => setForm({...form, developer_name: e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">MC Name</label><input className="form-control" value={form.mc_name || ''} onChange={e => setForm({...form, mc_name: e.target.value})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="developer_name" htmlFor="developer_name">Developer Name</label><input id="developer_name" name="developer_name" className="form-control" value={form.developer_name || ''} onChange={e => setForm({...form, developer_name: e.target.value})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="mc_name" htmlFor="mc_name">MC Name</label><input id="mc_name" name="mc_name" className="form-control" value={form.mc_name || ''} onChange={e => setForm({...form, mc_name: e.target.value})} /></div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-          <div className="form-group"><label className="form-label">MC Reg. No</label><input className="form-control" value={form.mc_registration_no || ''} onChange={e => setForm({...form, mc_registration_no: e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Status</label><select className="form-control" value={form.status || 'registered'} onChange={e => setForm({...form, status: e.target.value})}><option value="registered">Registered</option><option value="pending">Pending</option><option value="suspended">Suspended</option></select></div>
-          <div className="form-group"><label className="form-label">Registered At</label><input className="form-control" type="date" value={form.registered_at || ''} onChange={e => setForm({...form, registered_at: e.target.value})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="mc_registration_no" htmlFor="mc_registration_no">MC Reg. No</label><input id="mc_registration_no" name="mc_registration_no" className="form-control" value={form.mc_registration_no || ''} onChange={e => setForm({...form, mc_registration_no: e.target.value})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="status" htmlFor="status">Status</label><select id="status" name="status" className="form-control" value={form.status || 'registered'} onChange={e => setForm({...form, status: e.target.value})}><option value="registered">Registered</option><option value="pending">Pending</option><option value="suspended">Suspended</option></select></div>
+          <div className="form-group"><label className="form-label" htmlFor="registered_at" htmlFor="registered_at">Registered At</label><input id="registered_at" name="registered_at" className="form-control" type="date" value={form.registered_at || ''} onChange={e => setForm({...form, registered_at: e.target.value})} /></div>
         </div>
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
           <button className="btn btn-outline" onClick={() => setModal(false)}>{t('admin.cancel')}</button>
@@ -86,3 +86,5 @@ export default function CondominiumsAdminPage() {
     </div>
   );
 }
+
+

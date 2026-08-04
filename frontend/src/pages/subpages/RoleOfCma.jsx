@@ -26,7 +26,7 @@ const PageHeroFallback = ({ title, subtitle }) => (
         <a href="/" style={{ color: '#C9A227', textDecoration: 'none' }}>Home</a> <span>/</span> <span style={{ color: '#fff' }}><T>About Us</T></span> <span>/</span> <span><T>{title}</T></span>
       </div>
       <h1 style={{ margin: 0, fontSize: '3rem', fontWeight: 800, color: '#C9A227', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}><T>{title}</T></h1>
-      {subtitle && <p style={{ margin: '1rem 0 0', fontSize: '1.15rem', color: '#e2e8f0', maxWidth: '700px', lineHeight: 1.6 }}><T>{subtitle}</T></p>}
+      {subtitle && <p style={{ margin: '1rem 0 0', fontSize: '1.15rem', color: 'var(--mid-gray)', maxWidth: '700px', lineHeight: 1.6 }}><T>{subtitle}</T></p>}
     </motion.div>
     
     {/* Decorative background circles */}
@@ -48,7 +48,7 @@ const ROLES = [
     id: 2,
     title: 'Management Corporations',
     desc: 'To assist the units owners to form the management corporation in order to manage and administer the common elements in a proper manner.',
-    act: 'Apartment Ownership (amendment) Act No. 39 of 2003',
+    act: 'Apartment Ownership (amendment) Act No. 45 of 1982',
     icon: Users,
     color: '#8b5cf6', // Purple
   },
@@ -121,7 +121,7 @@ export default function RoleOfCma() {
   };
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh', overflow: 'hidden' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '100vh', overflow: 'hidden' }}>
       <PageHeroFallback 
         title="Role of the CMA" 
         subtitle="The Condominium Management Authority (CMA) exercises its powers and duties mandated by key legislative acts to ensure the proper administration, maintenance, and regulation of condominium properties." 
@@ -149,7 +149,7 @@ export default function RoleOfCma() {
                     borderRadius: '20px',
                     padding: '2.5rem 2rem',
                     boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
-                    border: '1px solid #f1f5f9',
+                    border: '1px solid var(--light-gray)',
                     borderTop: `4px solid ${role.color}`,
                     position: 'relative',
                     display: 'flex',
@@ -192,9 +192,9 @@ export default function RoleOfCma() {
                   <div style={{ 
                     marginTop: 'auto',
                     padding: '0.75rem 1rem', 
-                    background: '#f8fafc', 
+                    background: 'var(--off-white)', 
                     borderRadius: '10px',
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--mid-gray)',
                     display: 'flex',
                     alignItems: 'flex-start',
                     gap: '0.75rem'

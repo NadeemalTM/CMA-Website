@@ -13,7 +13,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->statefulApi();
+        $middleware->prepend(\App\Http\Middleware\NormalizeAuthorizationHeader::class);
+
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\EnsureAdmin::class,
+            'admin.permission' => \App\Http\Middleware\EnsureAdminPermission::class,
+            'super.admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
+            'audit' => \App\Http\Middleware\AuditActivity::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

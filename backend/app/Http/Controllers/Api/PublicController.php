@@ -74,7 +74,7 @@ class PublicController extends Controller
             ->where(function ($q) {
                 $q->whereNull('deadline')->orWhere('deadline', '>=', now()->toDateString());
             });
-        
+
         if ($request->search) {
             $s = $request->search;
             $query->where(function($q) use ($s) {
@@ -135,16 +135,18 @@ class PublicController extends Controller
     public function applicationTariffs()
     {
         $tariffs = ApplicationTariff::where('is_active', true)
-            ->orderBy('category')
             ->orderBy('order')
             ->orderBy('id')
             ->get()
             ->map(function($t) {
                 return [
                     'id' => $t->id,
+                    'item_no' => $t->item_no,
                     'category' => $t->category,
                     'description' => $this->loc($t, 'description'),
+                    'scale' => $t->scale,
                     'fee' => $t->fee,
+                    'fee_display' => $t->fee_display,
                     'remarks' => $t->remarks,
                 ];
             });
@@ -163,7 +165,7 @@ class PublicController extends Controller
                     'form' => $this->loc($f, 'title'),
                     'type' => $f->file_type,
                     'size' => $f->file_size,
-                    'file_path' => '/storage/' . $f->file_path
+                    'file_path' => asset('storage/' . $f->file_path)
                 ];
             });
         return response()->json(['data' => $forms]);
@@ -203,6 +205,52 @@ class PublicController extends Controller
 
         $complaint = Complaint::create($request->only('name','email','phone','subject','message'));
         return response()->json(['data' => $complaint, 'message' => 'Your message has been received.'], 201);
+    }
+
+    public function citizenComplaints(Request $request)
+    {
+        $complaints = Complaint::where('user_id', $request->user()->id)
+            ->where('status', '!=', 'removed')
+            ->orderByDesc('created_at')
+            ->get();
+        return response()->json(['data' => $complaints]);
+    }
+
+    public function submitCitizenComplaint(Request $request)
+    {
+        $v = Validator::make($request->all(), [
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+        if ($v->fails()) return response()->json(['errors' => $v->errors()], 422);
+
+        $user = $request->user();
+        $complaint = Complaint::create([
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone ?? $request->phone,
+            'subject' => $request->subject,
+            'message' => $request->message,
+            'status' => 'new',
+        ]);
+
+        return response()->json(['data' => $complaint, 'message' => 'Complaint submitted successfully.'], 201);
+    }
+
+    public function deleteCitizenComplaint(Request $request, $id)
+    {
+        $complaint = Complaint::where('user_id', $request->user()->id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        if ($complaint->status !== 'new') {
+            return response()->json(['message' => 'You can only remove complaints that are pending review.'], 403);
+        }
+
+        $complaint->update(['status' => 'removed']);
+
+        return response()->json(['message' => 'Complaint removed successfully.']);
     }
 
     public function submitFeedback(Request $request)
@@ -275,9 +323,44 @@ class PublicController extends Controller
 
     public function upload(Request $request)
     {
-        $request->validate(['file' => 'required|file|max:10240']);
-        $path = $request->file('file')->store('uploads', 'public');
-        return response()->json(['path' => $path, 'url' => '/storage/' . $path]);
+        if ($request->is('api/v1/admin/upload')) {
+            $request->validate([
+                'module' => 'required|string|in:' . implode(',', array_keys(config('admin_permissions', []))),
+            ]);
+
+            if (! $request->user()->hasAdminPermission($request->input('module'))) {
+                return response()->json([
+                    'message' => 'You do not have permission to upload files for this admin module.',
+                    'code' => 'permission_denied',
+                ], 403);
+            }
+
+            if ($request->input('module') === 'bookings') {
+                $request->validate([
+                    'file' => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
+                ]);
+            }
+        }
+
+        if (!$request->hasFile('file')) {
+            return response()->json(['message' => 'File is required'], 422);
+        }
+        $file = $request->file('file');
+        if ($file->getSize() > 30720 * 1024) {
+            return response()->json(['message' => 'File size exceeds 30MB'], 422);
+        }
+        $extension = $file->getClientOriginalExtension() ?: 'bin';
+        $filename = \Illuminate\Support\Str::random(40) . '.' . $extension;
+
+        $destinationPath = storage_path('app/public/uploads');
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+
+        $file->move($destinationPath, $filename);
+        $path = 'uploads/' . $filename;
+
+        return response()->json(['path' => $path, 'url' => asset('storage/' . $path)]);
     }
 
     // ── Localization Helpers ─────────────────────────────────────────────────
@@ -301,7 +384,7 @@ class PublicController extends Controller
             'description' => $this->loc($s, 'description'),
             'button_text' => $this->loc($s, 'button_text'),
             'button_link' => $s->button_link,
-            'image' => $s->image ? '/storage/' . $s->image : null,
+            'image' => $s->image ? asset('storage/' . $s->image) : null,
             'order' => $s->order,
         ];
     }
@@ -310,10 +393,11 @@ class PublicController extends Controller
     {
         return [
             'id' => $l->id,
-            'name' => $l->name,
+            'section_type' => $l->section_type,
+            'name' => $this->loc($l, 'name'),
             'position' => $this->loc($l, 'position'),
             'bio' => $this->loc($l, 'bio'),
-            'photo' => $l->photo ? '/storage/' . $l->photo : null,
+            'photo' => $l->photo ? asset('storage/' . $l->photo) : null,
             'email' => $l->email,
             'phone' => $l->phone,
             'order' => $l->order,
@@ -351,7 +435,7 @@ class PublicController extends Controller
             'excerpt' => $this->loc($n, 'excerpt'),
             'slug' => $n->slug,
             'category' => $n->category,
-            'image' => $n->image ? '/storage/' . $n->image : null,
+            'image' => $n->image ? asset('storage/' . $n->image) : null,
             'published_at' => $n->published_at?->toDateString(),
         ];
         if ($full) $data['body'] = $this->loc($n, 'body');
@@ -378,7 +462,7 @@ class PublicController extends Controller
             'category' => $d->category,
             'language' => $d->language,
             'year' => $d->year,
-            'file_url' => '/storage/' . $d->file_path,
+            'file_url' => asset('storage/' . $d->file_path),
         ];
     }
 
@@ -388,7 +472,7 @@ class PublicController extends Controller
             'id' => $p->id,
             'title' => $this->loc($p, 'title'),
             'description' => $this->loc($p, 'description'),
-            'image' => $p->image ? '/storage/' . $p->image : null,
+            'image' => $p->image ? asset('storage/' . $p->image) : null,
             'status' => $p->status,
             'start_date' => $p->start_date?->toDateString(),
             'end_date' => $p->end_date?->toDateString(),

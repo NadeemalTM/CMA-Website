@@ -66,7 +66,7 @@ export default function RenovationPage() {
   };
 
   return (
-    <div style={{ background: '#fcfbf9', minHeight: '80vh', padding: '3rem 1rem' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '80vh', padding: '3rem 1rem' }}>
       <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
         
         {/* Breadcrumb */}
@@ -82,7 +82,7 @@ export default function RenovationPage() {
           <div
             style={{
               background: '#fff',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--mid-gray)',
               borderRadius: '16px',
               padding: '3rem 2rem',
               textAlign: 'center',
@@ -113,7 +113,7 @@ export default function RenovationPage() {
             
             <div
               style={{
-                background: '#f8fafc',
+                background: 'var(--off-white)',
                 border: '1.5px dashed var(--gold)',
                 borderRadius: '10px',
                 padding: '1rem',
@@ -155,7 +155,7 @@ export default function RenovationPage() {
           <div
             style={{
               background: '#fff',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--mid-gray)',
               borderRadius: '16px',
               padding: '2.5rem 2rem',
               boxShadow: 'var(--shadow-md)',

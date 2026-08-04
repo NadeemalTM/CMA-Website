@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { User, Mail, Lock, Phone, CreditCard, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Lock, Phone, CreditCard, Loader2, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { citizenLogin, citizenRegister } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -25,6 +25,7 @@ export default function CitizenAuthPage() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [nic, setNic] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (isCitizenLoggedIn) {
@@ -256,6 +257,7 @@ export default function CitizenAuthPage() {
           <form onSubmit={handleLoginSubmit}>
             <div style={{ marginBottom: '1.15rem' }}>
               <label
+                htmlFor="login-email"
                 style={{
                   display: 'block',
                   fontSize: '0.82rem',
@@ -264,7 +266,7 @@ export default function CitizenAuthPage() {
                   marginBottom: '0.375rem',
                 }}
               >
-                Email Address
+                Email Address <span style={{ color: 'var(--crimson)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <Mail
@@ -278,6 +280,9 @@ export default function CitizenAuthPage() {
                   }}
                 />
                 <input
+                  id="login-email"
+                  name="login-email"
+                  autoComplete="username"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -301,6 +306,7 @@ export default function CitizenAuthPage() {
 
             <div style={{ marginBottom: '1.75rem' }}>
               <label
+                htmlFor="login-password"
                 style={{
                   display: 'block',
                   fontSize: '0.82rem',
@@ -309,7 +315,7 @@ export default function CitizenAuthPage() {
                   marginBottom: '0.375rem',
                 }}
               >
-                Password
+                Password <span style={{ color: 'var(--crimson)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <Lock
@@ -323,14 +329,17 @@ export default function CitizenAuthPage() {
                   }}
                 />
                 <input
-                  type="password"
+                  id="login-password"
+                  name="login-password"
+                  autoComplete="current-password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
                   style={{
                     width: '100%',
-                    padding: '0.65rem 0.75rem 0.65rem 2.5rem',
+                    padding: '0.65rem 2.5rem 0.65rem 2.5rem',
                     border: '1.5px solid #e5e7eb',
                     borderRadius: '8px',
                     fontSize: '0.9rem',
@@ -341,6 +350,26 @@ export default function CitizenAuthPage() {
                   onFocus={(e) => (e.target.style.borderColor = 'var(--crimson)')}
                   onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#9ca3af',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
@@ -375,6 +404,7 @@ export default function CitizenAuthPage() {
           <form onSubmit={handleRegisterSubmit}>
             <div style={{ marginBottom: '1rem' }}>
               <label
+                htmlFor="reg-name"
                 style={{
                   display: 'block',
                   fontSize: '0.82rem',
@@ -383,7 +413,7 @@ export default function CitizenAuthPage() {
                   marginBottom: '0.375rem',
                 }}
               >
-                Full Name
+                Full Name <span style={{ color: 'var(--crimson)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <User
@@ -397,6 +427,9 @@ export default function CitizenAuthPage() {
                   }}
                 />
                 <input
+                  id="reg-name"
+                  name="reg-name"
+                  autoComplete="name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -420,6 +453,7 @@ export default function CitizenAuthPage() {
 
             <div style={{ marginBottom: '1rem' }}>
               <label
+                htmlFor="reg-email"
                 style={{
                   display: 'block',
                   fontSize: '0.82rem',
@@ -428,7 +462,7 @@ export default function CitizenAuthPage() {
                   marginBottom: '0.375rem',
                 }}
               >
-                Email Address
+                Email Address <span style={{ color: 'var(--crimson)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <Mail
@@ -442,6 +476,9 @@ export default function CitizenAuthPage() {
                   }}
                 />
                 <input
+                  id="reg-email"
+                  name="reg-email"
+                  autoComplete="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -465,6 +502,7 @@ export default function CitizenAuthPage() {
 
             <div style={{ marginBottom: '1rem' }}>
               <label
+                htmlFor="reg-nic"
                 style={{
                   display: 'block',
                   fontSize: '0.82rem',
@@ -473,7 +511,7 @@ export default function CitizenAuthPage() {
                   marginBottom: '0.375rem',
                 }}
               >
-                NIC Number (National Identity Card)
+                NIC Number (National Identity Card) <span style={{ color: 'var(--crimson)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <CreditCard
@@ -487,6 +525,9 @@ export default function CitizenAuthPage() {
                   }}
                 />
                 <input
+                  id="reg-nic"
+                  name="reg-nic"
+                  autoComplete="off"
                   type="text"
                   value={nic}
                   onChange={(e) => setNic(e.target.value)}
@@ -510,6 +551,7 @@ export default function CitizenAuthPage() {
 
             <div style={{ marginBottom: '1rem' }}>
               <label
+                htmlFor="reg-phone"
                 style={{
                   display: 'block',
                   fontSize: '0.82rem',
@@ -518,7 +560,7 @@ export default function CitizenAuthPage() {
                   marginBottom: '0.375rem',
                 }}
               >
-                Phone Number
+                Phone Number <span style={{ color: 'var(--crimson)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <Phone
@@ -532,6 +574,9 @@ export default function CitizenAuthPage() {
                   }}
                 />
                 <input
+                  id="reg-phone"
+                  name="reg-phone"
+                  autoComplete="tel"
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -555,6 +600,7 @@ export default function CitizenAuthPage() {
 
             <div style={{ marginBottom: '1.5rem' }}>
               <label
+                htmlFor="reg-password"
                 style={{
                   display: 'block',
                   fontSize: '0.82rem',
@@ -563,7 +609,7 @@ export default function CitizenAuthPage() {
                   marginBottom: '0.375rem',
                 }}
               >
-                Password
+                Password <span style={{ color: 'var(--crimson)' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <Lock
@@ -577,14 +623,17 @@ export default function CitizenAuthPage() {
                   }}
                 />
                 <input
-                  type="password"
+                  id="reg-password"
+                  name="reg-password"
+                  autoComplete="new-password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="Min. 8 characters"
                   style={{
                     width: '100%',
-                    padding: '0.65rem 0.75rem 0.65rem 2.5rem',
+                    padding: '0.65rem 2.5rem 0.65rem 2.5rem',
                     border: '1.5px solid #e5e7eb',
                     borderRadius: '8px',
                     fontSize: '0.9rem',
@@ -595,6 +644,26 @@ export default function CitizenAuthPage() {
                   onFocus={(e) => (e.target.style.borderColor = 'var(--crimson)')}
                   onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#9ca3af',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 

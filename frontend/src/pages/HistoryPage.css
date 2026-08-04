@@ -21,7 +21,7 @@
 
 .history-intro h2 {
   font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 2.8rem;
+  font-size: clamp(1.6rem, 5vw, 2.8rem);
   color: var(--crimson-dark);
   font-weight: 700;
   margin-bottom: 1.25rem;
@@ -29,7 +29,7 @@
 }
 
 .history-intro p {
-  font-size: 1.15rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
   color: var(--text-muted);
   line-height: 1.8;
   font-weight: 400;
@@ -175,7 +175,7 @@
 }
 
 .card-text {
-  font-size: 1.05rem;
+  font-size: clamp(0.92rem, 2vw, 1.05rem);
   line-height: 1.9;
   color: var(--text-body);
   margin-bottom: 2.5rem;
@@ -391,17 +391,7 @@
   }
 
   .timeline-year-node-absolute {
-    position: relative;
-    top: 0;
-    left: 0;
-    transform: none;
-    margin-bottom: 2rem;
-    width: 80px;
-    height: 80px;
-  }
-  
-  .timeline-year-node-absolute:hover {
-    transform: scale(1.05);
+    display: none !important;
   }
 
   .timeline-row {
@@ -430,17 +420,16 @@
 }
 
 @media (max-width: 600px) {
-  .history-intro h2 {
-    font-size: 1.8rem;
-  }
+  .history-intro { margin: 2rem auto 1.5rem; padding: 0 16px; }
 
-  .history-intro { margin: 2.5rem auto 2rem; }
-
-  .timeline-row { margin-bottom: 2.5rem; }
+  .timeline-row { margin-bottom: 2rem; }
+  .timeline-container { padding: 0 16px; margin: 3rem auto; }
 
   .card-year-header {
-    font-size: 2.2rem;
+    font-size: clamp(1.8rem, 8vw, 2.5rem);
   }
+
+  .card-text { font-size: 0.92rem; margin-bottom: 1.5rem; }
 
   .card-image-blob {
     height: 200px;
@@ -457,4 +446,9 @@
   .stacked-fg-img {
     height: 160px;
   }
+}
+
+@media (max-width: 400px) {
+  .card-year-header { font-size: 1.8rem; }
+  .card-image-blob { height: 170px; }
 }

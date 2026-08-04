@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import T from '../../components/ui/T';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ClipboardList, CheckCircle, ChevronRight, FileText, FileCheck, ShieldCheck, Download, AlertTriangle } from 'lucide-react';
+import { ClipboardList, CheckCircle, ChevronRight, FileText, FileCheck, ShieldCheck, ArrowRight, AlertTriangle } from 'lucide-react';
 import { getDocuments } from '../../services/api';
 
 /* ─── Page Hero ─────────────────────────────────────────────────────── */
@@ -37,7 +38,7 @@ const PageHero = ({ title, label }) => (
         borderRadius:'999px', padding:'0.3rem 1rem', marginBottom:'1rem' }}>
         <ClipboardList size={13} color="#C9A227" />
         <span style={{ fontSize:'0.72rem', fontWeight:700, letterSpacing:'1.5px',
-          textTransform:'uppercase', color:'#C9A227' }}>Application Procedure</span>
+          textTransform:'uppercase', color:'#C9A227' }}><T>Application Procedure</T></span>
       </div>
 
       <motion.h1
@@ -56,7 +57,7 @@ const PageHero = ({ title, label }) => (
 const INSTRUCTIONS = [
   "Applicant is required to familiarize with the provisions in the Apartment Ownership Law No 11 of 1973, Apartment Ownership (Amendment) Act 45 of 1982, Apartment Ownership (Special Provisions) Act No 11 of 1999 and Apartment Ownership (Amendment) Act 39 of 2003. In order to Familiarize with the arrangement to be made to control, manage, maintain and administer the common elements it is also instructed to study the Common Amenities Board (Amendment) Act no 24 of 2003.",
   "Application should be signed by the Owner / Owners of the premises or the Applicant who is authorized to sign on behalf of the owner.",
-  "The certificates will be issued in the name of the Applicant.",
+  "The certificates will be issued in the owner of the  land.",
   "Please quote previous reference if the certificate is required for Amendment, Additions / Alterations and Re-division of / amalgamation of Plan.",
   {
     title: "Management proposal should be based on the provisions of the Apartment Ownership Law No 11 of 1973 read its with amendments and should include among others the following:",
@@ -97,12 +98,18 @@ const CERTIFIED_LETTERS = [
 ];
 
 const WARRANTIES = [
-  "Generator",
-  "Lift",
-  "Water proofing System",
-  "Main pump",
-  "Spare pumps",
-  "Lighting Protectors"
+  { name: "Generator", duration: "1 year" },
+  { name: "Lift", duration: "1 year" },
+  { name: "Water proofing System", duration: "10 years" },
+  { name: "Main pump", duration: "1 year" },
+  { name: "Spare pumps", duration: "1 year" },
+  { name: "Lightning Prtection System", duration: "5 years" },
+  { name: "Gas system", duration: "1 year" },
+  { name: "Central A/C system", duration: "1 year" },
+  { name: "Access control system / CCTV", duration: "1 year" },
+  { name: "Machanical car parking system", duration: "1 year" },
+  { name: "Fire Maintanance", duration: "1 year" },
+  { name: "Treatment Plant", duration: "1 year" }
 ];
 
 export default function ApplicationGuide() {
@@ -114,13 +121,50 @@ export default function ApplicationGuide() {
     document.title = 'Application Guide & Checklists – Condominium Management Authority';
     
     getDocuments({ type: 'form' })
-      .then(res => setForms(res.data.data || []))
+      .then(res => {
+        let fetchedForms = res.data.data || [];
+        
+        if (!fetchedForms.find(f => f.title === 'Preliminary Planning Clearance - PPC' || f.title_en === 'Preliminary Planning Clearance - PPC')) {
+          fetchedForms.push({
+            id: 'ppc-form',
+            title: 'Preliminary Planning Clearance - PPC',
+            file_url: '#'
+          });
+        }
+
+        const orderMap = {
+          'Preliminary Planning Clearance - PPC': 1,
+          'Provisional Certificate Application': 2,
+          'Semi Certificate Application': 3,
+          'Final Certificate Application': 4,
+        };
+
+        fetchedForms.sort((a, b) => {
+          const orderA = orderMap[a.title] || 99;
+          const orderB = orderMap[b.title] || 99;
+          return orderA - orderB;
+        });
+
+        setForms(fetchedForms);
+      })
       .catch(err => console.error("Failed to load forms", err))
       .finally(() => setLoadingForms(false));
   }, []);
 
   const containerAnim = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
   const itemAnim = { hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } };
+
+  const certificateLink = (form) => {
+    const title = form.title || form.title_en || '';
+    const certificateIds = {
+      'Preliminary Planning Clearance - PPC': 1,
+      'Provisional Certificate Application': 2,
+      'Semi Certificate Application': 3,
+      'Final Certificate Application': 4,
+    };
+    const id = certificateIds[title];
+    return id ? `/services/certificate?id=${id}` : '/services/certificate';
+  };
 
   return (
     <div style={{ background: '#f7f6f4', minHeight: '80vh' }}>
@@ -139,9 +183,9 @@ export default function ApplicationGuide() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <FileText size={22} color="#C9A227" />
               </div>
-              <h2 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 800, color: '#1f2937' }}>
+              <h2 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 800, color: '#1f2937' }}><T>
                 General Instructions
-              </h2>
+              </T></h2>
             </div>
             
             <div style={{ background: '#fff', borderRadius: '16px', padding: '2.5rem', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', border: '1px solid #e5e7eb' }}>
@@ -150,7 +194,7 @@ export default function ApplicationGuide() {
                   const isObj = typeof instruction === 'object';
                   return (
                     <motion.div key={index} variants={itemAnim} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                      <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', color: '#64748b', fontWeight: 800, fontSize: '0.85rem', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                      <div style={{ background: 'var(--off-white)', border: '1px solid var(--mid-gray)', color: '#64748b', fontWeight: 800, fontSize: '0.85rem', width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
                         {String(index + 1).padStart(2, '0')}
                       </div>
                       <div style={{ color: '#334155', fontSize: '0.95rem', lineHeight: 1.6 }}>
@@ -184,15 +228,15 @@ export default function ApplicationGuide() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <FileCheck size={22} color="#2563eb" />
               </div>
-              <h2 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 800, color: '#1f2937', textTransform: 'uppercase' }}>
+              <h2 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 800, color: '#1f2937', textTransform: 'uppercase' }}><T>
                 Certified Letters From
-              </h2>
+              </T></h2>
             </div>
             
             <div style={{ background: '#fff', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', border: '1px solid #e5e7eb' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
                 {CERTIFIED_LETTERS.map((letter, index) => (
-                  <motion.div key={index} variants={itemAnim} style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '12px', border: '1px solid #edf2f7', display: 'flex', gap: '1rem', alignItems: 'flex-start', transition: 'background 0.2s' }} whileHover={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }}>
+                  <motion.div key={index} variants={itemAnim} style={{ background: 'var(--off-white)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--mid-gray)', display: 'flex', gap: '1rem', alignItems: 'flex-start', transition: 'background 0.2s' }} whileHover={{ backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }}>
                     <div style={{ color: '#2563eb', fontWeight: 800, fontSize: '1.1rem', marginTop: '-2px' }}>
                       {String.fromCharCode(65 + index)}.
                     </div>
@@ -212,47 +256,54 @@ export default function ApplicationGuide() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <ShieldCheck size={22} color="#16a34a" />
               </div>
-              <h2 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 800, color: '#1f2937', textTransform: 'uppercase' }}>
+              <h2 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 800, color: '#1f2937', textTransform: 'uppercase' }}><T>
                 Warranties and Guaranties
-              </h2>
+              </T></h2>
             </div>
             
             <div style={{ background: '#fff', borderRadius: '16px', padding: '2rem', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', border: '1px solid #e5e7eb' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
                 {WARRANTIES.map((warranty, index) => (
-                  <motion.div key={index} variants={itemAnim} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#f0fdf4', padding: '1rem 1.25rem', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
-                    <CheckCircle size={18} color="#16a34a" style={{ flexShrink: 0 }} />
-                    <span style={{ color: '#166534', fontWeight: 600, fontSize: '0.95rem' }}>{warranty}</span>
+                  <motion.div key={index} variants={itemAnim} style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', background: '#f0fdf4', padding: '1rem 1.25rem', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <CheckCircle size={18} color="#16a34a" style={{ flexShrink: 0 }} />
+                      <span style={{ color: '#166534', fontWeight: 700, fontSize: '0.95rem' }}>{warranty.name}</span>
+                    </div>
+                    <div style={{ color: '#15803d', fontSize: '0.85rem', paddingLeft: '1.875rem' }}>
+                      Duration: <strong>{warranty.duration}</strong>
+                    </div>
                   </motion.div>
                 ))}
               </div>
             </div>
           </motion.div>
 
-          {/* ── Downloads & Warning ─────────────────────────────────── */}
+          {/* ── Certificate Services & Warning ──────────────────────── */}
           <motion.div variants={itemAnim} initial="hidden" whileInView="show" viewport={{ once: true }} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
             
-            {/* Download Box */}
+            {/* Certificate Services Box */}
             <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
               <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(201,162,39,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
-                <Download size={24} color="#C9A227" />
+                <FileCheck size={24} color="#C9A227" />
               </div>
-              <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem', fontWeight: 800, color: '#1f2937' }}>Official Forms & Fee Schedules</h3>
-              <p style={{ margin: '0 0 1.5rem', fontSize: '0.9rem', color: '#475569', lineHeight: 1.5 }}>
-                Download the required official documentation forms and schedules here.
-              </p>
+              <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem', fontWeight: 800, color: '#1f2937' }}><T>Official Certificate Services</T></h3>
+              <p style={{ margin: '0 0 1.5rem', fontSize: '0.9rem', color: '#475569', lineHeight: 1.5 }}><T>
+                Select the required certificate service and submit your details online.
+              </T></p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
                 {loadingForms ? (
-                  <div style={{ padding: '1rem', color: '#64748b', fontSize: '0.9rem' }}>Loading forms...</div>
+                  <div style={{ padding: '1rem', color: '#64748b', fontSize: '0.9rem' }}>Loading services...</div>
                 ) : forms.length > 0 ? (
                   forms.map((form) => (
-                    <a key={form.id} href={form.file_url} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', background: '#f8fafc', borderRadius: '8px', color: '#2563eb', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, border: '1px solid #e2e8f0', transition: 'background 0.2s' }}>
+                    <Link key={form.id} to={certificateLink(form)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', padding: '0.75rem 1rem', background: 'var(--off-white)', borderRadius: '8px', color: '#1f2937', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, border: '1px solid var(--mid-gray)', transition: 'background 0.2s' }}>
                       <span>{form.title}</span>
-                      <Download size={14} />
-                    </a>
+                      <span style={{ display:'inline-flex', alignItems:'center', gap:'0.3rem', flexShrink:0, background:'#8B0000', color:'#fff', borderRadius:'999px', padding:'0.38rem 0.7rem', fontSize:'0.75rem' }}>
+                        Get Now <ArrowRight size={13} />
+                      </span>
+                    </Link>
                   ))
                 ) : (
-                  <div style={{ padding: '1rem', color: '#64748b', fontSize: '0.9rem' }}>No forms available at the moment.</div>
+                  <div style={{ padding: '1rem', color: '#64748b', fontSize: '0.9rem' }}>No certificate services are available at the moment.</div>
                 )}
               </div>
             </div>
@@ -262,10 +313,10 @@ export default function ApplicationGuide() {
               <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
                 <AlertTriangle size={24} color="#dc2626" />
               </div>
-              <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem', fontWeight: 800, color: '#991b1b' }}>Important Disclaimer</h3>
-              <p style={{ margin: '0', fontSize: '0.9rem', color: '#7f1d1d', lineHeight: 1.6 }}>
+              <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.15rem', fontWeight: 800, color: '#991b1b' }}><T>Important Disclaimer</T></h3>
+              <p style={{ margin: '0', fontSize: '0.9rem', color: '#7f1d1d', lineHeight: 1.6 }}><T>
                 If any information provided by the Owner, Applicant, or Licensed Surveyor is found to be false or incorrect by the Condominium Management Authority, the application will be rejected. Additionally, any certificates issued with regard to the Condominium Plan, Provisional Condominium Plan, or Semi Condominium Plan will be immediately revoked.
-              </p>
+              </T></p>
             </div>
 
           </motion.div>

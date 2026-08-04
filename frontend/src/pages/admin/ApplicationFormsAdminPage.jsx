@@ -46,7 +46,7 @@ export default function ApplicationFormsAdminPage() {
 
     setUploading(true);
     try {
-      const res = await uploadFile(file);
+      const res = await uploadFile(file, 'application_forms');
       setForm(f => ({ ...f, file_path: res.data.path, file_size: sizeStr }));
     } catch (e) {
       alert(e.response?.data?.message || 'File upload failed');
@@ -81,26 +81,26 @@ export default function ApplicationFormsAdminPage() {
       )}
 
       <SimpleModal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Form' : 'Add Form'}>
-        <div className="form-group"><label className="form-label">Title (English) *</label><input className="form-control" value={form.title_en || ''} onChange={e => setForm({...form, title_en: e.target.value})} /></div>
-        <div className="form-group"><label className="form-label">Title (Sinhala)</label><input className="form-control" value={form.title_si || ''} onChange={e => setForm({...form, title_si: e.target.value})} /></div>
-        <div className="form-group"><label className="form-label">Title (Tamil)</label><input className="form-control" value={form.title_ta || ''} onChange={e => setForm({...form, title_ta: e.target.value})} /></div>
+        <div className="form-group"><label htmlFor="title_en" className="form-label" htmlFor="title_en" htmlFor="title_en">Title (English) *</label><input id="title_en" name="title_en" className="form-control" value={form.title_en || ''} onChange={e => setForm({...form, title_en: e.target.value})} /></div>
+        <div className="form-group"><label htmlFor="title_si" className="form-label" htmlFor="title_si" htmlFor="title_si">Title (Sinhala)</label><input id="title_si" name="title_si" className="form-control" value={form.title_si || ''} onChange={e => setForm({...form, title_si: e.target.value})} /></div>
+        <div className="form-group"><label htmlFor="title_ta" className="form-label" htmlFor="title_ta" htmlFor="title_ta">Title (Tamil)</label><input id="title_ta" name="title_ta" className="form-control" value={form.title_ta || ''} onChange={e => setForm({...form, title_ta: e.target.value})} /></div>
         
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-          <div className="form-group"><label className="form-label">File Type</label><input className="form-control" value={form.file_type || ''} onChange={e => setForm({...form, file_type: e.target.value})} placeholder="e.g. PDF" /></div>
-          <div className="form-group"><label className="form-label">File Size</label><input className="form-control" value={form.file_size || ''} onChange={e => setForm({...form, file_size: e.target.value})} placeholder="e.g. 1.2 MB" /></div>
-          <div className="form-group"><label className="form-label">Display Order</label><input type="number" className="form-control" value={form.order || 0} onChange={e => setForm({...form, order: parseInt(e.target.value)||0})} /></div>
+          <div className="form-group"><label htmlFor="file_type" className="form-label" htmlFor="file_type" htmlFor="file_type">File Type</label><input id="file_type" name="file_type" className="form-control" value={form.file_type || ''} onChange={e => setForm({...form, file_type: e.target.value})} placeholder="e.g. PDF" /></div>
+          <div className="form-group"><label htmlFor="file_size" className="form-label" htmlFor="file_size" htmlFor="file_size">File Size</label><input id="file_size" name="file_size" className="form-control" value={form.file_size || ''} onChange={e => setForm({...form, file_size: e.target.value})} placeholder="e.g. 1.2 MB" /></div>
+          <div className="form-group"><label htmlFor="order" className="form-label" htmlFor="order" htmlFor="order">Display Order</label><input id="order" name="order" type="number" className="form-control" value={form.order || 0} onChange={e => setForm({...form, order: parseInt(e.target.value)||0})} /></div>
         </div>
 
         <div className="form-group">
           <label className="form-label" style={{ fontWeight: 600, color: 'var(--dark-gray)', display: 'block', marginBottom: '0.5rem' }}>Upload Form Document *</label>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <label style={{
+            <label htmlFor="upload_form_doc" style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
               padding: '0.6rem 1.2rem', background: 'var(--crimson)', color: '#fff',
               borderRadius: 8, fontWeight: 600, cursor: uploading ? 'not-allowed' : 'pointer',
               fontSize: '0.9rem', transition: 'all 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }}>
-              <input type="file" style={{ display: 'none' }} onChange={handleUpload} disabled={uploading} />
+              <input id="upload_form_doc" name="upload_form_doc" type="file" style={{ display: 'none' }} onChange={handleUpload} disabled={uploading} />
               {uploading ? <div className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /> : <FileText size={18} />}
               {uploading ? 'Uploading...' : 'Choose File'}
             </label>
@@ -109,8 +109,8 @@ export default function ApplicationFormsAdminPage() {
         </div>
 
         <div className="form-group" style={{ marginTop: '1.5rem' }}>
-          <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-            <input type="checkbox" checked={form.is_active} onChange={e => setForm({...form, is_active: e.target.checked})} />
+          <label htmlFor="is_active" className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+            <input id="is_active" name="is_active" type="checkbox" checked={form.is_active} onChange={e => setForm({...form, is_active: e.target.checked})} />
             <span style={{ fontWeight: 600 }}>Active (Visible to public)</span>
           </label>
         </div>
@@ -125,3 +125,5 @@ export default function ApplicationFormsAdminPage() {
     </div>
   );
 }
+
+

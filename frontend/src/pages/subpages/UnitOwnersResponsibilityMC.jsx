@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import T from '../../components/ui/T';
 import { useTranslation } from 'react-i18next';
 import { 
   Building, 
@@ -113,7 +114,7 @@ export default function UnitOwnersResponsibilityMC() {
                 whileHover={{ y: -6 }}
                 style={{
                   background: '#fff',
-                  border: '1px solid #edf2f7',
+                  border: '1px solid var(--mid-gray)',
                   borderRadius: '24px',
                   padding: '1.5rem',
                   boxShadow: '0 12px 30px rgba(0,0,0,0.02)',
@@ -172,7 +173,7 @@ export default function UnitOwnersResponsibilityMC() {
             <div style={{ flex: '2 2 600px', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
               {categories.map((category, idx) => (
                 <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  <div style={{ borderBottom: '2px solid #edf2f7', paddingBottom: '0.5rem' }}>
+                  <div style={{ borderBottom: '2px solid var(--mid-gray)', paddingBottom: '0.5rem' }}>
                     <h3 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 800, color: category.color, fontFamily: "'Outfit', sans-serif" }}>
                       {category.title}
                     </h3>
@@ -194,7 +195,7 @@ export default function UnitOwnersResponsibilityMC() {
                         whileHover={{ x: 6, boxShadow: '0 8px 20px rgba(0,0,0,0.02)' }}
                         style={{
                           background: '#fff',
-                          border: '1px solid #edf2f7',
+                          border: '1px solid var(--mid-gray)',
                           borderRadius: '16px',
                           padding: '1.5rem 1.75rem',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.005)',

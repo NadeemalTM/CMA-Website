@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from 'lucide-react';
 import { submitComplaint } from '../services/api';
+import PageHero from '../components/ui/PageHero';
 
 export default function ContactPage() {
   const { t } = useTranslation();
@@ -28,7 +29,7 @@ export default function ContactPage() {
   };
 
   const contactInfo = [
-    { icon: MapPin, title: t('contact.address_title', 'Address'), text: t('contact.address', '1st Floor, National Housing Department Buiding, Sir Chittampalam A Gardiner Mawatha, Colombo 02.'), color: 'var(--crimson)' },
+    { icon: MapPin, title: t('contact.address_title', 'Address'), text: t('contact.address', '1st Floor, National Housing Department Building, Sir Chittampalam A Gardiner Mawatha, Colombo 02.'), color: 'var(--crimson)' },
     { icon: Phone, title: 'Phone', text: '+94-11-2447432, +94-11-2447429', href: 'tel:+94112447432', color: 'var(--success)' },
     { icon: Mail, title: 'Email', text: 'info@condominium.lk', href: 'mailto:info@condominium.lk', color: 'var(--gold)' },
     { icon: Clock, title: 'Office', text: 'Office hours by appointment', color: 'var(--info)' },
@@ -36,13 +37,13 @@ export default function ContactPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <div className="container">
-          <div className="breadcrumb"><Link to="/">Home</Link> <span>/</span> <span>{t('contact.title')}</span></div>
-          <h1>{t('contact.title')}</h1>
-          <p>{t('contact.label')}</p>
-        </div>
-      </div>
+      <PageHero
+        title={t('contact.title')}
+        subtitle={t('contact.label')}
+        breadcrumbs={[
+          { label: t('contact.title') }
+        ]}
+      />
       <section className="section">
         <div className="container">
           <div className="grid-2" style={{ gap: 'clamp(1.5rem, 4vw, 3rem)' }}>

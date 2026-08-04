@@ -62,7 +62,7 @@ export default function PropertyServicePage() {
   };
 
   return (
-    <div style={{ background: '#fcfbf9', minHeight: '80vh', padding: '3rem 1rem' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '80vh', padding: '3rem 1rem' }}>
       <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
         
         {/* Breadcrumb */}
@@ -78,7 +78,7 @@ export default function PropertyServicePage() {
           <div
             style={{
               background: '#fff',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--mid-gray)',
               borderRadius: '16px',
               padding: '3rem 2rem',
               textAlign: 'center',
@@ -109,7 +109,7 @@ export default function PropertyServicePage() {
             
             <div
               style={{
-                background: '#f8fafc',
+                background: 'var(--off-white)',
                 border: '1.5px dashed var(--gold)',
                 borderRadius: '10px',
                 padding: '1rem',
@@ -151,7 +151,7 @@ export default function PropertyServicePage() {
           <div
             style={{
               background: '#fff',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--mid-gray)',
               borderRadius: '16px',
               padding: '2.5rem 2rem',
               boxShadow: 'var(--shadow-md)',
@@ -332,8 +332,8 @@ export default function PropertyServicePage() {
               {/* Applicant Info Banner */}
               <div
                 style={{
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
+                  background: 'var(--off-white)',
+                  border: '1px solid var(--mid-gray)',
                   borderRadius: '10px',
                   padding: '1rem',
                   marginBottom: '1.5rem',

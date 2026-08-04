@@ -78,15 +78,15 @@ export default function AnnouncementsAdminPage() {
           </table>
         </div>
       )}
-      <SimpleModal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Announcement' : 'Add Announcement'}>
-        <div className="form-group"><label className="form-label">Text (English) *</label><textarea className="form-control" rows={3} value={form.text_en || ''} onChange={e => setForm({...form, text_en: e.target.value})} /></div>
-        <div className="form-group"><label className="form-label">Text (Sinhala)</label><textarea className="form-control" rows={3} value={form.text_si || ''} onChange={e => setForm({...form, text_si: e.target.value})} /></div>
-        <div className="form-group"><label className="form-label">Text (Tamil)</label><textarea className="form-control" rows={3} value={form.text_ta || ''} onChange={e => setForm({...form, text_ta: e.target.value})} /></div>
+      <SimpleModal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Notice' : 'Add Notice'}>
+        <div className="form-group"><label className="form-label" htmlFor="text_en" htmlFor="text_en">Text (English) *</label><textarea id="text_en" name="text_en" className="form-control" rows={3} value={form.text_en || ''} onChange={e => setForm({...form, text_en: e.target.value})} /></div>
+        <div className="form-group"><label className="form-label" htmlFor="text_si" htmlFor="text_si">Text (Sinhala)</label><textarea id="text_si" name="text_si" className="form-control" rows={3} value={form.text_si || ''} onChange={e => setForm({...form, text_si: e.target.value})} /></div>
+        <div className="form-group"><label className="form-label" htmlFor="text_ta" htmlFor="text_ta">Text (Tamil)</label><textarea id="text_ta" name="text_ta" className="form-control" rows={3} value={form.text_ta || ''} onChange={e => setForm({...form, text_ta: e.target.value})} /></div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div className="form-group"><label className="form-label">Link</label><input className="form-control" value={form.link || ''} onChange={e => setForm({...form, link: e.target.value})} /></div>
-          <div className="form-group"><label className="form-label">Order</label><input className="form-control" type="number" value={form.order ?? 1} onChange={e => setForm({...form, order: parseInt(e.target.value) || 1})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="link" htmlFor="link">Link</label><input id="link" name="link" className="form-control" value={form.link || ''} onChange={e => setForm({...form, link: e.target.value})} /></div>
+          <div className="form-group"><label className="form-label" htmlFor="order" htmlFor="order">Order</label><input id="order" name="order" className="form-control" type="number" value={form.order ?? 1} onChange={e => setForm({...form, order: parseInt(e.target.value) || 1})} /></div>
         </div>
-        <div className="form-group"><label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input type="checkbox" checked={form.is_active ?? true} onChange={e => setForm({...form, is_active: e.target.checked})} /> Active</label></div>
+        <div className="form-group"><label style={{ display: 'flex', alignItems: 'center', gap: 8 }}><input id="is_active" name="is_active" type="checkbox" checked={form.is_active ?? true} onChange={e => setForm({...form, is_active: e.target.checked})} /> Active</label></div>
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
           <button className="btn btn-outline" onClick={() => setModal(false)}>{t('admin.cancel')}</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : t('admin.save')}</button>
@@ -95,3 +95,5 @@ export default function AnnouncementsAdminPage() {
     </div>
   );
 }
+
+

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import T from '../../components/ui/T';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { 
@@ -23,10 +24,10 @@ const PageHeroFallback = ({ title, subtitle }) => (
       style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}
     >
       <div className="breadcrumb" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1rem' }}>
-        <a href="/" style={{ color: '#C9A227', textDecoration: 'none' }}>Home</a> <span>/</span> <span style={{ color: '#fff' }}>Services</span> <span>/</span> <span>{title}</span>
+        <a href="/" style={{ color: '#C9A227', textDecoration: 'none' }}>Home</a> <span>/</span> <span style={{ color: '#fff' }}><T>Services</T></span> <span>/</span> <span>{title}</span>
       </div>
-      <h1 style={{ margin: 0, fontSize: '3rem', fontWeight: 800, color: '#C9A227', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>{title}</h1>
-      {subtitle && <p style={{ margin: '1rem 0 0', fontSize: '1.15rem', color: '#e2e8f0', maxWidth: '700px', lineHeight: 1.6 }}>{subtitle}</p>}
+        <h1 style={{ margin: 0, fontSize: 'clamp(1.5rem, 5vw, 3rem)', fontWeight: 800, color: '#C9A227', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>{title}</h1>
+      {subtitle && <p style={{ margin: '1rem 0 0', fontSize: '1.15rem', color: 'var(--mid-gray)', maxWidth: '700px', lineHeight: 1.6 }}>{subtitle}</p>}
     </motion.div>
     
     {/* Decorative background circles */}
@@ -79,11 +80,26 @@ export default function AboutCertificate() {
   }, []);
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh', overflow: 'hidden' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '100vh', overflow: 'hidden' }}>
       <PageHeroFallback 
         title={t('about_cert.title', 'Condominium Certification Stages')} 
         subtitle={t('about_cert.subtitle', 'Understanding the three main stages of official property certification issued by the CMA.')} 
       />
+
+      {/* Responsive styles */}
+      <style>{`
+        .cert-stage-card { flex-direction: row !important; }
+        @media (max-width: 768px) {
+          .cert-stage-card { flex-direction: column !important; gap: 2rem !important; padding: 2rem 1.25rem !important; }
+          .cert-stage-card > div:first-child { flex: unset !important; width: 100% !important; }
+          .cert-stage-card > div:last-child { flex: unset !important; width: 100% !important; }
+        }
+        @media (max-width: 480px) {
+          .cert-stage-card { padding: 1.5rem 1rem !important; border-radius: 16px !important; }
+          .cert-cta-box { padding: 2rem 1.25rem !important; border-radius: 16px !important; }
+          .cert-cta-box h3 { font-size: 1.35rem !important; }
+        }
+      `}</style>
 
       <section className="section" style={{ padding: '5rem 1rem' }}>
         <div className="container" style={{ maxWidth: '1100px', margin: '0 auto' }}>
@@ -100,6 +116,7 @@ export default function AboutCertificate() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.6, delay: 0.1 }}
+                  className="cert-stage-card"
                   style={{ 
                     display: 'flex', 
                     flexDirection: isEven ? 'row' : 'row-reverse',
@@ -223,6 +240,7 @@ export default function AboutCertificate() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
+            className="cert-cta-box"
             style={{ 
               marginTop: '5rem', 
               background: 'linear-gradient(135deg, #1a0000 0%, #4a0000 100%)', 
@@ -237,7 +255,7 @@ export default function AboutCertificate() {
             <h3 style={{ margin: '0 0 1rem', fontSize: '1.75rem', fontWeight: 800, color: '#C9A227' }}>
               {t('about_cert.ready_title', 'Ready to request a certificate?')}
             </h3>
-            <p style={{ margin: '0 auto 2rem', color: '#e2e8f0', fontSize: '1.05rem', maxWidth: '600px', lineHeight: 1.6 }}>
+            <p style={{ margin: '0 auto 2rem', color: 'var(--mid-gray)', fontSize: '1.05rem', maxWidth: '600px', lineHeight: 1.6 }}>
               {t('about_cert.ready_desc', 'You can apply and download your official condominium certificates directly through our secure online portal. Log in to your citizen account to begin.')}
             </p>
             <motion.a 

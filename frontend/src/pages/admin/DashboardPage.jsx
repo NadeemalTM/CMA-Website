@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   Image, Users, Newspaper, Briefcase, Building2,
@@ -8,56 +7,36 @@ import {
 import { getDashboardStats } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
-// ── Fallback AdminLayout ──────────────────────────────────────────────────────
-let AdminLayout;
-try {
-  AdminLayout = require('../../components/admin/AdminLayout').default;
-} catch {
-  AdminLayout = ({ children, title }) => (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
-      <div style={{ background: '#8B0000', color: '#fff', padding: '1rem 2rem', fontWeight: 700, fontSize: '1.25rem' }}>
-        CMA Admin — {title}
-      </div>
-      <div style={{ padding: '2rem' }}>{children}</div>
-    </div>
-  );
-}
-
 // ── Fallback AdminCard ────────────────────────────────────────────────────────
-let AdminCard;
-try {
-  AdminCard = require('../../components/admin/AdminCard').default;
-} catch {
-  AdminCard = ({ children, style }) => (
-    <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '1.5rem', ...style }}>
-      {children}
-    </div>
-  );
-}
+let AdminCard = ({ children, style }) => (
+  <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '1.5rem', ...style }}>
+    {children}
+  </div>
+);
 
 const STAT_CARDS = [
-  { key: 'hero_slides',         label: 'Hero Slides',           Icon: Image,         color: '#6366f1' },
-  { key: 'leaders',             label: 'Leaders',               Icon: Users,         color: '#0ea5e9' },
-  { key: 'published_news',      label: 'Published News',        Icon: Newspaper,     color: '#10b981' },
-  { key: 'active_vacancies',    label: 'Active Vacancies',      Icon: Briefcase,     color: '#f59e0b' },
-  { key: 'condominiums',        label: 'Condominiums',          Icon: Building2,     color: '#8b5cf6' },
-  { key: 'pending_applications',label: 'Pending Applications',  Icon: ClipboardList, color: '#f97316' },
-  { key: 'new_complaints',      label: 'New Complaints',        Icon: MessageSquare, color: '#ef4444' },
-  { key: 'feedbacks',           label: 'User Feedbacks',        Icon: Star,          color: '#ec4899' },
-  { key: 'staff',               label: 'Staff Members',         Icon: Users,         color: '#14b8a6' },
+  { key: 'hero_slides',         label: 'Hero Slides',           Icon: Image,         color: '#6366f1', permission: 'hero_slides' },
+  { key: 'leaders',             label: 'Leaders',               Icon: Users,         color: '#0ea5e9', permission: 'leadership' },
+  { key: 'published_news',      label: 'Published News',        Icon: Newspaper,     color: '#10b981', permission: 'news' },
+  { key: 'active_vacancies',    label: 'Active Vacancies',      Icon: Briefcase,     color: '#f59e0b', permission: 'vacancies' },
+  { key: 'condominiums',        label: 'Condominiums',          Icon: Building2,     color: '#8b5cf6', permission: 'condominiums' },
+  { key: 'pending_applications',label: 'Pending Applications',  Icon: ClipboardList, color: '#f97316', permission: 'applications' },
+  { key: 'new_complaints',      label: 'New Complaints',        Icon: MessageSquare, color: '#ef4444', permission: 'complaints' },
+  { key: 'feedbacks',           label: 'User Feedbacks',        Icon: Star,          color: '#ec4899', permission: 'feedbacks' },
+  { key: 'staff',               label: 'Staff Members',         Icon: Users,         color: '#14b8a6', permission: 'staff' },
 ];
 
 const QUICK_ACTIONS = [
-  { label: 'Add News',          to: '/admin/news',         color: '#10b981' },
-  { label: 'Add Leader',        to: '/admin/leaders',      color: '#0ea5e9' },
-  { label: 'Add Vacancy',       to: '/admin/vacancies',    color: '#f59e0b' },
-  { label: 'View Applications', to: '/admin/applications', color: '#8B0000' },
+  { label: 'Add News',          to: '/cma/news',         color: '#10b981', permission: 'news' },
+  { label: 'Add Leader',        to: '/cma/leadership',   color: '#0ea5e9', permission: 'leadership' },
+  { label: 'Add Vacancy',       to: '/cma/vacancies',    color: '#f59e0b', permission: 'vacancies' },
+  { label: 'View Applications', to: '/cma/applications', color: '#8B0000', permission: 'applications' },
 ];
 
 export default function DashboardPage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const canAccess = (permission) => user?.is_super_admin || user?.permissions?.includes(permission);
 
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
@@ -84,7 +63,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <AdminLayout title="Dashboard">
+    <div className="admin-page-content" style={{ padding: "0.5rem" }}>
       {/* Welcome */}
       <div
         style={{
@@ -124,13 +103,13 @@ export default function DashboardPage() {
           marginBottom: '2rem',
         }}
       >
-        {STAT_CARDS.map(({ key, label, Icon, color }) => (
+          {STAT_CARDS.filter(({ permission }) => canAccess(permission)).map(({ key, label, Icon, color }) => (
           <AdminCard key={key}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#6b7280', fontWeight: 500 }}>{label}</p>
                 <p style={{ margin: '0.25rem 0 0', fontSize: '2rem', fontWeight: 700, color: '#111827', lineHeight: 1 }}>
-                  {loading ? '—' : (stats[key] ?? 0)}
+                  {loading ? '...' : (stats[key] ?? 0)}
                 </p>
               </div>
               <div
@@ -157,7 +136,7 @@ export default function DashboardPage() {
           Quick Actions
         </h3>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-          {QUICK_ACTIONS.map(({ label, to, color }) => (
+          {QUICK_ACTIONS.filter(({ permission }) => canAccess(permission)).map(({ label, to, color }) => (
             <button
               key={to}
               onClick={() => navigate(to)}
@@ -181,6 +160,6 @@ export default function DashboardPage() {
           ))}
         </div>
       </AdminCard>
-    </AdminLayout>
+    </div>
   );
 }

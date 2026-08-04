@@ -104,7 +104,7 @@ export default function StaffAdminPage() {
   const filtered = staffList.filter(s => s.name?.toLowerCase().includes(search.toLowerCase()) || s.email?.toLowerCase().includes(search.toLowerCase()) || s.department_en?.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <AdminLayout title="Staff Members">
+    <div className="admin-page-content" style={{ padding: "0.5rem" }}>
       <Toast msg={toast.msg} type={toast.type}/>
 
       {/* Header */}
@@ -171,8 +171,7 @@ export default function StaffAdminPage() {
       {/* Modal */}
       <SimpleModal isOpen={modalOpen} onClose={()=>setModalOpen(false)} title={editing?'Edit Staff Member':'Add Staff Member'}>
         <form onSubmit={handleSave}>
-          <label style={labelStyle}>Full Name</label>
-          <input style={inputStyle} value={form.name || ''} onChange={e=>setForm(f=>({...f,name:e.target.value}))} required placeholder="Full Name"/>
+          <label style={labelStyle} htmlFor="name" htmlFor="name">Full Name</label><input id="name" name="name" style={inputStyle} value={form.name || ''} onChange={e=>setForm(f=>({...f,name:e.target.value}))} required placeholder="Full Name"/>
 
           {/* Lang Tabs */}
           <div style={{display:'flex',gap:'0.5rem',marginTop:'1rem',marginBottom:'0.5rem'}}>
@@ -194,14 +193,11 @@ export default function StaffAdminPage() {
             </div>
           ))}
 
-          <label style={labelStyle}>Email</label>
-          <input style={inputStyle} type="email" value={form.email || ''} onChange={e=>setForm(f=>({...f,email:e.target.value}))} placeholder="staff@condominium.lk"/>
+          <label style={labelStyle} htmlFor="email" htmlFor="email">Email</label><input id="email" name="email" style={inputStyle} type="email" value={form.email || ''} onChange={e=>setForm(f=>({...f,email:e.target.value}))} placeholder="staff@condominium.lk"/>
           
-          <label style={labelStyle}>Phone</label>
-          <input style={inputStyle} value={form.phone || ''} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} placeholder="011-2338146 (Ext: ...)"/>
+          <label style={labelStyle} htmlFor="phone" htmlFor="phone">Phone</label><input id="phone" name="phone" style={inputStyle} value={form.phone || ''} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} placeholder="011-2338146 (Ext: ...)"/>
           
-          <label style={labelStyle}>Display Order</label>
-          <input style={inputStyle} type="number" value={form.order ?? 0} onChange={e=>setForm(f=>({...f,order:parseInt(e.target.value)||0}))}/>
+          <label style={labelStyle} htmlFor="order" htmlFor="order">Display Order</label><input id="order" name="order" style={inputStyle} type="number" value={form.order ?? 0} onChange={e=>setForm(f=>({...f,order:parseInt(e.target.value)||0}))}/>
 
           <div style={{display:'flex',alignItems:'center',gap:'0.5rem',marginTop:'0.75rem'}}>
             <input type="checkbox" id="la" checked={form.is_active} onChange={e=>setForm(f=>({...f,is_active:e.target.checked}))} style={{width:16,height:16}}/>
@@ -216,6 +212,8 @@ export default function StaffAdminPage() {
           </div>
         </form>
       </SimpleModal>
-    </AdminLayout>
+    </div>
   );
 }
+
+

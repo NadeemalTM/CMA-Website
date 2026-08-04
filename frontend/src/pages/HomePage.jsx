@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
+import T from '../components/ui/T';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ChevronDown, Phone, Mail, Home, Building2, ClipboardList, Newspaper, Scale } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, Phone, Mail, Home, Building2, ClipboardList, Newspaper, Scale, Eye, ShieldAlert, Award } from 'lucide-react';
 import { getHeroSlides, getLeaders, getNews, getProjects, getVacancies } from '../services/api';
 import './HomePage.css';
+import slowOfficeGif from '../assets/slow_office.gif';
+
 
 // Hero Slider
 function HeroSlider({ slides }) {
@@ -88,9 +91,8 @@ function HeroSlider({ slides }) {
 function QuickLinks() {
   const { t } = useTranslation();
   const links = [
-    { key: 'buying',   to: '/applications',    Icon: Home },
+    { key: 'buying',   to: '/before-buying-condo',    Icon: Home },
     { key: 'managing', to: '/management-corps', Icon: Building2 },
-    { key: 'register', to: '/applications',    Icon: ClipboardList },
     { key: 'news',     to: '/news',            Icon: Newspaper },
     { key: 'laws',     to: '/laws',            Icon: Scale },
     { key: 'contact',  to: '/contact',         Icon: Phone },
@@ -187,6 +189,7 @@ export default function HomePage() {
   const [news, setNews] = useState([]);
   const [projects, setProjects] = useState([]);
   const [vacancies, setVacancies] = useState([]);
+  const [activeTab, setActiveTab] = useState('vision');
 
   useEffect(() => {
     getHeroSlides().then(r => setSlides(r.data.data)).catch(() => setSlides([{
@@ -194,7 +197,7 @@ export default function HomePage() {
       subtitle: 'Condominium Management Authority · Sri Lanka',
       description: "Sri Lanka's premier regulatory body overseeing condominium properties.",
     }]));
-    getLeaders().then(r => setLeaders(r.data.data)).catch(() => {});
+    getLeaders().then(r => setLeaders((r.data.data || []).filter((leader) => leader.section_type !== 'board'))).catch(() => {});
     getNews({ limit: 3 }).then(r => setNews(r.data.data || [])).catch(() => {});
     getProjects().then(r => setProjects(r.data.data?.slice(0, 3) || [])).catch(() => {});
     getVacancies().then(r => setVacancies(r.data.data?.slice(0, 3) || [])).catch(() => {});
@@ -257,7 +260,7 @@ export default function HomePage() {
               <div className="about-img-grid">
                 <div className="about-img about-img-1">
                   <div className="about-img-overlay">
-                    <span className="about-img-badge">🏙️ Urban Communities</span>
+                    <span className="about-img-badge"><T>🏙️ Urban Communities</T></span>
                   </div>
                 </div>
                 <div className="about-img about-img-2">
@@ -275,8 +278,8 @@ export default function HomePage() {
           <div className="stats-grid">
             {[
               { value: 3200, suffix: '+', label: t('home.stats.condominiums') },
-              { value: 850, suffix: '+', label: t('home.stats.mcs') },
-              { value: 52, suffix: '', label: t('home.stats.years') },
+              { value: 1102, suffix: '+', label: t('home.stats.mcs') },
+              { value: 23, suffix: '+', label: t('home.stats.years') },
               { value: 25, suffix: '', label: t('home.stats.districts') },
             ].map(({ value, suffix, label }) => (
               <motion.div
@@ -297,26 +300,192 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Leadership */}
-      <section className="section leadership-section">
+      {/* Vision & Mission & Quality Policy Showcase */}
+      <section className="section vision-mission-section" style={{ background: '#f8fafc', padding: '4.5rem 0' }}>
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <span className="section-label">{t('home.leadership_label')}</span>
-            <h2 className="section-title">{t('home.leadership_title')}</h2>
-            <p className="section-subtitle" style={{ margin: '0 auto' }}>{t('home.leadership_desc')}</p>
-          </div>
-          <div className="leaders-grid">
-            {leaders.map((leader) => (
-              <motion.div
-                key={leader.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4 }}
-              >
-                <LeaderCard leader={leader} />
-              </motion.div>
-            ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '3.5rem', alignItems: 'center' }}>
+            
+            {/* Left Column: Premium Image Showcase */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              style={{ position: 'relative' }}
+            >
+              <div style={{
+                borderRadius: '24px',
+                overflow: 'hidden',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                border: '1px solid rgba(255,255,255,0.8)',
+                aspectRatio: '4/3',
+                position: 'relative'
+              }}>
+                <img 
+                  src={slowOfficeGif} 
+                  alt="Office Time Lapse" 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%)'
+                }} />
+                
+                {/* Floating Gold Badge Removed */}
+              </div>
+            </motion.div>
+
+            {/* Right Column: Interactive Content with Tabs */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              style={{ textAlign: 'left' }}
+            >
+              <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
+                <span className="section-label" style={{ letterSpacing: '2px' }}>{t('home.vision_mission_label', 'OUR PURPOSE')}</span>
+                <h2 className="section-title" style={{ fontSize: '2.25rem', marginBottom: '1rem', color: '#1e293b', textAlign: 'left' }}>
+                  {t('home.vision_mission_title', 'Guiding Principles')}
+                </h2>
+                <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
+                  {t('home.vision_mission_desc', 'Our commitment to systematic condominium administration, regulation, and national housing development.')}
+                </p>
+              </div>
+
+              {/* Tab Navigation */}
+              <div style={{ 
+                display: 'flex', 
+                gap: '0.35rem', 
+                background: '#f1f5f9', 
+                padding: '0.35rem', 
+                borderRadius: '14px', 
+                marginBottom: '2rem',
+                border: '1px solid #e2e8f0'
+              }}>
+                {[
+                  { id: 'vision', label: t('vision_mission.vision_title', 'Vision'), color: 'var(--gold, #C9A227)' },
+                  { id: 'mission', label: t('vision_mission.mission_title', 'Mission'), color: 'var(--crimson, #8b0000)' },
+                  { id: 'policy', label: t('home.quality_policy_title_tab', 'Quality Policy'), color: 'var(--gold, #C9A227)' }
+                ].map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      style={{
+                        flex: 1,
+                        padding: '0.75rem 0.5rem',
+                        borderRadius: '10px',
+                        border: 'none',
+                        background: isActive ? '#fff' : 'transparent',
+                        color: isActive ? tab.color : '#64748b',
+                        fontWeight: 600,
+                        fontSize: '0.875rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        boxShadow: isActive ? '0 4px 6px -1px rgba(0,0,0,0.05)' : 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem'
+                      }}
+                    >
+                      {tab.id === 'vision' && <Eye size={16} />}
+                      {tab.id === 'mission' && <ShieldAlert size={16} />}
+                      {tab.id === 'policy' && <Award size={16} />}
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Tab Content Display */}
+              <div style={{ minHeight: '180px', position: 'relative' }}>
+                <AnimatePresence mode="wait">
+                  {activeTab === 'vision' && (
+                    <motion.div
+                      key="vision"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -15 }}
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        background: '#fff',
+                        borderRadius: '16px',
+                        padding: '2rem',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.03)',
+                        border: '1px solid #e2e8f0',
+                        borderLeft: '5px solid var(--gold, #C9A227)',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--gold, #C9A227)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 0.75rem' }}>
+                        <Eye size={20} /> {t('vision_mission.vision_title', 'Vision')}
+                      </h4>
+                      <p style={{ color: '#334155', fontSize: '0.95rem', lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
+                        {t('vision_mission.vision_desc', 'Assisting in the creation of condominium settlements as a solution to the housing requirement of the country')}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {activeTab === 'mission' && (
+                    <motion.div
+                      key="mission"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -15 }}
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        background: '#fff',
+                        borderRadius: '16px',
+                        padding: '2rem',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.03)',
+                        border: '1px solid #e2e8f0',
+                        borderLeft: '5px solid var(--crimson, #8b0000)',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--crimson, #8b0000)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 0.75rem' }}>
+                        <ShieldAlert size={20} /> {t('vision_mission.mission_title', 'Mission')}
+                      </h4>
+                      <p style={{ color: '#334155', fontSize: '0.95rem', lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
+                        {t('vision_mission.mission_desc', 'Constructing condominium property to be apposite with the benefit and welfare of residents and establishing management corporations for the systematic administration and management of such property and regulating their maintenance activities')}
+                      </p>
+                    </motion.div>
+                  )}
+
+                  {activeTab === 'policy' && (
+                    <motion.div
+                      key="policy"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -15 }}
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        background: '#fff',
+                        borderRadius: '16px',
+                        padding: '2rem',
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.03)',
+                        border: '1px solid #e2e8f0',
+                        borderLeft: '5px solid var(--gold, #C9A227)',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <h4 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--gold, #C9A227)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 0.75rem' }}>
+                        <Award size={20} /> {t('home.quality_policy_title', 'Our Quality Policy')}
+                      </h4>
+                      <p style={{ color: '#334155', fontSize: '0.95rem', lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
+                        {t('home.quality_policy_desc', 'To endeavor to enhance the positive approach of the stakeholders to ensure the development of the condominium industry sector efficiently and productively as a service management organization to satisfy our clients.')}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+            </motion.div>
+
           </div>
         </div>
       </section>
@@ -339,39 +508,7 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Vacancies */}
-      {vacancies.length > 0 && (
-        <section className="section vacancies-section">
-          <div className="container">
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <span className="section-label">{t('home.vacancies_label')}</span>
-              <h2 className="section-title">{t('home.vacancies_title')}</h2>
-              <p className="section-subtitle" style={{ margin: '0 auto' }}>{t('home.vacancies_desc')}</p>
-            </div>
-            <div className="vacancies-list">
-              {vacancies.map((v) => (
-                <motion.div
-                  key={v.id}
-                  className="vacancy-item card"
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                >
-                  <div>
-                    <h3>{v.title}</h3>
-                    {v.deadline && (
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: 4 }}>
-                        {t('home.deadline')}: <strong style={{ color: 'var(--crimson)' }}>{v.deadline}</strong>
-                      </p>
-                    )}
-                  </div>
-                  <Link to="/careers" className="btn btn-primary btn-sm">{t('home.vacancies_apply')}</Link>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+
 
       {/* CTA */}
       <section className="cta-section">

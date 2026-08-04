@@ -150,7 +150,7 @@ export default function CitizenSubmissionsAdminPage() {
   });
 
   return (
-    <AdminLayout>
+    <div className="admin-page-content" style={{ padding: "0.5rem" }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
         {/* Header Section */}
@@ -595,6 +595,6 @@ export default function CitizenSubmissionsAdminPage() {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </div>
   );
 }

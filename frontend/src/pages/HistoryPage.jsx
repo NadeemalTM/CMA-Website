@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import T from '../components/ui/T';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Eye, X, Clock, Compass } from 'lucide-react';

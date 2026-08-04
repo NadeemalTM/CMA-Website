@@ -13,6 +13,7 @@ const AboutPage = lazy(() => import('./pages/AboutPage'));
 const LeadershipPage = lazy(() => import('./pages/LeadershipPage'));
 const LawsPage = lazy(() => import('./pages/LawsPage'));
 const ApplicationsPage = lazy(() => import('./pages/ApplicationsPage'));
+const BeforeBuyingCondoPage = lazy(() => import('./pages/BeforeBuyingCondoPage'));
 const ManagementCorpsPage = lazy(() => import('./pages/ManagementCorpsPage'));
 const NewsPage = lazy(() => import('./pages/NewsPage'));
 const NewsDetailPage = lazy(() => import('./pages/NewsDetailPage'));
@@ -24,7 +25,6 @@ const CondominiumsPage = lazy(() => import('./pages/CondominiumsPage'));
 const KataragamaBookingPage = lazy(() => import('./pages/KataragamaBookingPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const HistoryPage = lazy(() => import('./pages/HistoryPage'));
-
 
 // Dropdown Subpages
 const RoleOfCma = lazy(() => import('./pages/subpages/RoleOfCma'));
@@ -51,6 +51,7 @@ const AboutCertificate = lazy(() => import('./pages/subpages/AboutCertificate'))
 
 // Citizen Services & Auth Pages
 const CitizenAuthPage = lazy(() => import('./pages/CitizenAuthPage'));
+const CitizenProfilePage = lazy(() => import('./pages/CitizenProfilePage'));
 const PropertyServicePage = lazy(() => import('./pages/services/PropertyServicePage'));
 const DevFeePage = lazy(() => import('./pages/services/DevFeePage'));
 const RenovationPage = lazy(() => import('./pages/services/RenovationPage'));
@@ -58,12 +59,14 @@ const PayFinesPage = lazy(() => import('./pages/services/PayFinesPage'));
 const MoreServicesPage = lazy(() => import('./pages/services/MoreServicesPage'));
 const CertificatePage = lazy(() => import('./pages/services/CertificatePage'));
 const CertificateDownloadPage = lazy(() => import('./pages/services/CertificateDownloadPage'));
+const CitizenComplaintsPage = lazy(() => import('./pages/services/CitizenComplaintsPage'));
 
 
 
 // Admin Layout & Pages
 const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
+const HelpPage = lazy(() => import('./pages/admin/help/HelpPage'));
 const AdminRegisterPage = lazy(() => import('./pages/admin/AdminRegisterPage'));
 const DashboardPage = lazy(() => import('./pages/admin/DashboardPage'));
 const LeadersAdminPage = lazy(() => import('./pages/admin/LeadersAdminPage'));
@@ -73,12 +76,14 @@ const AnnouncementsAdminPage = lazy(() => import('./pages/admin/AnnouncementsAdm
 const VacanciesAdminPage = lazy(() => import('./pages/admin/VacanciesAdminPage'));
 const DocumentsAdminPage = lazy(() => import('./pages/admin/DocumentsAdminPage'));
 const ApplicationTariffsAdminPage = lazy(() => import('./pages/admin/ApplicationTariffsAdminPage'));
+const LawsAdminPage = lazy(() => import('./pages/admin/LawsAdminPage'));
 const ProjectsAdminPage = lazy(() => import('./pages/admin/ProjectsAdminPage'));
 const CondominiumsAdminPage = lazy(() => import('./pages/admin/CondominiumsAdminPage'));
 const ApplicationsAdminPage = lazy(() => import('./pages/admin/ApplicationsAdminPage'));
 const ComplaintsAdminPage = lazy(() => import('./pages/admin/ComplaintsAdminPage'));
 const FeedbacksAdminPage = lazy(() => import('./pages/admin/FeedbacksAdminPage'));
 const CitizenSubmissionsAdminPage = lazy(() => import('./pages/admin/CitizenSubmissionsAdminPage'));
+const CitizensAdminPage = lazy(() => import('./pages/admin/CitizensAdminPage'));
 const BookingsAdminPage = lazy(() => import('./pages/admin/BookingsAdminPage'));
 const BungalowRoomsAdminPage = lazy(() => import('./pages/admin/BungalowRoomsAdminPage'));
 const StaffAdminPage = lazy(() => import('./pages/admin/StaffAdminPage'));
@@ -86,6 +91,9 @@ const CertificatesAdminPage = lazy(() => import('./pages/admin/CertificatesAdmin
 const McFeesAdminPage = lazy(() => import('./pages/admin/McFeesAdminPage'));
 const JobApplicationsAdminPage = lazy(() => import('./pages/admin/JobApplicationsAdminPage'));
 const ApplicationFormsAdminPage = lazy(() => import('./pages/admin/ApplicationFormsAdminPage'));
+const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
+const AdminAccessDeniedPage = lazy(() => import('./pages/admin/AdminAccessDeniedPage'));
+const HistoryAdminPage = lazy(() => import('./pages/admin/HistoryAdminPage'));
 
 
 /* ─────────────────────────────────────────────
@@ -245,6 +253,7 @@ export default function App() {
               <Route path="about/leadership" element={<LeadershipPage />} />
               <Route path="laws" element={<LawsPage />} />
               <Route path="applications" element={<ApplicationsPage />} />
+              <Route path="before-buying-condo" element={<BeforeBuyingCondoPage />} />
               <Route path="management-corps" element={<ManagementCorpsPage />} />
               <Route path="news" element={<NewsPage />} />
               <Route path="news/:slug" element={<NewsDetailPage />} />
@@ -283,6 +292,7 @@ export default function App() {
               
               {/* Citizen Auth & E-Service routes */}
               <Route path="login" element={<CitizenAuthPage />} />
+              <Route path="profile" element={<CitizenProfilePage />} />
               <Route path="services/property" element={<PropertyServicePage />} />
               <Route path="services/dev-fee" element={<DevFeePage />} />
               <Route path="services/renovation" element={<RenovationPage />} />
@@ -290,16 +300,19 @@ export default function App() {
               <Route path="services/more" element={<MoreServicesPage />} />
               <Route path="services/certificate" element={<CertificatePage />} />
               <Route path="services/certificate/downloads/:id" element={<CertificateDownloadPage />} />
+              <Route path="services/complaints" element={<CitizenComplaintsPage />} />
               <Route path="about-certificate" element={<AboutCertificate />} />
               <Route path="booking/kataragama" element={<KataragamaBookingPage />} />
             </Route>
 
 
             {/* ── Admin ────────────────────────────────────── */}
-            <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route path="/cma/login" element={<AdminLoginPage />} />
+            <Route path="/cma/help" element={<HelpPage />} />
+            <Route path="/cma" element={<AdminLayout />}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="history" element={<HistoryAdminPage />} />
               <Route path="leadership" element={<LeadersAdminPage />} />
               <Route path="staff" element={<StaffAdminPage />} />
               <Route path="hero-slides" element={<HeroSlidesAdminPage />} />
@@ -308,18 +321,22 @@ export default function App() {
               <Route path="vacancies" element={<VacanciesAdminPage />} />
               <Route path="job-applications" element={<JobApplicationsAdminPage />} />
               <Route path="documents" element={<DocumentsAdminPage />} />
+              <Route path="laws" element={<LawsAdminPage />} />
               <Route path="application-tariffs" element={<ApplicationTariffsAdminPage />} />
               <Route path="projects" element={<ProjectsAdminPage />} />
               <Route path="condominiums" element={<CondominiumsAdminPage />} />
               <Route path="applications" element={<ApplicationsAdminPage />} />
               <Route path="complaints" element={<ComplaintsAdminPage />} />
               <Route path="feedbacks" element={<FeedbacksAdminPage />} />
+              <Route path="citizens" element={<CitizensAdminPage />} />
               <Route path="citizen-submissions" element={<CitizenSubmissionsAdminPage />} />
               <Route path="bookings" element={<BookingsAdminPage />} />
               <Route path="bungalow-rooms" element={<BungalowRoomsAdminPage />} />
               <Route path="certificates" element={<CertificatesAdminPage />} />
               <Route path="mc-fees" element={<McFeesAdminPage />} />
               <Route path="application-forms" element={<ApplicationFormsAdminPage />} />
+              <Route path="admin-users" element={<AdminUsersPage />} />
+              <Route path="access-denied" element={<AdminAccessDeniedPage />} />
             </Route>
 
 
@@ -333,4 +350,3 @@ export default function App() {
 
   );
 }
-

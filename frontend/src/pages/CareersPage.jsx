@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Briefcase, Calendar, Users, Download, X, Upload } from 'lucide-react';
-import { getVacancies, submitVacancyApplication } from '../services/api';
+import { getVacancies, submitVacancyApplication, getStorageURL } from '../services/api';
+import PageHero from '../components/ui/PageHero';
 
 export default function CareersPage() {
   const { t, i18n } = useTranslation();
@@ -61,13 +62,13 @@ export default function CareersPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <div className="container">
-          <div className="breadcrumb"><Link to="/">Home</Link> <span>/</span> <span>{t('careers.title', 'Careers')}</span></div>
-          <h1>{t('careers.title', 'Careers')}</h1>
-          <p>{t('careers.desc', 'Join our team and help shape the future of condominium living.')}</p>
-        </div>
-      </div>
+      <PageHero
+        title={t('careers.title', 'Careers')}
+        subtitle={t('careers.desc', 'Join our team and help shape the future of condominium living.')}
+        breadcrumbs={[
+          { label: t('careers.title', 'Careers') }
+        ]}
+      />
       <section className="section">
         <div className="container" style={{ maxWidth: 900 }}>
           {loading ? (
@@ -110,7 +111,7 @@ export default function CareersPage() {
                           
                           {v.document_path && (
                             <a 
-                              href={`http://localhost:8000/storage/${v.document_path}`} 
+                              href={getStorageURL(v.document_path)} 
                               target="_blank" 
                               rel="noreferrer"
                               className="btn btn-outline btn-sm"
@@ -192,7 +193,7 @@ export default function CareersPage() {
 
                   <div className="form-group">
                     <label className="form-label">Upload CV <span style={{color: 'red'}}>*</span></label>
-                    <div style={{ border: '2px dashed var(--light-gray)', padding: '1.5rem', borderRadius: 8, textAlign: 'center', background: '#f8fafc' }}>
+                    <div style={{ border: '2px dashed var(--light-gray)', padding: '1.5rem', borderRadius: 8, textAlign: 'center', background: 'var(--off-white)' }}>
                       <Upload size={24} style={{ color: 'var(--primary)', marginBottom: '0.5rem' }} />
                       <div style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
                         {form.cv ? <span style={{ color: 'var(--success)', fontWeight: 600 }}>{form.cv.name}</span> : <span>Select a PDF or Word document</span>}

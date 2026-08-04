@@ -145,7 +145,7 @@ export default function ResponsibilityMC() {
                 whileHover={{ y: -6 }}
                 style={{
                   background: '#fff',
-                  border: '1px solid #edf2f7',
+                  border: '1px solid var(--mid-gray)',
                   borderRadius: '24px',
                   padding: '1.5rem',
                   boxShadow: '0 12px 30px rgba(0,0,0,0.02)',
@@ -175,7 +175,7 @@ export default function ResponsibilityMC() {
               {/* Interactive Explorer / Filter widget */}
               <div style={{
                 background: '#fff',
-                border: '1px solid #edf2f7',
+                border: '1px solid var(--mid-gray)',
                 borderRadius: '24px',
                 padding: '2rem 1.5rem',
                 boxShadow: '0 12px 30px rgba(0,0,0,0.02)'
@@ -204,7 +204,7 @@ export default function ResponsibilityMC() {
                           width: '100%',
                           padding: '0.9rem 1.25rem',
                           borderRadius: '12px',
-                          border: isActive ? `1.5px solid ${btn.color}` : '1.5px solid #edf2f7',
+                          border: isActive ? `1.5px solid ${btn.color}` : '1.5px solid var(--mid-gray)',
                           background: isActive ? `rgba(${btn.id === 'all' ? '139,0,0' : btn.id === 'maint' ? '201,162,39' : btn.id === 'finance' ? '46,125,50' : '49,130,206'}, 0.05)` : '#fff',
                           color: isActive ? btn.color : '#4a5568',
                           fontWeight: isActive ? 700 : 500,
@@ -217,7 +217,7 @@ export default function ResponsibilityMC() {
                       >
                         <span style={{ flexGrow: 1 }}>{t(btn.labelKey)}</span>
                         <span style={{
-                          background: isActive ? btn.color : '#edf2f7',
+                          background: isActive ? btn.color : 'var(--mid-gray)',
                           color: isActive ? '#fff' : '#718096',
                           borderRadius: '30px',
                           padding: '0.1rem 0.5rem',
@@ -275,7 +275,7 @@ export default function ResponsibilityMC() {
             {/* Right Column: Dynamic filtered list of duties */}
             <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               
-              <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'true', borderBottom: '1px solid #edf2f7', paddingBottom: '0.75rem', marginBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'true', borderBottom: '1px solid var(--mid-gray)', paddingBottom: '0.75rem', marginBottom: '0.5rem' }}>
                 <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#a0aec0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   {t('mc_responsibilities.tool_badge')}
                 </span>
@@ -300,7 +300,7 @@ export default function ResponsibilityMC() {
                       whileHover={{ x: 6, boxShadow: '0 8px 20px rgba(0,0,0,0.02)' }}
                       style={{
                         background: '#fff',
-                        border: '1px solid #edf2f7',
+                        border: '1px solid var(--mid-gray)',
                         borderRadius: '16px',
                         padding: '1.75rem',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.005)',

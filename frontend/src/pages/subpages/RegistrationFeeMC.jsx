@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import T from '../../components/ui/T';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -38,7 +39,7 @@ const PageHero = ({ title, label }) => (
         borderRadius:'999px', padding:'0.3rem 1rem', marginBottom:'1rem' }}>
         <Banknote size={13} color="#C9A227" />
         <span style={{ fontSize:'0.72rem', fontWeight:700, letterSpacing:'1.5px',
-          textTransform:'uppercase', color:'#C9A227' }}>Financial Requirements</span>
+          textTransform:'uppercase', color:'#C9A227' }}><T>Financial Requirements</T></span>
       </div>
 
       <motion.h1
@@ -178,11 +179,11 @@ export default function RegistrationFeeMC() {
                     <div style={{ width: '4px', height: '24px', background: '#C9A227', borderRadius: '4px' }} />
                     {t('mc_fees_page.app_title') || 'Application Form Fee'}
                   </h3>
-                  <div style={{ background: '#fff', border: '1px solid #edf2f7', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
+                  <div style={{ background: '#fff', border: '1px solid var(--mid-gray)', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem', textAlign: 'left', minWidth: '600px' }}>
                         <thead>
-                          <tr style={{ background: 'linear-gradient(to right, #f8fafc, #f1f5f9)', borderBottom: '2px solid #e2e8f0', color: '#334155', fontWeight: 700 }}>
+                          <tr style={{ background: 'linear-gradient(to right, var(--off-white), var(--light-gray))', borderBottom: '2px solid var(--mid-gray)', color: '#334155', fontWeight: 700 }}>
                             <th style={{ padding: '1.25rem' }}>{t('mc_fees_page.desc_col') || 'Description'}</th>
                             <th style={{ padding: '1.25rem', textAlign: 'right' }}>{t('mc_fees_page.fee_col') || 'Fee (Rs.)'}</th>
                             <th style={{ padding: '1.25rem', textAlign: 'right' }}>{settings.tax1_name} ({parseFloat(settings.tax1_rate)}%)</th>
@@ -194,8 +195,8 @@ export default function RegistrationFeeMC() {
                           {appFees.map((feeItem, idx) => (
                             <motion.tr 
                               key={feeItem.id} 
-                              style={{ borderBottom: idx === appFees.length - 1 ? 'none' : '1px solid #edf2f7', transition: 'background 0.2s' }}
-                              whileHover={{ backgroundColor: '#f8fafc' }}
+                              style={{ borderBottom: idx === appFees.length - 1 ? 'none' : '1px solid var(--mid-gray)', transition: 'background 0.2s' }}
+                              whileHover={{ backgroundColor: 'var(--off-white)' }}
                             >
                               <td style={{ padding: '1.25rem', color: '#1e293b', fontWeight: 600 }}>
                                 {getDescription(feeItem)}
@@ -228,11 +229,11 @@ export default function RegistrationFeeMC() {
                     <div style={{ width: '4px', height: '24px', background: '#C9A227', borderRadius: '4px' }} />
                     {t('mc_fees_page.reg_title') || 'Registration Fees (Statutory)'}
                   </h3>
-                  <div style={{ background: '#fff', border: '1px solid #edf2f7', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
+                  <div style={{ background: '#fff', border: '1px solid var(--mid-gray)', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem', textAlign: 'left', minWidth: '600px' }}>
                         <thead>
-                          <tr style={{ background: 'linear-gradient(to right, #f8fafc, #f1f5f9)', borderBottom: '2px solid #e2e8f0', color: '#334155', fontWeight: 700 }}>
+                          <tr style={{ background: 'linear-gradient(to right, var(--off-white), var(--light-gray))', borderBottom: '2px solid var(--mid-gray)', color: '#334155', fontWeight: 700 }}>
                             <th style={{ padding: '1.25rem' }}>{t('mc_fees_page.desc_col') || 'Description'}</th>
                             <th style={{ padding: '1.25rem', textAlign: 'right' }}>{t('mc_fees_page.fee_col') || 'Fee (Rs.)'}</th>
                             <th style={{ padding: '1.25rem', textAlign: 'right' }}>{settings.tax1_name} ({parseFloat(settings.tax1_rate)}%)</th>
@@ -244,8 +245,8 @@ export default function RegistrationFeeMC() {
                           {regFees.map((feeItem, idx) => (
                             <motion.tr 
                               key={feeItem.id} 
-                              style={{ borderBottom: idx === regFees.length - 1 ? 'none' : '1px solid #edf2f7', transition: 'background 0.2s' }}
-                              whileHover={{ backgroundColor: '#f8fafc' }}
+                              style={{ borderBottom: idx === regFees.length - 1 ? 'none' : '1px solid var(--mid-gray)', transition: 'background 0.2s' }}
+                              whileHover={{ backgroundColor: 'var(--off-white)' }}
                             >
                               <td style={{ padding: '1.25rem', color: '#1e293b', fontWeight: 600 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -288,7 +289,7 @@ export default function RegistrationFeeMC() {
               <Info size={20} color="#2563eb" />
             </div>
             <div>
-              <h4 style={{ margin: '0 0 0.25rem', color: '#1e3a8a', fontSize: '1rem', fontWeight: 700 }}>Important Note</h4>
+              <h4 style={{ margin: '0 0 0.25rem', color: '#1e3a8a', fontSize: '1rem', fontWeight: 700 }}><T>Important Note</T></h4>
               <p style={{ margin: 0, color: '#1e3a8a', fontSize: '0.9rem', lineHeight: 1.6, opacity: 0.85 }}>
                 {t('mc_fees_note', 'Fees are statutory and non-refundable. Official bank deposit slips must be attached to the registration application when submitting to the CMA.')}
               </p>

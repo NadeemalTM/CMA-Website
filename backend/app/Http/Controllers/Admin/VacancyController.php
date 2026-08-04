@@ -13,7 +13,10 @@ class VacancyController extends Controller
     public function store(Request $request) { 
         $data = $request->except('document');
         if ($request->hasFile('document')) {
-            $data['document_path'] = $request->file('document')->store('vacancies', 'public');
+            $file = $request->file('document');
+            $filename = \Illuminate\Support\Str::random(40) . '.' . ($file->getClientOriginalExtension() ?: 'bin');
+            $file->move(storage_path('app/public/vacancies'), $filename);
+            $data['document_path'] = 'vacancies/' . $filename;
         }
         // Handle boolean fields properly since FormData sends strings
         if ($request->has('is_active')) {
@@ -28,7 +31,10 @@ class VacancyController extends Controller
         $v = Vacancy::findOrFail($id); 
         $data = $request->except('document');
         if ($request->hasFile('document')) {
-            $data['document_path'] = $request->file('document')->store('vacancies', 'public');
+            $file = $request->file('document');
+            $filename = \Illuminate\Support\Str::random(40) . '.' . ($file->getClientOriginalExtension() ?: 'bin');
+            $file->move(storage_path('app/public/vacancies'), $filename);
+            $data['document_path'] = 'vacancies/' . $filename;
         }
         if ($request->has('is_active')) {
             $data['is_active'] = filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN);

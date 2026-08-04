@@ -24,4 +24,15 @@ class CertificateType extends Model
     {
         return $this->hasMany(CertificateDocument::class)->orderBy('order');
     }
+
+    public function referencePrefix(): string
+    {
+        return match (strtolower($this->code)) {
+            'ppc' => 'PPC',
+            'provisional' => 'PRO',
+            'semi' => 'SEM',
+            'final' => 'FIN',
+            default => strtoupper(substr($this->code, 0, 3)),
+        };
+    }
 }

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { MapPin, Calendar, CheckCircle, Clock, Target } from 'lucide-react';
 import { getProjects } from '../services/api';
+import PageHero from '../components/ui/PageHero';
 
 const statusConfig = { ongoing: { color: 'var(--gold)', icon: Clock }, completed: { color: 'var(--success)', icon: CheckCircle }, planned: { color: 'var(--info)', icon: Target } };
 
@@ -18,13 +19,13 @@ export default function ProjectsPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <div className="container">
-          <div className="breadcrumb"><Link to="/">Home</Link> <span>/</span> <span>{t('projects.title')}</span></div>
-          <h1>{t('projects.title')}</h1>
-          <p>{t('projects.label')}</p>
-        </div>
-      </div>
+      <PageHero
+        title={t('projects.title')}
+        subtitle={t('projects.label')}
+        breadcrumbs={[
+          { label: t('projects.title') }
+        ]}
+      />
       <section className="section">
         <div className="container">
           {loading ? (

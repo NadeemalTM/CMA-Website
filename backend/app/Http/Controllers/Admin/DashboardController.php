@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use App\Models\{HeroSlide, Leader, NewsEvent, Vacancy, Condominium, Application, Complaint, Project, Document, Announcement, Feedback, StaffMember};
 
 class DashboardController extends Controller
@@ -32,5 +35,31 @@ class DashboardController extends Controller
                 'staff' => StaffMember::count(),
             ]
         ]);
+    }
+
+    public function citizens()
+    {
+        $citizens = User::where('role', 'citizen')->orderBy('created_at', 'desc')->get();
+        return response()->json(['data' => $citizens]);
+    }
+
+    public function destroyCitizen($id)
+    {
+        $user = User::where('role', 'citizen')->findOrFail($id);
+        $user->delete();
+        return response()->json(['message' => 'User deleted successfully']);
+    }
+
+    public function resetCitizenPassword(Request $request, $id)
+    {
+        $request->validate([
+            'password' => 'required|string|min:6',
+        ]);
+
+        $user = User::where('role', 'citizen')->findOrFail($id);
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response()->json(['message' => 'Password reset successfully']);
     }
 }

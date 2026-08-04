@@ -50,6 +50,9 @@ export default function DataTable({
       }}>
         <Search size={16} color="var(--text-muted)" style={{ flexShrink: 0 }} />
         <input
+          id="datatable-search-input"
+          name="datatable_search"
+          aria-label="Search"
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -119,9 +122,9 @@ export default function DataTable({
           </thead>
 
           <tbody>
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
               {loading ? (
-                <tr>
+                <motion.tr key="loading" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
                   <td
                     colSpan={columns.length + 1}
                     style={{ padding: '3rem', textAlign: 'center' }}
@@ -133,9 +136,9 @@ export default function DataTable({
                       Loading…
                     </p>
                   </td>
-                </tr>
+                </motion.tr>
               ) : filtered.length === 0 ? (
-                <tr>
+                <motion.tr key="empty" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
                   <td
                     colSpan={columns.length + 1}
                     style={{ padding: '3.5rem 1rem', textAlign: 'center' }}
@@ -146,7 +149,7 @@ export default function DataTable({
                       </p>
                     </div>
                   </td>
-                </tr>
+                </motion.tr>
               ) : (
                 filtered.map((row, i) => (
                   <motion.tr

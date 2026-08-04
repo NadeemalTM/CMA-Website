@@ -17,7 +17,7 @@ const PageHeroFallback = ({ title, subtitle }) => (
         <a href="/" style={{ color: '#C9A227', textDecoration: 'none' }}>Home</a> <span>/</span> <span style={{ color: '#fff' }}><T>About Us</T></span> <span>/</span> <span><T>{title}</T></span>
       </div>
       <h1 style={{ margin: 0, fontSize: '3rem', fontWeight: 800, color: '#C9A227', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}><T>{title}</T></h1>
-      {subtitle && <p style={{ margin: '1rem 0 0', fontSize: '1.15rem', color: '#e2e8f0', maxWidth: '700px', lineHeight: 1.6 }}><T>{subtitle}</T></p>}
+      {subtitle && <p style={{ margin: '1rem 0 0', fontSize: '1.15rem', color: 'var(--mid-gray)', maxWidth: '700px', lineHeight: 1.6 }}><T>{subtitle}</T></p>}
     </motion.div>
     
     {/* Decorative background circles */}
@@ -54,7 +54,7 @@ export default function VisionMissionPage() {
   };
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh', overflow: 'hidden' }}>
+    <div style={{ background: 'var(--off-white)', minHeight: '100vh', overflow: 'hidden' }}>
       <PageHeroFallback 
         title="Vision & Mission" 
         subtitle="Guiding the development and management of condominium settlements across the country." 

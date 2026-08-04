@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FileText, Trash2, Download, MapPin } from 'lucide-react';
-import { adminJobApplications } from '../../services/api';
+import { adminJobApplications, getStorageURL } from '../../services/api';
 
 export default function JobApplicationsAdminPage() {
   const { t } = useTranslation();
@@ -77,7 +77,7 @@ export default function JobApplicationsAdminPage() {
                   <td style={{ padding: '0.75rem 1rem' }}>
                     {item.cv_path ? (
                       <a 
-                        href={`http://localhost:8000/storage/${item.cv_path}`} 
+                        href={getStorageURL(item.cv_path)} 
                         target="_blank" 
                         rel="noreferrer"
                         className="btn btn-sm btn-outline"

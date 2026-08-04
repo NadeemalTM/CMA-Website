@@ -10,11 +10,14 @@ class ApplicationTariff extends Model
     use HasFactory;
 
     protected $fillable = [
+        'item_no',
         'category',
         'description_en',
         'description_si',
         'description_ta',
+        'scale',
         'fee',
+        'fee_display',
         'remarks',
         'order',
         'is_active',

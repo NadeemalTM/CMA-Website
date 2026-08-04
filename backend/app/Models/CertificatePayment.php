@@ -10,13 +10,16 @@ class CertificatePayment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'reference_no', 'certificate_type_id', 'citizen_id',
-        'amount', 'status', 'payment_method', 'remarks', 'paid_at',
+        'reference_no', 'sequence_number', 'certificate_type_id', 'citizen_id',
+        'application_data', 'amount', 'status', 'payment_method', 'remarks',
+        'reviewed_by', 'reviewed_at', 'paid_at',
     ];
 
     protected $casts = [
         'amount'  => 'float',
         'paid_at' => 'datetime',
+        'reviewed_at' => 'datetime',
+        'application_data' => 'array',
     ];
 
     public function certificateType()

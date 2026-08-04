@@ -36,7 +36,7 @@ export default function AdminRegisterPage() {
       });
       const { user, token } = res.data;
       login(user, token);
-      navigate('/admin');
+      navigate('/cma');
     } catch (err) {
       setError(
         err?.response?.data?.message ||
@@ -367,7 +367,7 @@ export default function AdminRegisterPage() {
           <span style={{ color: '#666' }}>Already have an account? </span>
           <span
             style={{ color: '#8B0000', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}
-            onClick={() => navigate('/admin/login')}
+            onClick={() => navigate('/cma/login')}
           >
             Login here
           </span>

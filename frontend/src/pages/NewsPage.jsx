@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Calendar, Tag, ArrowRight } from 'lucide-react';
 import { getNews } from '../services/api';
+import PageHero from '../components/ui/PageHero';
 
 export default function NewsPage() {
   const { t } = useTranslation();
@@ -34,13 +35,13 @@ export default function NewsPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <div className="container">
-          <div className="breadcrumb"><Link to="/">Home</Link> <span>/</span> <span>{t('news.title')}</span></div>
-          <h1>{t('news.title')}</h1>
-          <p>{t('news.label')}</p>
-        </div>
-      </div>
+      <PageHero
+        title={t('news.title')}
+        subtitle={t('news.label')}
+        breadcrumbs={[
+          { label: t('news.title') }
+        ]}
+      />
 
       <section className="section">
         <div className="container">

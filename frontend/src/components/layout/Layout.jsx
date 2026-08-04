@@ -74,7 +74,7 @@ export default function Layout() {
           <Navbar />
         </div>
 
-        <NoticeTicker />
+        {/* NoticeTicker removed per request */}
 
         {/* Collapsible secondary CitizenNavbar */}
         <div
@@ -99,26 +99,21 @@ export default function Layout() {
       {/* Responsive spacer overrides to prevent content overlap and scroll layout shifting */}
       <style>{`
         #main-content {
-          padding-top: 200px !important;
+          padding-top: 166px !important;
         }
-        @media (max-width: 1200px) {
+        @media (max-width: 1024px) {
           #main-content {
-            padding-top: 220px !important;
-          }
-        }
-        @media (max-width: 992px) {
-          #main-content {
-            padding-top: 235px !important;
+            padding-top: 150px !important;
           }
         }
         @media (max-width: 768px) {
           #main-content {
-            padding-top: 245px !important;
+            padding-top: 148px !important;
           }
         }
-        @media (max-width: 640px) {
+        @media (max-width: 480px) {
           #main-content {
-            padding-top: 255px !important;
+            padding-top: 144px !important;
           }
         }
       `}</style>

@@ -108,7 +108,7 @@ export default function PowersMC() {
                 whileHover={{ y: -6 }}
                 style={{
                   background: '#fff',
-                  border: '1px solid #edf2f7',
+                  border: '1px solid var(--mid-gray)',
                   borderRadius: '24px',
                   padding: '1.5rem',
                   boxShadow: '0 12px 30px rgba(0,0,0,0.02)',
@@ -165,7 +165,7 @@ export default function PowersMC() {
 
             {/* Right Column: 12 Powers Grid */}
             <div style={{ flex: '2 2 600px', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-              <div style={{ borderBottom: '2px solid #edf2f7', paddingBottom: '0.5rem' }}>
+              <div style={{ borderBottom: '2px solid var(--mid-gray)', paddingBottom: '0.5rem' }}>
                 <h3 style={{ margin: 0, fontSize: '1.45rem', fontWeight: 800, color: 'var(--crimson)', fontFamily: "'Outfit', sans-serif" }}>
                   {t('mc_powers.title', 'Powers of the Management Corporation')}
                 </h3>
@@ -192,7 +192,7 @@ export default function PowersMC() {
                     whileHover={{ y: -5, scale: 1.015, boxShadow: '0 12px 25px rgba(0,0,0,0.03)' }}
                     style={{
                       background: '#fff',
-                      border: '1px solid #edf2f7',
+                      border: '1px solid var(--mid-gray)',
                       borderRadius: '20px',
                       padding: '1.5rem 1.75rem',
                       display: 'flex',
@@ -254,7 +254,7 @@ export default function PowersMC() {
             style={{
               marginTop: '5rem',
               background: '#fff',
-              border: '1px solid #edf2f7',
+              border: '1px solid var(--mid-gray)',
               borderRadius: '24px',
               padding: '3.5rem 2.25rem',
               boxShadow: '0 15px 35px rgba(0,0,0,0.015)'
@@ -295,7 +295,7 @@ export default function PowersMC() {
                       onClick={() => setSelectedScenario(idx)}
                       style={{
                         background: isSelected ? 'rgba(139,0,0,0.02)' : '#fff',
-                        border: `1.5px solid ${isSelected ? '#8B0000' : '#edf2f7'}`,
+                        border: `1.5px solid ${isSelected ? '#8B0000' : 'var(--mid-gray)'}`,
                         borderRadius: '16px',
                         padding: '1.25rem 1.5rem',
                         display: 'flex',
@@ -312,7 +312,7 @@ export default function PowersMC() {
                         if (!isSelected) e.currentTarget.style.borderColor = '#C9A227';
                       }}
                       onMouseLeave={(e) => {
-                        if (!isSelected) e.currentTarget.style.borderColor = '#edf2f7';
+                        if (!isSelected) e.currentTarget.style.borderColor = 'var(--mid-gray)';
                       }}
                     >
                       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
@@ -320,7 +320,7 @@ export default function PowersMC() {
                           width: '10px',
                           height: '10px',
                           borderRadius: '50%',
-                          background: isSelected ? '#8B0000' : '#cbd5e1',
+                          background: isSelected ? '#8B0000' : 'var(--mid-gray)',
                           transition: 'all 0.2s ease'
                         }} />
                         <span style={{
@@ -378,7 +378,7 @@ export default function PowersMC() {
                       </p>
                     </div>
 
-                    <div style={{ borderTop: '1px solid #edf2f7', paddingTop: '1.25rem', marginTop: '2rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <div style={{ borderTop: '1px solid var(--mid-gray)', paddingTop: '1.25rem', marginTop: '2rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#718096', textTransform: 'uppercase', letterSpacing: '0.05em', alignSelf: 'center' }}>
                         Applicable Powers:
                       </span>

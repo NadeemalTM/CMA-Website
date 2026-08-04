@@ -5,11 +5,58 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\CertificateType;
 use App\Models\CertificatePayment;
+use App\Models\CertificateDocument;
+use App\Models\CertificateSetting;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class CertificateController extends Controller
 {
+    private function ensureCertificateSettingsSchema(): void
+    {
+        try {
+            if (!Schema::hasTable('certificate_settings')) {
+                Schema::create('certificate_settings', function (Blueprint $table) {
+                    $table->id();
+                    $table->string('reference_banner')->nullable();
+                    $table->string('reference_banner_alt')->nullable();
+                    $table->string('payment_guideline_pdf')->nullable();
+                    $table->string('payment_guideline_title')->nullable();
+                    $table->unsignedBigInteger('updated_by')->nullable();
+                    $table->timestamps();
+                });
+            }
+        } catch (\Throwable $e) {}
+    }
+
+    public function settings()
+    {
+        $this->ensureCertificateSettingsSchema();
+        $settings = CertificateSetting::current();
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'reference_banner' => $settings->reference_banner
+                    ? (str_starts_with($settings->reference_banner, 'http')
+                        ? $settings->reference_banner
+                        : asset('storage/' . $settings->reference_banner))
+                    : null,
+                'reference_banner_path' => $settings->reference_banner,
+                'reference_banner_alt' => $settings->reference_banner_alt,
+                'payment_guideline_pdf' => $settings->payment_guideline_pdf
+                    ? (str_starts_with($settings->payment_guideline_pdf, 'http')
+                        ? $settings->payment_guideline_pdf
+                        : asset('storage/' . $settings->payment_guideline_pdf))
+                    : null,
+                'payment_guideline_pdf_path' => $settings->payment_guideline_pdf,
+                'payment_guideline_title' => $settings->payment_guideline_title ?: 'Payment Guidelines & Bank Instructions',
+            ],
+        ]);
+    }
+
     /** GET /api/v1/certificates — list all active types */
     public function index(Request $request)
     {
@@ -39,40 +86,52 @@ class CertificateController extends Controller
         $type   = CertificateType::where('is_active', true)->findOrFail($id);
         $citizen = $request->user();
 
-        $ref = 'CERT-' . strtoupper(Str::random(8)) . '-' . now()->format('ymd');
-
-        $payment = CertificatePayment::create([
-            'reference_no'        => $ref,
-            'certificate_type_id' => $type->id,
-            'citizen_id'          => $citizen->id,
-            'amount'              => $type->document_fee,
-            'status'              => 'pending',
+        $application = $request->validate([
+            'applicant_name' => 'required|string|max:255',
+            'nic_or_passport' => 'required|string|max:50',
+            'phone' => 'required|string|max:30',
+            'email' => 'required|email|max:255',
+            'address' => 'required|string|max:500',
+            'organization' => 'nullable|string|max:255',
+            'notes' => 'nullable|string|max:2000',
         ]);
+
+        $payment = retry(5, function () use ($type, $citizen, $application) {
+            return DB::transaction(function () use ($type, $citizen, $application) {
+                $sequence = ((int) CertificatePayment::where('certificate_type_id', $type->id)
+                    ->lockForUpdate()
+                    ->max('sequence_number')) + 1;
+
+                return CertificatePayment::create([
+                    'reference_no' => $type->referencePrefix().str_pad((string) $sequence, 5, '0', STR_PAD_LEFT),
+                    'sequence_number' => $sequence,
+                    'certificate_type_id' => $type->id,
+                    'citizen_id' => $citizen->id,
+                    'application_data' => $application,
+                    'amount' => $type->document_fee,
+                    'status' => 'pending',
+                ]);
+            });
+        }, 20);
 
         return response()->json([
             'data' => [
-                'reference_no'   => $ref,
+                'reference_no'   => $payment->reference_no,
                 'amount'         => $type->document_fee,
                 'certificate_id' => $type->id,
                 'payment_id'     => $payment->id,
+                'status'         => 'pending',
+                'message'        => 'Your payment request is pending administrator review.',
             ]
         ]);
     }
 
-    /** POST /api/v1/certificates/payments/{ref}/complete — simulate payment completion */
+    /** Citizens cannot approve their own payment. */
     public function completePayment(Request $request, $ref)
     {
-        $payment = CertificatePayment::where('reference_no', $ref)
-            ->where('citizen_id', $request->user()->id)
-            ->firstOrFail();
-
-        $payment->update([
-            'status'         => 'completed',
-            'payment_method' => $request->get('payment_method', 'card'),
-            'paid_at'        => now(),
-        ]);
-
-        return response()->json(['data' => ['status' => 'completed', 'reference_no' => $ref]]);
+        return response()->json([
+            'message' => 'Payment completion requires administrator review.',
+        ], 403);
     }
 
     /** GET /api/v1/certificates/payments/{ref}/status */
@@ -93,7 +152,6 @@ class CertificateController extends Controller
                     'title'     => $d->{"title_{$lang}"} ?? $d->title_en,
                     'file_name' => $d->file_name,
                     'file_type' => $d->file_type,
-                    'url'       => "/storage/{$d->file_path}",
                 ])->values();
         }
 
@@ -106,6 +164,25 @@ class CertificateController extends Controller
                 'documents'    => $docs,
             ]
         ]);
+    }
+
+    /** Download a paid document after rechecking citizen ownership and status. */
+    public function download(Request $request, $ref, $documentId)
+    {
+        $payment = CertificatePayment::where('reference_no', strtoupper($ref))
+            ->where('citizen_id', $request->user()->id)
+            ->where('status', 'completed')
+            ->firstOrFail();
+
+        $document = CertificateDocument::whereKey($documentId)
+            ->where('certificate_type_id', $payment->certificate_type_id)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $disk = Storage::disk('local')->exists($document->file_path) ? 'local' : 'public';
+        abort_unless(Storage::disk($disk)->exists($document->file_path), 404, 'Document file not found.');
+
+        return Storage::disk($disk)->download($document->file_path, $document->file_name);
     }
 
     /** GET /api/v1/certificates/my-payments — citizen's payment history */
@@ -125,6 +202,7 @@ class CertificateController extends Controller
                 'status'              => $p->status,
                 'paid_at'             => $p->paid_at,
                 'created_at'          => $p->created_at,
+                'application_data'    => $p->application_data,
             ]);
 
         return response()->json(['data' => $payments]);
@@ -151,7 +229,6 @@ class CertificateController extends Controller
                     'title'     => $d->{"title_{$lang}"} ?? $d->title_en,
                     'file_name' => $d->file_name,
                     'file_type' => $d->file_type,
-                    'url'       => "/storage/{$d->file_path}",
                 ])->values();
         }
 
